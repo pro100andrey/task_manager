@@ -20,9 +20,5 @@ sealed class DomainEvent with _$DomainEvent {
     required TaskId taskId,
   }) = TaskReplanned;
 
-  String get entityKey => switch (this) {
-    TaskCreated(:final taskId) => taskId.value,
-    TaskCompleted(:final taskId) => taskId.value,
-    TaskReplanned(:final taskId) => taskId.value,
-  };
+  String get entityKey => taskId.value;
 }
