@@ -1,0 +1,19 @@
+name: tm_core
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: ^3.11.5
+
+# Add regular dependencies here.
+# dependencies:
+  # path: ^1.9.0
+
+dev_dependencies:
+  freezed: ^3.2.5
+  pro_lints: ^5.2.0
+  test: ^1.31.1
+dependencies:
+  build_runner: ^2.15.0
+  freezed_annotation: ^3.1.0
