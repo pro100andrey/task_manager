@@ -14,18 +14,23 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DomainEvent {
 
- Object? get taskId;
+ TaskId get taskId;
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DomainEventCopyWith<DomainEvent> get copyWith => _$DomainEventCopyWithImpl<DomainEvent>(this as DomainEvent, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainEvent&&const DeepCollectionEquality().equals(other.taskId, taskId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainEvent&&(identical(other.taskId, taskId) || other.taskId == taskId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(taskId));
+int get hashCode => Object.hash(runtimeType,taskId);
 
 @override
 String toString() {
@@ -36,8 +41,34 @@ String toString() {
 }
 
 /// @nodoc
-class $DomainEventCopyWith<$Res>  {
-$DomainEventCopyWith(DomainEvent _, $Res Function(DomainEvent) __);
+abstract mixin class $DomainEventCopyWith<$Res>  {
+  factory $DomainEventCopyWith(DomainEvent value, $Res Function(DomainEvent) _then) = _$DomainEventCopyWithImpl;
+@useResult
+$Res call({
+ TaskId taskId
+});
+
+
+
+
+}
+/// @nodoc
+class _$DomainEventCopyWithImpl<$Res>
+    implements $DomainEventCopyWith<$Res> {
+  _$DomainEventCopyWithImpl(this._self, this._then);
+
+  final DomainEvent _self;
+  final $Res Function(DomainEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? taskId = null,}) {
+  return _then(_self.copyWith(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as TaskId,
+  ));
+}
+
 }
 
 
@@ -45,15 +76,15 @@ $DomainEventCopyWith(DomainEvent _, $Res Function(DomainEvent) __);
 /// @nodoc
 
 
-class TaskCreated implements DomainEvent {
-  const TaskCreated({required this.taskId});
+class TaskCreated extends DomainEvent {
+  const TaskCreated({required this.taskId}): super._();
   
 
 @override final  TaskId taskId;
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $TaskCreatedCopyWith<TaskCreated> get copyWith => _$TaskCreatedCopyWithImpl<TaskCreated>(this, _$identity);
 
@@ -79,7 +110,7 @@ String toString() {
 /// @nodoc
 abstract mixin class $TaskCreatedCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
   factory $TaskCreatedCopyWith(TaskCreated value, $Res Function(TaskCreated) _then) = _$TaskCreatedCopyWithImpl;
-@useResult
+@override @useResult
 $Res call({
  TaskId taskId
 });
@@ -98,7 +129,7 @@ class _$TaskCreatedCopyWithImpl<$Res>
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
   return _then(TaskCreated(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as TaskId,
@@ -111,15 +142,15 @@ as TaskId,
 /// @nodoc
 
 
-class TaskCompleted implements DomainEvent {
-  const TaskCompleted({required this.taskId});
+class TaskCompleted extends DomainEvent {
+  const TaskCompleted({required this.taskId}): super._();
   
 
-@override final  String taskId;
+@override final  TaskId taskId;
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $TaskCompletedCopyWith<TaskCompleted> get copyWith => _$TaskCompletedCopyWithImpl<TaskCompleted>(this, _$identity);
 
@@ -145,9 +176,9 @@ String toString() {
 /// @nodoc
 abstract mixin class $TaskCompletedCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
   factory $TaskCompletedCopyWith(TaskCompleted value, $Res Function(TaskCompleted) _then) = _$TaskCompletedCopyWithImpl;
-@useResult
+@override @useResult
 $Res call({
- String taskId
+ TaskId taskId
 });
 
 
@@ -164,10 +195,10 @@ class _$TaskCompletedCopyWithImpl<$Res>
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
   return _then(TaskCompleted(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
-as String,
+as TaskId,
   ));
 }
 
@@ -177,15 +208,15 @@ as String,
 /// @nodoc
 
 
-class TaskReplanned implements DomainEvent {
-  const TaskReplanned({required this.taskId});
+class TaskReplanned extends DomainEvent {
+  const TaskReplanned({required this.taskId}): super._();
   
 
-@override final  String taskId;
+@override final  TaskId taskId;
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $TaskReplannedCopyWith<TaskReplanned> get copyWith => _$TaskReplannedCopyWithImpl<TaskReplanned>(this, _$identity);
 
@@ -211,9 +242,9 @@ String toString() {
 /// @nodoc
 abstract mixin class $TaskReplannedCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
   factory $TaskReplannedCopyWith(TaskReplanned value, $Res Function(TaskReplanned) _then) = _$TaskReplannedCopyWithImpl;
-@useResult
+@override @useResult
 $Res call({
- String taskId
+ TaskId taskId
 });
 
 
@@ -230,10 +261,10 @@ class _$TaskReplannedCopyWithImpl<$Res>
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
   return _then(TaskReplanned(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
-as String,
+as TaskId,
   ));
 }
 

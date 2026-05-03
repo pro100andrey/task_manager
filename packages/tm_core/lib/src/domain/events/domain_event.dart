@@ -5,16 +5,24 @@ import '../value_objects/task_id.dart';
 part 'domain_event.freezed.dart';
 
 @freezed
-abstract class DomainEvent with _$DomainEvent {
+sealed class DomainEvent with _$DomainEvent {
+  const DomainEvent._();
+
   const factory DomainEvent.taskCreated({
     required TaskId taskId,
   }) = TaskCreated;
 
   const factory DomainEvent.taskCompleted({
-    required String taskId,
+    required TaskId taskId,
   }) = TaskCompleted;
 
   const factory DomainEvent.taskReplanned({
-    required String taskId,
+    required TaskId taskId,
   }) = TaskReplanned;
+
+  String get entityKey => switch (this) {
+    TaskCreated(:final taskId) => taskId.value,
+    TaskCompleted(:final taskId) => taskId.value,
+    TaskReplanned(:final taskId) => taskId.value,
+  };
 }
