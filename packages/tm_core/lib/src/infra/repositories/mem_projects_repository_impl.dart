@@ -43,6 +43,7 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
     if (_currentProjectId == null) {
       return null;
     }
+
     return _storage[_currentProjectId!];
   }
 
@@ -53,6 +54,7 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
       throw ProjectNotFound(id.value);
     }
     _currentProjectId = id;
+
     return project;
   }
 }
