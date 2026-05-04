@@ -1,8 +1,11 @@
 import 'package:test/test.dart';
+import 'package:tm_core/src/adapters/behaviors/tracing_behavior.dart';
+import 'package:tm_core/src/adapters/behaviors/transaction_behavior.dart';
 import 'package:tm_core/src/adapters/events/domain_event_bus_impl.dart';
 import 'package:tm_core/src/adapters/repositories/mem_projects_repository_impl.dart';
 import 'package:tm_core/src/adapters/tracing/logging_tracing_port_impl.dart';
 import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dart';
+import 'package:tm_core/src/application/operations/operation_pipeline.dart';
 import 'package:tm_core/src/application/operations/project/project_create_command.dart';
 import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
 import 'package:tm_core/src/domain/entities/project.dart';
@@ -17,12 +20,11 @@ void main() {
   setUp(() {
     bus = DomainEventBusImpl();
     repo = MemProjectsRepositoryImpl();
-    op = ProjectCreateOperation(
-      NoOpTransactionPortImpl(),
-      repo,
-      bus,
-      LoggingTracingPortImpl(),
-    );
+    final pipeline = OperationPipeline([
+      TracingBehavior(LoggingTracingPortImpl()),
+      TransactionBehavior(NoOpTransactionPortImpl()),
+    ]);
+    op = ProjectCreateOperation(pipeline, repo, bus);
   });
 
   tearDown(() => bus.dispose());

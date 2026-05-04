@@ -1,8 +1,23 @@
 import '../../domain/result.dart';
+import 'operation_context.dart';
+import 'operation_pipeline.dart';
 
-// Intentional single-method interface: Operation is a named architectural
-// contract, not a top-level function.
-// ignore: one_member_abstracts
 abstract class Operation<C, S, F> {
-  Future<Result<S, F>> execute(C command);
+  Operation(OperationPipeline pipeline) : _pipeline = pipeline;
+
+  final OperationPipeline _pipeline;
+
+  String get operationName;
+
+  Map<String, dynamic> traceAttributes(C command) => const {};
+
+  Future<Result<S, F>> execute(C command) => _pipeline.run(
+    OperationContext(
+      name: operationName,
+      attributes: traceAttributes(command),
+    ),
+    () => handle(command),
+  );
+
+  Future<Result<S, F>> handle(C command);
 }

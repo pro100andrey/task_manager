@@ -6,55 +6,54 @@ import '../../../domain/value_objects/project/project_description.dart';
 import '../../../domain/value_objects/value_objects.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
-import '../../ports/tracing_port.dart';
-import '../../ports/transaction_port.dart';
 import '../operation.dart';
 import 'project_create_command.dart';
 
 class ProjectCreateOperation
     extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
   ProjectCreateOperation(
-    this._transaction,
+    super.pipeline,
     this._repository,
     this._bus,
-    this._tracing,
   );
 
-  final TransactionPort _transaction;
   final ProjectRepository _repository;
   final DomainEventBus _bus;
-  final TracingPort _tracing;
 
   @override
-  Future<Result<Project, ProjectNameAlreadyExists>> execute(
+  String get operationName => 'ProjectCreateOperation';
+
+  @override
+  Map<String, dynamic> traceAttributes(ProjectCreateCommand command) => {
+    'name': command.name,
+  };
+
+  @override
+  Future<Result<Project, ProjectNameAlreadyExists>> handle(
     ProjectCreateCommand command,
-  ) => _tracing.trace(
-    'ProjectCreateOperation',
-    attributes: {'name': command.name},
-    () => _transaction.run(() async {
-      final projectName = ProjectName(command.name);
-      final ref = ProjectRef.name(projectName);
-      final existing = await _repository.getByRef(ref);
+  ) async {
+    final projectName = ProjectName(command.name);
+    final ref = ProjectRef.name(projectName);
+    final existing = await _repository.getByRef(ref);
 
-      if (existing != null) {
-        return Failure(ProjectNameAlreadyExists(command.name));
-      }
+    if (existing != null) {
+      return Failure(ProjectNameAlreadyExists(command.name));
+    }
 
-      final id = ProjectId.generate();
-      final desc = command.description != null
-          ? ProjectDescription(command.description!)
-          : null;
+    final id = ProjectId.generate();
+    final desc = command.description != null
+        ? ProjectDescription(command.description!)
+        : null;
 
-      final project = Project(
-        id: id,
-        name: projectName,
-        description: desc,
-      );
+    final project = Project(
+      id: id,
+      name: projectName,
+      description: desc,
+    );
 
-      final saved = await _repository.save(project);
-      await _bus.publish(ProjectCreatedEvent(project: saved));
+    final saved = await _repository.save(project);
+    await _bus.publish(ProjectCreatedEvent(project: saved));
 
-      return Success(saved);
-    }),
-  );
+    return Success(saved);
+  }
 }

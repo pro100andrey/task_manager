@@ -16,6 +16,7 @@ import '../adapters/events/ordered_domain_event_bus_impl.dart' as _i1027;
 import '../adapters/repositories/mem_projects_repository_impl.dart' as _i949;
 import '../adapters/tracing/logging_tracing_port_impl.dart' as _i629;
 import '../adapters/transaction/no_op_transaction_port_impl.dart' as _i1016;
+import '../application/operations/operation_pipeline.dart' as _i840;
 import '../application/operations/project/project_create_operation.dart'
     as _i797;
 import '../application/ports/domain_event_bus.dart' as _i512;
@@ -44,6 +45,12 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
   gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
+  gh.lazySingleton<_i840.OperationPipeline>(
+    () => coreModule.operationPipeline(
+      gh<_i969.TracingPort>(),
+      gh<_i1007.TransactionPort>(),
+    ),
+  );
   gh.lazySingleton<_i797.ProjectCreateOperation>(
     () => applicationModule.projectCreateOperation,
   );
@@ -82,10 +89,9 @@ class _$ApplicationModule extends _i705.ApplicationModule {
   @override
   _i797.ProjectCreateOperation get projectCreateOperation =>
       _i797.ProjectCreateOperation(
-        _getIt<_i1007.TransactionPort>(),
+        _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
         _getIt<_i512.DomainEventBus>(),
-        _getIt<_i969.TracingPort>(),
       );
 
   @override
