@@ -1,9 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../enums/task_status.dart';
-import '../value_objects/task_description.dart';
-import '../value_objects/task_id.dart';
-import '../value_objects/task_title.dart';
+import '../value_objects/task/task_description.dart';
+import '../value_objects/task/task_id.dart';
+import '../value_objects/task/task_title.dart';
 
 part 'task.freezed.dart';
 

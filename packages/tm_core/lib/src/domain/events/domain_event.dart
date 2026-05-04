@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../value_objects/task_id.dart';
+import '../value_objects/task/task_id.dart';
 
 part 'domain_event.freezed.dart';
 
