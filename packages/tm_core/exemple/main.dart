@@ -6,8 +6,6 @@ import 'package:tm_core/src/operations/project/project_create_operation.dart';
 
 final getIt = GetIt.instance;
 Future<void> main() async {
-  stdout.writeln('Hello world!');
-
   await setupDependencies();
 
   final createOp = getIt<ProjectCreateOperation>();

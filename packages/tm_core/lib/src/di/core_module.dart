@@ -7,6 +7,7 @@ import '../application/ports/transaction_port.dart';
 import '../application/repositories/project_repository.dart';
 import '../infra/events/ordered_domain_bus_impl.dart';
 import '../infra/repositories/mem_projects_repository_impl.dart';
+import '../infra/tracing/logging_tracing_port.dart';
 
 @module
 abstract class CoreModule {
@@ -20,12 +21,5 @@ abstract class CoreModule {
   OrderedDomainEventBusImpl get domainEventBus;
 
   @LazySingleton(as: TracingPort)
-  TracingPort get tracingPort;
+  LoggingTracingPort get tracingPort;
 }
-
-
-
-  // final TransactionPort _transaction;
-  // final ProjectRepository _repository;
-  // final DomainEventBus _bus;
-  // final TracingPort _tracing;

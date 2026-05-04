@@ -23,6 +23,7 @@ class ProjectCreateOperation {
 
   Future<Object> execute(String name, {String? description}) => _tracing.trace(
     'ProjectCreateOperation',
+    attributes: {'name': name},
     () => _transaction.run(() async {
       final projectName = ProjectName(name);
       final ref = ProjectRef.name(projectName);
