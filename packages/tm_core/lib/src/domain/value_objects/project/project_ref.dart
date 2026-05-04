@@ -33,16 +33,6 @@ sealed class ProjectRef {
     _ => null,
   };
 
-  ProjectId get id => switch (this) {
-    _ProjectIdRef(:final id) => id,
-    _ => throw StateError('Not a Project ID reference'),
-  };
-
-  ProjectName get name => switch (this) {
-    _ProjectNameRef(:final name) => name,
-    _ => throw StateError('Not a Project Name reference'),
-  };
-
   String get value => switch (this) {
     _ProjectIdRef(:final id) => id.value,
     _ProjectNameRef(:final name) => name.value,
@@ -51,12 +41,12 @@ sealed class ProjectRef {
 
 class _ProjectIdRef extends ProjectRef {
   const _ProjectIdRef(this.id);
-  @override
+
   final ProjectId id;
 }
 
 class _ProjectNameRef extends ProjectRef {
   const _ProjectNameRef(this.name);
-  @override
+
   final ProjectName name;
 }
