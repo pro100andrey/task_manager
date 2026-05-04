@@ -1,3 +1,5 @@
+export 'src/application/operations/operation.dart';
+export 'src/application/operations/project/project_create_command.dart';
 export 'src/application/operations/project/project_create_operation.dart';
 export 'src/application/queries/project/get_all_projects_query.dart';
 export 'src/application/queries/project/get_current_project_query.dart';

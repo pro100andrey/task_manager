@@ -8,8 +8,11 @@ import '../../ports/domain_event_bus.dart';
 import '../../ports/tracing_port.dart';
 import '../../ports/transaction_port.dart';
 import '../../repositories/project_repository.dart';
+import '../operation.dart';
+import 'project_create_command.dart';
 
-class ProjectCreateOperation {
+class ProjectCreateOperation
+    extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
   ProjectCreateOperation(
     this._transaction,
     this._repository,
@@ -22,23 +25,25 @@ class ProjectCreateOperation {
   final DomainEventBus _bus;
   final TracingPort _tracing;
 
+  @override
   Future<Result<Project, ProjectNameAlreadyExists>> execute(
-    String name, {
-    String? description,
-  }) => _tracing.trace(
+    ProjectCreateCommand command,
+  ) => _tracing.trace(
     'ProjectCreateOperation',
-    attributes: {'name': name},
+    attributes: {'name': command.name},
     () => _transaction.run(() async {
-      final projectName = ProjectName(name);
+      final projectName = ProjectName(command.name);
       final ref = ProjectRef.name(projectName);
       final existing = await _repository.getByRef(ref);
 
       if (existing != null) {
-        return Failure(ProjectNameAlreadyExists(name));
+        return Failure(ProjectNameAlreadyExists(command.name));
       }
 
       final id = ProjectId.generate();
-      final desc = description != null ? ProjectDescription(description) : null;
+      final desc = command.description != null
+          ? ProjectDescription(command.description!)
+          : null;
 
       final project = Project(
         id: id,
@@ -47,8 +52,7 @@ class ProjectCreateOperation {
       );
 
       final saved = await _repository.save(project);
-      final event = ProjectCreatedEvent(project: saved);
-      await _bus.publish(event);
+      await _bus.publish(ProjectCreatedEvent(project: saved));
 
       return Success(saved);
     }),

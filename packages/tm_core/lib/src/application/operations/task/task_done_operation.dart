@@ -1,7 +1,6 @@
-import '../operation.dart';
-
-final class TaskDoneOperation extends Operation {
-  TaskDoneOperation(this.taskId);
+// TODO(dev): implement as Operation<TaskDoneCommand, Task, TaskException>
+class TaskDoneOperation {
+  const TaskDoneOperation(this.taskId);
 
   final String taskId;
 }
