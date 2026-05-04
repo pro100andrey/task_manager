@@ -22,6 +22,13 @@ sealed class ProjectRef {
 
   // Helper getters to check the type of reference.
   bool get isName => this is _ProjectNameRef;
+
+  /// A common method to get the raw value of the reference, whether it's an ID
+  /// or a name.
+  String get value => switch (this) {
+    _ProjectIdRef(:final id) => id.raw,
+    _ProjectNameRef(:final name) => name.raw,
+  };
 }
 
 class _ProjectIdRef extends ProjectRef {

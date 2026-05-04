@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../entities/project.dart';
 import '../value_objects/task/task_id.dart';
 
 part 'domain_event.freezed.dart';
@@ -8,17 +9,19 @@ part 'domain_event.freezed.dart';
 sealed class DomainEvent with _$DomainEvent {
   const DomainEvent._();
 
+  const factory DomainEvent.projectCreated({
+    required Project project,
+  }) = ProjectCreatedEvent;
+
   const factory DomainEvent.taskCreated({
     required TaskId taskId,
-  }) = TaskCreated;
+  }) = TaskCreatedEvent;
 
   const factory DomainEvent.taskCompleted({
     required TaskId taskId,
-  }) = TaskCompleted;
+  }) = TaskCompletedEvent;
 
   const factory DomainEvent.taskReplanned({
     required TaskId taskId,
-  }) = TaskReplanned;
-
-  String get entityKey => taskId.value;
+  }) = TaskReplannedEvent;
 }
