@@ -1,3 +1,4 @@
+export 'src/adapters/tracing/tracing_logging_config.dart';
 export 'src/application/operations/operation.dart';
 export 'src/application/operations/operation_behavior.dart';
 export 'src/application/operations/operation_context.dart';

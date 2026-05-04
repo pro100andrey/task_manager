@@ -2,24 +2,33 @@
 import 'package:logging/logging.dart';
 
 import '../../application/ports/tracing_port.dart';
+import 'tracing_logging_config.dart';
 
 class LoggingTracingPortImpl implements TracingPort {
-  static final _logger = Logger('TM.Core');
+  LoggingTracingPortImpl({TracingLoggingConfig? config})
+    : _config = config ?? const TracingLoggingConfig(),
+      _logger = Logger((config ?? const TracingLoggingConfig()).loggerName);
+
+  final TracingLoggingConfig _config;
+  final Logger _logger;
 
   @override
   Future<T> trace<T>(
     String operationName,
     Future<T> Function() action, {
     Map<String, dynamic>? attributes,
-    Level level = Level.INFO,
   }) async {
+    if (!_config.enabled) {
+      return action();
+    }
+
     final stopwatch = Stopwatch()..start();
 
     final startMessage = '→ $operationName started';
     if (attributes != null && attributes.isNotEmpty) {
-      _logger.log(level, '$startMessage $attributes');
+      _logger.log(_config.startLevel, '$startMessage $attributes');
     } else {
-      _logger.log(level, startMessage);
+      _logger.log(_config.startLevel, startMessage);
     }
 
     try {
@@ -27,20 +36,25 @@ class LoggingTracingPortImpl implements TracingPort {
       stopwatch.stop();
 
       final duration = stopwatch.elapsedMilliseconds;
-      _logger.fine('✓ $operationName completed in ${duration}ms');
+      _logger.log(
+        _config.successLevel,
+        '✓ $operationName completed in ${duration}ms',
+      );
       return result;
     } catch (error, stackTrace) {
       stopwatch.stop();
       final duration = stopwatch.elapsedMilliseconds;
 
       _logger.log(
-        Level.SEVERE,
+        _config.errorLevel,
         '✗ $operationName failed after ${duration}ms',
         error,
-        stackTrace,
+        _config.includeStackTrace ? stackTrace : null,
       );
 
-      if (attributes != null && attributes.isNotEmpty) {
+      if (_config.logAttributesOnError &&
+          attributes != null &&
+          attributes.isNotEmpty) {
         _logger.severe('  Attributes: $attributes');
       }
 
@@ -53,31 +67,35 @@ class LoggingTracingPortImpl implements TracingPort {
     String operationName,
     T Function() action, {
     Map<String, dynamic>? attributes,
-    Level level = Level.INFO,
   }) {
+    if (!_config.enabled) {
+      return action();
+    }
+
     final stopwatch = Stopwatch()..start();
 
     final startMessage = '→ $operationName started (sync)';
     if (attributes != null && attributes.isNotEmpty) {
-      _logger.log(level, '$startMessage $attributes');
+      _logger.log(_config.startLevel, '$startMessage $attributes');
     } else {
-      _logger.log(level, startMessage);
+      _logger.log(_config.startLevel, startMessage);
     }
 
     try {
       final result = action();
       stopwatch.stop();
-      _logger.fine(
+      _logger.log(
+        _config.successLevel,
         '✓ $operationName completed in ${stopwatch.elapsedMilliseconds}ms',
       );
       return result;
     } catch (error, stackTrace) {
       stopwatch.stop();
       _logger.log(
-        Level.SEVERE,
+        _config.errorLevel,
         '✗ $operationName failed after ${stopwatch.elapsedMilliseconds}ms',
         error,
-        stackTrace,
+        _config.includeStackTrace ? stackTrace : null,
       );
       rethrow;
     }
