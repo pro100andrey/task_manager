@@ -16,6 +16,7 @@ import 'package:tm_core/src/application/operations/project/project_rename_operat
 import 'package:tm_core/src/application/operations/project/project_update_command.dart';
 import 'package:tm_core/src/application/operations/project/project_update_operation.dart';
 import 'package:tm_core/src/domain/entities/project.dart';
+import 'package:tm_core/src/domain/events/domain_event.dart';
 import 'package:tm_core/src/domain/exceptions/project_exceptions.dart';
 import 'package:tm_core/src/domain/result.dart';
 
@@ -36,8 +37,12 @@ void main() {
     bus = DomainEventBusImpl();
     repo = MemProjectsRepositoryImpl();
     createOp = ProjectCreateOperation(pipeline, repo, bus);
-    renameOp = ProjectRenameOperation(pipeline, repo);
-    changeDescriptionOp = ProjectChangeDescriptionOperation(pipeline, repo);
+    renameOp = ProjectRenameOperation(pipeline, repo, bus);
+    changeDescriptionOp = ProjectChangeDescriptionOperation(
+      pipeline,
+      repo,
+      bus,
+    );
     updateOp = ProjectUpdateOperation(
       pipeline,
       repo,
@@ -50,6 +55,9 @@ void main() {
 
   group('Project mutation operations', () {
     test('ProjectRenameOperation renames project', () async {
+      final events = <Object>[];
+      bus.listen<Object>(events.add);
+
       final created = await createOp.execute(
         const ProjectCreateCommand(name: 'Alpha', description: 'v1'),
       );
@@ -65,6 +73,7 @@ void main() {
       final renamed =
           (result as Success<Project, ProjectMutationFailure>).value;
       expect(renamed.name.raw, 'Beta');
+      expect(events.whereType<ProjectRenamedEvent>(), hasLength(1));
     });
 
     test('ProjectRenameOperation fails on duplicate name', () async {
@@ -87,6 +96,9 @@ void main() {
     });
 
     test('ProjectChangeDescriptionOperation updates description', () async {
+      final events = <Object>[];
+      bus.listen<Object>(events.add);
+
       final created = await createOp.execute(
         const ProjectCreateCommand(name: 'Alpha'),
       );
@@ -105,6 +117,7 @@ void main() {
       final updated =
           (result as Success<Project, ProjectMutationFailure>).value;
       expect(updated.description?.raw, 'Detailed text');
+      expect(events.whereType<ProjectDescriptionChangedEvent>(), hasLength(1));
     });
 
     test('ProjectUpdateOperation changes both name and description', () async {

@@ -13,6 +13,14 @@ sealed class DomainEvent with _$DomainEvent {
     required Project project,
   }) = ProjectCreatedEvent;
 
+  const factory DomainEvent.projectRenamed({
+    required Project project,
+  }) = ProjectRenamedEvent;
+
+  const factory DomainEvent.projectDescriptionChanged({
+    required Project project,
+  }) = ProjectDescriptionChangedEvent;
+
   const factory DomainEvent.taskCreated({
     required TaskId taskId,
   }) = TaskCreatedEvent;

@@ -120,6 +120,156 @@ $ProjectCopyWith<$Res> get project {
 /// @nodoc
 
 
+class ProjectRenamedEvent extends DomainEvent {
+  const ProjectRenamedEvent({required this.project}): super._();
+  
+
+ final  Project project;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProjectRenamedEventCopyWith<ProjectRenamedEvent> get copyWith => _$ProjectRenamedEventCopyWithImpl<ProjectRenamedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectRenamedEvent&&(identical(other.project, project) || other.project == project));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,project);
+
+@override
+String toString() {
+  return 'DomainEvent.projectRenamed(project: $project)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProjectRenamedEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $ProjectRenamedEventCopyWith(ProjectRenamedEvent value, $Res Function(ProjectRenamedEvent) _then) = _$ProjectRenamedEventCopyWithImpl;
+@useResult
+$Res call({
+ Project project
+});
+
+
+$ProjectCopyWith<$Res> get project;
+
+}
+/// @nodoc
+class _$ProjectRenamedEventCopyWithImpl<$Res>
+    implements $ProjectRenamedEventCopyWith<$Res> {
+  _$ProjectRenamedEventCopyWithImpl(this._self, this._then);
+
+  final ProjectRenamedEvent _self;
+  final $Res Function(ProjectRenamedEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? project = null,}) {
+  return _then(ProjectRenamedEvent(
+project: null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
+as Project,
+  ));
+}
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProjectCopyWith<$Res> get project {
+  
+  return $ProjectCopyWith<$Res>(_self.project, (value) {
+    return _then(_self.copyWith(project: value));
+  });
+}
+}
+
+/// @nodoc
+
+
+class ProjectDescriptionChangedEvent extends DomainEvent {
+  const ProjectDescriptionChangedEvent({required this.project}): super._();
+  
+
+ final  Project project;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProjectDescriptionChangedEventCopyWith<ProjectDescriptionChangedEvent> get copyWith => _$ProjectDescriptionChangedEventCopyWithImpl<ProjectDescriptionChangedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProjectDescriptionChangedEvent&&(identical(other.project, project) || other.project == project));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,project);
+
+@override
+String toString() {
+  return 'DomainEvent.projectDescriptionChanged(project: $project)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProjectDescriptionChangedEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $ProjectDescriptionChangedEventCopyWith(ProjectDescriptionChangedEvent value, $Res Function(ProjectDescriptionChangedEvent) _then) = _$ProjectDescriptionChangedEventCopyWithImpl;
+@useResult
+$Res call({
+ Project project
+});
+
+
+$ProjectCopyWith<$Res> get project;
+
+}
+/// @nodoc
+class _$ProjectDescriptionChangedEventCopyWithImpl<$Res>
+    implements $ProjectDescriptionChangedEventCopyWith<$Res> {
+  _$ProjectDescriptionChangedEventCopyWithImpl(this._self, this._then);
+
+  final ProjectDescriptionChangedEvent _self;
+  final $Res Function(ProjectDescriptionChangedEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? project = null,}) {
+  return _then(ProjectDescriptionChangedEvent(
+project: null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
+as Project,
+  ));
+}
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProjectCopyWith<$Res> get project {
+  
+  return $ProjectCopyWith<$Res>(_self.project, (value) {
+    return _then(_self.copyWith(project: value));
+  });
+}
+}
+
+/// @nodoc
+
+
 class TaskCreatedEvent extends DomainEvent {
   const TaskCreatedEvent({required this.taskId}): super._();
   

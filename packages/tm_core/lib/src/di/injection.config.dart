@@ -60,17 +60,17 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i797.ProjectCreateOperation>(
     () => applicationModule.projectCreateOperation,
   );
-  gh.lazySingleton<_i775.GetCurrentProjectQuery>(
-    () => applicationModule.getCurrentProjectQuery,
-  );
-  gh.lazySingleton<_i676.GetAllProjectsQuery>(
-    () => applicationModule.getAllProjectsQuery,
-  );
   gh.lazySingleton<_i480.ProjectRenameOperation>(
     () => applicationModule.projectRenameOperation,
   );
   gh.lazySingleton<_i789.ProjectChangeDescriptionOperation>(
     () => applicationModule.projectChangeDescriptionOperation,
+  );
+  gh.lazySingleton<_i775.GetCurrentProjectQuery>(
+    () => applicationModule.getCurrentProjectQuery,
+  );
+  gh.lazySingleton<_i676.GetAllProjectsQuery>(
+    () => applicationModule.getAllProjectsQuery,
   );
   gh.lazySingleton<_i406.ProjectUpdateOperation>(
     () => applicationModule.projectUpdateOperation,
@@ -110,18 +110,11 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       );
 
   @override
-  _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
-      _i775.GetCurrentProjectQuery(_getIt<_i102.ProjectRepository>());
-
-  @override
-  _i676.GetAllProjectsQuery get getAllProjectsQuery =>
-      _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
-
-  @override
   _i480.ProjectRenameOperation get projectRenameOperation =>
       _i480.ProjectRenameOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
       );
 
   @override
@@ -130,7 +123,16 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i789.ProjectChangeDescriptionOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
       );
+
+  @override
+  _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
+      _i775.GetCurrentProjectQuery(_getIt<_i102.ProjectRepository>());
+
+  @override
+  _i676.GetAllProjectsQuery get getAllProjectsQuery =>
+      _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
 
   @override
   _i406.ProjectUpdateOperation get projectUpdateOperation =>

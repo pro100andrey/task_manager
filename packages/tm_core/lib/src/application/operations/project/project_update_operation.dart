@@ -33,8 +33,8 @@ class ProjectUpdateOperation extends ProjectUpdateOperationBase {
   @override
   Map<String, dynamic> traceAttributes(ProjectUpdateCommand command) => {
     'projectId': command.projectId,
-    'nameChanged': ?command.name,
-    'descriptionChanged': ?command.description,
+    'nameChanged': command.name != null,
+    'descriptionChanged': command.description != null,
   };
 
   @override

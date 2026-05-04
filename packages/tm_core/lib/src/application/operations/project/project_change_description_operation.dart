@@ -1,7 +1,9 @@
 import '../../../domain/entities/project.dart';
+import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
 import '../../../domain/value_objects/project/project_description.dart';
 import '../../../domain/value_objects/project/project_id.dart';
+import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
 import 'project_change_description_command.dart';
@@ -22,9 +24,11 @@ class ProjectChangeDescriptionOperation
   ProjectChangeDescriptionOperation(
     super.pipeline,
     this._repository,
+    this._bus,
   );
 
   final ProjectRepository _repository;
+  final DomainEventBus _bus;
 
   @override
   String get operationName => 'ProjectChangeDescriptionOperation';
@@ -59,6 +63,7 @@ class ProjectChangeDescriptionOperation
     final saved = await _repository.save(
       current.copyWith(description: description),
     );
+    await _bus.publish(DomainEvent.projectDescriptionChanged(project: saved));
 
     return Success(saved);
   }

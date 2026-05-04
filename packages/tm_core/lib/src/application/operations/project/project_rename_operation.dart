@@ -1,6 +1,8 @@
 import '../../../domain/entities/project.dart';
+import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
 import '../../../domain/value_objects/value_objects.dart';
+import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
 import 'project_mutation_failure.dart';
@@ -15,9 +17,11 @@ class ProjectRenameOperation extends ProjectRenameOperationBase {
   ProjectRenameOperation(
     super.pipeline,
     this._repository,
+    this._bus,
   );
 
   final ProjectRepository _repository;
+  final DomainEventBus _bus;
 
   @override
   String get operationName => 'ProjectRenameOperation';
@@ -50,6 +54,7 @@ class ProjectRenameOperation extends ProjectRenameOperationBase {
     }
 
     final saved = await _repository.save(current.copyWith(name: newName));
+    await _bus.publish(DomainEvent.projectRenamed(project: saved));
     return Success(saved);
   }
 }
