@@ -7,4 +7,6 @@ extension type TaskTitle._(String value) {
 
     return TaskTitle._(value);
   }
+
+  String get raw => value;
 }

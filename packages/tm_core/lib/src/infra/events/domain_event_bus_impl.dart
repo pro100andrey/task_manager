@@ -8,7 +8,7 @@ class DomainEventBusImpl implements DomainEventBus {
   final _subscriptions = <StreamSubscription>[];
 
   @override
-  void publish(Object event) {
+  Future<void> publish(Object event) async {
     if (_eventController.isClosed) {
       return;
     }
@@ -20,8 +20,19 @@ class DomainEventBusImpl implements DomainEventBus {
       _eventController.stream.where((event) => event is T).cast<T>();
 
   /// Подписка с автоматической отпиской (удобно для UI/TUI)
-  StreamSubscription<T> listen<T>(void Function(T event) onEvent) {
-    final subscription = on<T>().listen(onEvent);
+  @override
+  StreamSubscription<T> listen<T>(
+    void Function(T event) onEvent, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    final subscription = on<T>().listen(
+      onEvent,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
     _subscriptions.add(subscription);
     return subscription;
   }

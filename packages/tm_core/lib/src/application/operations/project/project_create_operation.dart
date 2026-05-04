@@ -1,12 +1,13 @@
-import '../../application/ports/domain_event_bus.dart';
-import '../../application/ports/tracing_port.dart';
-import '../../application/ports/transaction_port.dart';
-import '../../application/repositories/project_repository.dart';
-import '../../domain/entities/project.dart';
-import '../../domain/events/domain_event.dart';
-import '../../domain/value_objects/project/project_description.dart';
-import '../../domain/value_objects/value_objects.dart';
-import '../../exceptions/project_exceptions.dart';
+import '../../../domain/entities/project.dart';
+import '../../../domain/events/domain_event.dart';
+import '../../../domain/exceptions/project_exceptions.dart';
+import '../../../domain/results/result.dart';
+import '../../../domain/value_objects/project/project_description.dart';
+import '../../../domain/value_objects/value_objects.dart';
+import '../../ports/domain_event_bus.dart';
+import '../../ports/tracing_port.dart';
+import '../../ports/transaction_port.dart';
+import '../../repositories/project_repository.dart';
 
 class ProjectCreateOperation {
   ProjectCreateOperation(
@@ -21,7 +22,10 @@ class ProjectCreateOperation {
   final DomainEventBus _bus;
   final TracingPort _tracing;
 
-  Future<Object> execute(String name, {String? description}) => _tracing.trace(
+  Future<Result<Project, ProjectNameAlreadyExists>> execute(
+    String name, {
+    String? description,
+  }) => _tracing.trace(
     'ProjectCreateOperation',
     attributes: {'name': name},
     () => _transaction.run(() async {
@@ -30,7 +34,7 @@ class ProjectCreateOperation {
       final existing = await _repository.getByRef(ref);
 
       if (existing != null) {
-        return ProjectNameAlreadyExists(name);
+        return Failure(ProjectNameAlreadyExists(name));
       }
 
       final id = ProjectId.generate();
@@ -44,9 +48,9 @@ class ProjectCreateOperation {
 
       final saved = await _repository.save(project);
       final event = ProjectCreatedEvent(project: saved);
-      _bus.publish(event);
+      await _bus.publish(event);
 
-      return saved;
+      return Success(saved);
     }),
   );
 }

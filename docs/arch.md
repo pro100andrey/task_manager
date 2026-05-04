@@ -10,7 +10,7 @@
 
 **`tm_core`** — это **чистое ядро** системы TM HTM, полностью независимое от инфраструктуры (БД, CLI, TUI, MCP).
 
-Пакет реализует всю бизнес-логику системы согласно спецификации TM HTM v3.3-final, придерживаясь принципов **Clean Architecture**, **Domain-Driven Design** (DDD) и **Event-Driven Architecture**.
+Пакет реализует всю бизнес-логику системы согласно спецификации TM HTM v3.3-final, придерживаясь принципов **Clean Architecture**, **Domain-Driven Design** (DDD) и **Event-Driven Architecture**. (see spec.md for detailed requirements)
 
 ### Основные цели `tm_core`
 
@@ -63,6 +63,7 @@ tm_core/
 - `TaskRef`, `NormalizedAlias`, `BusinessValue`, `UrgencyScore`
 - `EffectivePriority`, `StalenessScore`, `PlanVersion`
 - `CompletionPolicy`, `ContextState`, `TaskStatus`
+- extension type или sealed classes
 - Каждый Value Object содержит:
   - Валидацию (в конструкторе или factory)
   - Бизнес-правила (например, Hard Cap логику)
@@ -238,11 +239,11 @@ abstract class CoreModule {
   DomainEventBus get eventBus => DomainEventBusImpl();
 
   @lazySingleton
-  GuardrailService guardrailService(...) => ...;
+  GuardrailService get guardrailService;
   
   // Operations
   @lazySingleton
-  TaskReplanOperation taskReplanOperation(...);
+  TaskReplanOperation get taskReplanOperation;
 }
 ```
 
@@ -284,8 +285,6 @@ export 'src/tm_core.dart'; // основной фасад
 **Зависимости (pubspec.yaml):**
 
 - `freezed`, `json_annotation`
-- `fpdart` или `result_type`
-- `event_bus` / собственный Stream-based
 - `uuid`, `time`, `collection`
 
 ---

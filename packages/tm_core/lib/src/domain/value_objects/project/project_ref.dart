@@ -23,6 +23,16 @@ sealed class ProjectRef {
   // Helper getters to check the type of reference.
   bool get isName => this is _ProjectNameRef;
 
+  ProjectId? get maybeId => switch (this) {
+    _ProjectIdRef(:final id) => id,
+    _ => null,
+  };
+
+  ProjectName? get maybeName => switch (this) {
+    _ProjectNameRef(:final name) => name,
+    _ => null,
+  };
+
   ProjectId get id => switch (this) {
     _ProjectIdRef(:final id) => id,
     _ => throw StateError('Not a Project ID reference'),

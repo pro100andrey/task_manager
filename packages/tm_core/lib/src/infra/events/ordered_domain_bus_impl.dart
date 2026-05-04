@@ -13,13 +13,13 @@ class OrderedDomainEventBusImpl implements DomainEventBus {
   final _subscriptions = <StreamSubscription>[];
 
   @override
-  void publish(Object event) {
+  Future<void> publish(Object event) async {
     if (_eventController.isClosed) {
       return;
     }
 
     _eventQueue.addLast(event);
-    unawaited(_processQueue());
+    await _processQueue();
   }
 
   Future<void> _processQueue() async {
@@ -44,6 +44,7 @@ class OrderedDomainEventBusImpl implements DomainEventBus {
       _eventController.stream.where((event) => event is T).cast<T>();
 
   /// Удобный метод для подписки
+  @override
   StreamSubscription<T> listen<T>(
     void Function(T event) onEvent, {
     Function? onError,

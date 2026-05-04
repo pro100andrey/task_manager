@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
+import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
 import 'package:tm_core/src/di/injection.dart';
-import 'package:tm_core/src/operations/project/project_create_operation.dart';
+import 'package:tm_core/src/domain/results/result.dart';
 
 final getIt = GetIt.instance;
 Future<void> main() async {
@@ -14,10 +15,11 @@ Future<void> main() async {
     description: 'This is a sample project',
   );
 
-  if (result is Exception) {
-    stdout.writeln('Failed to create project: $result');
-  } else {
-    stdout.writeln('Project created successfully: $result');
+  switch (result) {
+    case Success(:final value):
+      stdout.writeln('Project created successfully: $value');
+    case Failure(:final error):
+      stdout.writeln('Failed to create project: $error');
   }
 }
 

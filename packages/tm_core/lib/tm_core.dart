@@ -1,4 +1,10 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
-library;
+export 'src/application/operations/project/project_create_operation.dart';
+export 'src/application/queries/project/get_all_projects_query.dart';
+export 'src/application/queries/project/get_current_project_query.dart';
+export 'src/di/injection.dart';
+export 'src/domain/entities/project.dart';
+export 'src/domain/entities/task.dart';
+export 'src/domain/events/domain_event.dart';
+export 'src/domain/exceptions/project_exceptions.dart';
+export 'src/domain/results/result.dart';
+export 'src/domain/value_objects/value_objects.dart';

@@ -1,6 +1,6 @@
 // get_current_project_query.dart
-import '../../../application/repositories/project_repository.dart';
-import '../../entities/project.dart';
+import '../../../domain/entities/project.dart';
+import '../../repositories/project_repository.dart';
 
 class GetAllProjectsQuery {
   GetAllProjectsQuery(this._repo);
