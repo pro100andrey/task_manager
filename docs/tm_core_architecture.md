@@ -154,21 +154,38 @@ final class Failure<T, E> extends Result<T, E> { final E error; }
 
 #### `operations/`
 
-Мутирующие use cases. Базовый контракт:
+Мутирующие use cases. Каждая операция реализует только бизнес-логику в методе `handle()`. Сквозные concerns (трейсинг, транзакция) автоматически применяются через `OperationPipeline`.
+
+Базовый контракт:
 
 ```dart
 abstract class Operation<C, S, F> {
+  Operation(OperationPipeline pipeline);
+
+  String get operationName;
+  Map<String, dynamic> traceAttributes(C command) => const {};
+
+  // final — делегирует в pipeline
   Future<Result<S, F>> execute(C command);
+
+  // переопределяется в подклассах
+  Future<Result<S, F>> handle(C command);
 }
 ```
 
 Каждая операция:
 
 1. Принимает типизированный **command** объект.
-2. Выполняется внутри `TransactionPort.run()`.
-3. Оборачивается в `TracingPort.trace()`.
-4. Возвращает `Result<S, F>` — никогда не бросает ожидаемых ошибок.
-5. Публикует `DomainEvent` после успешного коммита.
+2. `execute()` автоматически оборачивает `handle()` в pipeline behaviors.
+3. Возвращает `Result<S, F>` — никогда не бросает ожидаемых ошибок.
+4. Публикует `DomainEvent` после успешного коммита.
+
+**Pipeline behaviors** (из `adapters/behaviors/`):
+
+| Behavior | Что делает |
+| -------- | ---------- |
+| `TracingBehavior` | Оборачивает в `TracingPort.trace(operationName, attributes)` |
+| `TransactionBehavior` | Оборачивает в `TransactionPort.run()` |
 
 **Текущие операции:**
 
@@ -182,22 +199,29 @@ abstract class Operation<C, S, F> {
 ```dart
 class ProjectCreateOperation
     extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
+  ProjectCreateOperation(super.pipeline, this._repository, this._bus);
 
   @override
-  Future<Result<Project, ProjectNameAlreadyExists>> execute(
+  String get operationName => 'ProjectCreateOperation';
+
+  @override
+  Map<String, dynamic> traceAttributes(ProjectCreateCommand command) =>
+      {'name': command.name};
+
+  @override
+  Future<Result<Project, ProjectNameAlreadyExists>> handle(
     ProjectCreateCommand command,
-  ) => _tracing.trace('ProjectCreateOperation', () =>
-      _transaction.run(() async {
-        final ref = ProjectRef.name(ProjectName(command.name));
-        if (await _repository.getByRef(ref) != null) {
-          return Failure(ProjectNameAlreadyExists(command.name));
-        }
-        final project = Project(id: ProjectId.generate(), ...);
-        final saved   = await _repository.save(project);
-        await _bus.publish(ProjectCreatedEvent(project: saved));
-        return Success(saved);
-      }),
-    );
+  ) async {
+    // только бизнес-логика — трейсинг и транзакция применяются pipeline автоматически
+    final ref = ProjectRef.name(ProjectName(command.name));
+    if (await _repository.getByRef(ref) != null) {
+      return Failure(ProjectNameAlreadyExists(command.name));
+    }
+    final project = Project(id: ProjectId.generate(), ...);
+    final saved = await _repository.save(project);
+    await _bus.publish(ProjectCreatedEvent(project: saved));
+    return Success(saved);
+  }
 }
 ```
 
