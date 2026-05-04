@@ -1,11 +1,11 @@
 import 'package:test/test.dart';
 import 'package:tm_core/src/application/operations/project/project_create_command.dart';
 import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
-import 'package:tm_core/src/application/ports/no_op_transaction_port.dart';
 import 'package:tm_core/src/domain/entities/project.dart';
 import 'package:tm_core/src/domain/exceptions/project_exceptions.dart';
 import 'package:tm_core/src/domain/result.dart';
 import 'package:tm_core/src/infra/events/domain_event_bus_impl.dart';
+import 'package:tm_core/src/infra/no_op_transaction_port_impl.dart';
 import 'package:tm_core/src/infra/repositories/mem_projects_repository_impl.dart';
 import 'package:tm_core/src/infra/tracing/logging_tracing_port.dart';
 
@@ -18,10 +18,10 @@ void main() {
     bus = DomainEventBusImpl();
     repo = MemProjectsRepositoryImpl();
     op = ProjectCreateOperation(
-      NoOpTransactionPort(),
+      NoOpTransactionPortImpl(),
       repo,
       bus,
-      LoggingTracingPort(),
+      LoggingTracingPortImpl(),
     );
   });
 

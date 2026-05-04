@@ -15,13 +15,13 @@ import 'package:injectable/injectable.dart' as _i526;
 import '../application/operations/project/project_create_operation.dart'
     as _i797;
 import '../application/ports/domain_event_bus.dart' as _i512;
-import '../application/ports/no_op_transaction_port.dart' as _i87;
 import '../application/ports/tracing_port.dart' as _i969;
 import '../application/ports/transaction_port.dart' as _i1007;
 import '../application/queries/project/get_all_projects_query.dart' as _i676;
 import '../application/queries/project/get_current_project_query.dart' as _i775;
 import '../application/repositories/project_repository.dart' as _i649;
 import '../infra/events/ordered_domain_bus_impl.dart' as _i978;
+import '../infra/no_op_transaction_port_impl.dart' as _i1059;
 import '../infra/repositories/mem_projects_repository_impl.dart' as _i592;
 import '../infra/tracing/logging_tracing_port.dart' as _i381;
 import 'core_module.dart' as _i154;
@@ -36,11 +36,11 @@ _i174.GetIt $initTmCore(
   final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
   final coreModule = _$CoreModule();
   final applicationModule = _$ApplicationModule(getIt);
-  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
+  gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
   gh.lazySingleton<_i1007.TransactionPort>(
     () => coreModule.noOpTransactionPort,
   );
-  gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
+  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
   gh.lazySingleton<_i649.ProjectRepository>(
     () => coreModule.projectsRepository,
   );
@@ -58,15 +58,16 @@ _i174.GetIt $initTmCore(
 
 class _$CoreModule extends _i154.CoreModule {
   @override
-  _i381.LoggingTracingPort get tracingPort => _i381.LoggingTracingPort();
-
-  @override
-  _i87.NoOpTransactionPort get noOpTransactionPort =>
-      _i87.NoOpTransactionPort();
-
-  @override
   _i978.OrderedDomainEventBusImpl get domainEventBus =>
       _i978.OrderedDomainEventBusImpl();
+
+  @override
+  _i1059.NoOpTransactionPortImpl get noOpTransactionPort =>
+      _i1059.NoOpTransactionPortImpl();
+
+  @override
+  _i381.LoggingTracingPortImpl get tracingPort =>
+      _i381.LoggingTracingPortImpl();
 
   @override
   _i592.MemProjectsRepositoryImpl get projectsRepository =>

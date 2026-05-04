@@ -3,7 +3,7 @@ import 'package:logging/logging.dart';
 
 import '../../application/ports/tracing_port.dart';
 
-class LoggingTracingPort implements TracingPort {
+class LoggingTracingPortImpl implements TracingPort {
   static final _logger = Logger('TM.Core');
 
   @override
