@@ -1,4 +1,4 @@
-import '../../application/repositorory/project_repository.dart';
+import '../../application/repositories/project_repository.dart';
 import '../../exceptions/project_exceptions.dart';
 import '../value_objects/project/project_ref.dart';
 

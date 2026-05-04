@@ -6,4 +6,7 @@ abstract class ProjectRepository {
   Future<Project?> getById(ProjectId id);
   Future<Project?> getByRef(ProjectRef ref);
   Future<Project> save(Project project);
+  Future<Project?> getCurrentProject();
+  Future<Project> switchCurrentProject(ProjectId id);
+  Future<List<Project>> getAllProjects();
 }

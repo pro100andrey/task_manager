@@ -23,20 +23,30 @@ sealed class ProjectRef {
   // Helper getters to check the type of reference.
   bool get isName => this is _ProjectNameRef;
 
-  /// A common method to get the raw value of the reference, whether it's an ID
-  /// or a name.
+  ProjectId get id => switch (this) {
+    _ProjectIdRef(:final id) => id,
+    _ => throw StateError('Not a Project ID reference'),
+  };
+
+  ProjectName get name => switch (this) {
+    _ProjectNameRef(:final name) => name,
+    _ => throw StateError('Not a Project Name reference'),
+  };
+
   String get value => switch (this) {
-    _ProjectIdRef(:final id) => id.raw,
-    _ProjectNameRef(:final name) => name.raw,
+    _ProjectIdRef(:final id) => id.value,
+    _ProjectNameRef(:final name) => name.value,
   };
 }
 
 class _ProjectIdRef extends ProjectRef {
   const _ProjectIdRef(this.id);
+  @override
   final ProjectId id;
 }
 
 class _ProjectNameRef extends ProjectRef {
   const _ProjectNameRef(this.name);
+  @override
   final ProjectName name;
 }

@@ -1,8 +1,9 @@
+import '../../application/ports/domain_event_bus.dart';
 import '../../application/ports/tracing_port.dart';
 import '../../application/ports/transaction_port.dart';
-import '../../application/repositorory/project_repository.dart';
-import '../../domain/bus/domain_event_bus.dart';
+import '../../application/repositories/project_repository.dart';
 import '../../domain/entities/project.dart';
+import '../../domain/events/domain_event.dart';
 import '../../domain/value_objects/project/project_description.dart';
 import '../../domain/value_objects/value_objects.dart';
 import '../../exceptions/project_exceptions.dart';
