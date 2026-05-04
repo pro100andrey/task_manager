@@ -12,17 +12,12 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
 
   @override
   Future<Project?> getByRef(ProjectRef ref) async {
-    final id = ref.maybeId;
-    if (id != null) {
-      return _storage[id];
+    switch (ref) {
+      case ProjectIdRef(:final id):
+        return _storage[id];
+      case ProjectNameRef(:final name):
+        return _storage.values.firstWhereOrNull((p) => p.name == name);
     }
-
-    final name = ref.maybeName;
-    if (name != null) {
-      return _storage.values.firstWhereOrNull((p) => p.name == name);
-    }
-
-    return null;
   }
 
   @override

@@ -6,47 +6,47 @@ sealed class ProjectRef {
   const ProjectRef();
 
   /// Factory constructor to create a ProjectRef from a ProjectId.
-  factory ProjectRef.id(ProjectId id) = _ProjectIdRef;
+  factory ProjectRef.id(ProjectId id) = ProjectIdRef;
 
   /// Factory constructor to create a ProjectRef from a ProjectName.
-  factory ProjectRef.name(ProjectName name) = _ProjectNameRef;
+  factory ProjectRef.name(ProjectName name) = ProjectNameRef;
 
   @override
   String toString() => switch (this) {
-    _ProjectIdRef(:final id) => 'Project ID: $id',
-    _ProjectNameRef(:final name) => 'Project Name: $name',
+    ProjectIdRef(:final id) => 'Project ID: $id',
+    ProjectNameRef(:final name) => 'Project Name: $name',
   };
 
   // Helper getters to check the type of reference.
-  bool get isId => this is _ProjectIdRef;
+  bool get isId => this is ProjectIdRef;
 
   // Helper getters to check the type of reference.
-  bool get isName => this is _ProjectNameRef;
+  bool get isName => this is ProjectNameRef;
 
-  ProjectId? get maybeId => switch (this) {
-    _ProjectIdRef(:final id) => id,
-    _ => null,
-  };
+  // ProjectId? get maybeId => switch (this) {
+  //   _ProjectIdRef(:final id) => id,
+  //   _ => null,
+  // };
 
-  ProjectName? get maybeName => switch (this) {
-    _ProjectNameRef(:final name) => name,
-    _ => null,
-  };
+  // ProjectName? get maybeName => switch (this) {
+  //   _ProjectNameRef(:final name) => name,
+  //   _ => null,
+  // };
 
   String get value => switch (this) {
-    _ProjectIdRef(:final id) => id.value,
-    _ProjectNameRef(:final name) => name.value,
+    ProjectIdRef(:final id) => id.value,
+    ProjectNameRef(:final name) => name.value,
   };
 }
 
-class _ProjectIdRef extends ProjectRef {
-  const _ProjectIdRef(this.id);
+class ProjectIdRef extends ProjectRef {
+  const ProjectIdRef(this.id);
 
   final ProjectId id;
 }
 
-class _ProjectNameRef extends ProjectRef {
-  const _ProjectNameRef(this.name);
+class ProjectNameRef extends ProjectRef {
+  const ProjectNameRef(this.name);
 
   final ProjectName name;
 }

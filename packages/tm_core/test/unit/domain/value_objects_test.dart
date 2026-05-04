@@ -56,16 +56,16 @@ void main() {
       final id = ProjectId.generate();
       final ref = ProjectRef.id(id);
       expect(ref.isId, isTrue);
-      expect(ref.maybeId, id);
-      expect(ref.maybeName, isNull);
+      expect(ref, isA<ProjectIdRef>());
+      expect(ref.isName, isFalse);
     });
 
     test('name ref carries maybeName, maybeId is null', () {
       final name = ProjectName('Beta');
       final ref = ProjectRef.name(name);
       expect(ref.isName, isTrue);
-      expect(ref.maybeName, name);
-      expect(ref.maybeId, isNull);
+      expect(ref, isA<ProjectNameRef>());
+      expect(ref.isId, isFalse);
     });
 
     test('value returns raw string for both types', () {

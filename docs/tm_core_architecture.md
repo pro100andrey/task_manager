@@ -1,11 +1,10 @@
 ---
-title: TM HTM - tm_core Architecture (Revised)
 version: 2.0
 date: 2026-05-04
 status: accepted
 ---
 
-# tm_core Architecture
+# TM HTM - tm_core Architecture
 
 ## 1. Purpose
 
