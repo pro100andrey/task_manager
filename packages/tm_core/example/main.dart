@@ -1,28 +1,18 @@
-import 'dart:io';
-
 import 'package:get_it/get_it.dart';
 import 'package:tm_core/src/application/operations/project/project_create_command.dart';
 import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
 import 'package:tm_core/src/di/injection.dart';
-import 'package:tm_core/src/domain/result.dart';
 
 final getIt = GetIt.instance;
 Future<void> main() async {
   await configureTmCoreDependencies();
 
   final createOp = getIt<ProjectCreateOperation>();
-  
-  final result = await createOp.execute(
+
+  final _ = await createOp.execute(
     const ProjectCreateCommand(
       name: 'My first project',
       description: 'This is a sample project',
     ),
   );
-
-  switch (result) {
-    case Success(:final value):
-      stdout.writeln('Project created successfully: $value');
-    case Failure(:final error):
-      stdout.writeln('Failed to create project: $error');
-  }
 }

@@ -3,6 +3,7 @@ export 'src/application/operations/operation.dart';
 export 'src/application/operations/operation_behavior.dart';
 export 'src/application/operations/operation_context.dart';
 export 'src/application/operations/operation_pipeline.dart';
+export 'src/application/operations/operation_policy.dart';
 export 'src/application/operations/project/project_change_description_command.dart';
 export 'src/application/operations/project/project_change_description_operation.dart';
 export 'src/application/operations/project/project_create_command.dart';

@@ -6,12 +6,13 @@ class ProjectExistsGuard {
   ProjectExistsGuard(this._repo);
   final ProjectRepository _repo;
 
-  Future<void> check(ProjectRef ref) async {
+  Future<ProjectNotFound?> check(ProjectRef ref) async {
     final project = await _repo.getByRef(ref);
 
-    
     if (project == null) {
-      throw ProjectNotFound(ref.value);
+      return ProjectNotFound(ref.value);
     }
+
+    return null;
   }
 }

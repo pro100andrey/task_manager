@@ -6,7 +6,10 @@ import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
+import '../operation_context.dart';
+import '../operation_policy.dart';
 import 'project_change_description_command.dart';
+import 'project_mutation_exists_policy.dart';
 import 'project_mutation_failure.dart';
 
 abstract class ProjectChangeDescriptionOperationBase
@@ -42,7 +45,19 @@ class ProjectChangeDescriptionOperation
   };
 
   @override
-  Future<Result<Project, ProjectMutationFailure>> handle(
+  OperationPolicySet<ProjectChangeDescriptionCommand, ProjectMutationFailure>
+  preconditionPolicies(
+    ProjectChangeDescriptionCommand command,
+    OperationContext context,
+  ) => OperationPolicySet([
+    ProjectMutationExistsPolicy<ProjectChangeDescriptionCommand>(
+      _repository,
+      (cmd) => cmd.projectId,
+    ),
+  ]);
+
+  @override
+  Future<Result<Project, ProjectMutationFailure>> runCore(
     ProjectChangeDescriptionCommand command,
   ) async {
     final id = ProjectId(command.projectId);

@@ -3,8 +3,11 @@ import '../../../domain/result.dart';
 import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
+import '../operation_context.dart';
+import '../operation_policy.dart';
 import 'project_change_description_command.dart';
 import 'project_change_description_operation.dart';
+import 'project_mutation_exists_policy.dart';
 import 'project_mutation_failure.dart';
 import 'project_rename_command.dart';
 import 'project_rename_operation.dart';
@@ -38,7 +41,19 @@ class ProjectUpdateOperation extends ProjectUpdateOperationBase {
   };
 
   @override
-  Future<Result<Project, ProjectMutationFailure>> handle(
+  OperationPolicySet<ProjectUpdateCommand, ProjectMutationFailure>
+  preconditionPolicies(
+    ProjectUpdateCommand command,
+    OperationContext context,
+  ) => OperationPolicySet([
+    ProjectMutationExistsPolicy<ProjectUpdateCommand>(
+      _repository,
+      (cmd) => cmd.projectId,
+    ),
+  ]);
+
+  @override
+  Future<Result<Project, ProjectMutationFailure>> runCore(
     ProjectUpdateCommand command,
   ) async {
     var current = await _repository.getById(ProjectId(command.projectId));
@@ -47,7 +62,7 @@ class ProjectUpdateOperation extends ProjectUpdateOperationBase {
     }
 
     if (command.name != null) {
-      final renameResult = await _renameOperation.handle(
+      final renameResult = await _renameOperation.execute(
         ProjectRenameCommand(
           projectId: command.projectId,
           newName: command.name!,
@@ -62,7 +77,7 @@ class ProjectUpdateOperation extends ProjectUpdateOperationBase {
     }
 
     if (command.description != null) {
-      final changeDescriptionResult = await _changeDescriptionOperation.handle(
+      final changeDescriptionResult = await _changeDescriptionOperation.execute(
         ProjectChangeDescriptionCommand(
           projectId: command.projectId,
           description: command.description,

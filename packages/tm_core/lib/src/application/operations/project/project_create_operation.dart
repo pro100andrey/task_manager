@@ -7,14 +7,17 @@ import '../../../domain/value_objects/value_objects.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
+import '../operation_context.dart';
+import '../operation_policy.dart';
 import 'project_create_command.dart';
+import 'project_create_name_unique_policy.dart';
 
-abstract class ProjectCreateOperationBase
-    extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
-  ProjectCreateOperationBase(super.pipeline);
-}
+typedef _Op =
+    Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists>;
 
-class ProjectCreateOperation extends ProjectCreateOperationBase {
+typedef CreateResult = Result<Project, ProjectNameAlreadyExists>;
+
+class ProjectCreateOperation extends _Op {
   ProjectCreateOperation(
     super.pipeline,
     this._repository,
@@ -33,16 +36,17 @@ class ProjectCreateOperation extends ProjectCreateOperationBase {
   };
 
   @override
-  Future<Result<Project, ProjectNameAlreadyExists>> handle(
+  OperationPolicySet<ProjectCreateCommand, ProjectNameAlreadyExists>
+  preconditionPolicies(
+    ProjectCreateCommand command,
+    OperationContext context,
+  ) => OperationPolicySet([ProjectCreateNameUniquePolicy(_repository)]);
+
+  @override
+  Future<CreateResult> runCore(
     ProjectCreateCommand command,
   ) async {
     final projectName = ProjectName(command.name);
-    final ref = ProjectRef.name(projectName);
-    final existing = await _repository.getByRef(ref);
-
-    if (existing != null) {
-      return Failure(ProjectNameAlreadyExists(command.name));
-    }
 
     final id = ProjectId.generate();
     final desc = command.description != null

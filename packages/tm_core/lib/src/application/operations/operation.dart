@@ -1,6 +1,7 @@
 import '../../domain/result.dart';
 import 'operation_context.dart';
 import 'operation_pipeline.dart';
+import 'operation_policy.dart';
 
 abstract class Operation<C, S, F> {
   Operation(OperationPipeline pipeline) : _pipeline = pipeline;
@@ -11,13 +12,63 @@ abstract class Operation<C, S, F> {
 
   Map<String, dynamic> traceAttributes(C command) => const {};
 
-  Future<Result<S, F>> execute(C command) => _pipeline.run(
-    OperationContext(
-      name: operationName,
-      attributes: traceAttributes(command),
-    ),
-    () => handle(command),
+  Future<Result<S, F>> execute(C command) async {
+    final context = buildContext(command);
+
+    final preconditionFailures = await preconditionPolicies(
+      command,
+      context,
+    ).evaluateAll(command, context);
+    
+    final preconditionResult = preconditionFailures.toFailureResult<S>();
+    if (preconditionResult != null) {
+      return mapResult(command, context, preconditionResult);
+    }
+
+    final coreResult = await _pipeline.run(
+      context,
+      () => runCore(command),
+    );
+
+    final invariantFailures = await invariantPolicies(
+      command,
+      context,
+      coreResult,
+    ).evaluateAll(command, context);
+    final invariantResult = invariantFailures.toFailureResult<S>();
+    final result = invariantResult ?? coreResult;
+
+    await collectAndPublishEvents(command, context, result);
+    return mapResult(command, context, result);
+  }
+
+  OperationContext buildContext(C command) => OperationContext(
+    name: operationName,
+    attributes: traceAttributes(command),
   );
 
-  Future<Result<S, F>> handle(C command);
+  OperationPolicySet<C, F> preconditionPolicies(
+    C command,
+    OperationContext context,
+  ) => OperationPolicySet<C, F>([]);
+
+  OperationPolicySet<C, F> invariantPolicies(
+    C command,
+    OperationContext context,
+    Result<S, F> result,
+  ) => OperationPolicySet<C, F>([]);
+
+  Future<void> collectAndPublishEvents(
+    C command,
+    OperationContext context,
+    Result<S, F> result,
+  ) async {}
+
+  Result<S, F> mapResult(
+    C command,
+    OperationContext context,
+    Result<S, F> result,
+  ) => result;
+
+  Future<Result<S, F>> runCore(C command);
 }

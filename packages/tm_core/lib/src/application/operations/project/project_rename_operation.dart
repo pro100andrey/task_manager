@@ -5,6 +5,9 @@ import '../../../domain/value_objects/value_objects.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
+import '../operation_context.dart';
+import '../operation_policy.dart';
+import 'project_mutation_exists_policy.dart';
 import 'project_mutation_failure.dart';
 import 'project_rename_command.dart';
 
@@ -33,7 +36,19 @@ class ProjectRenameOperation extends ProjectRenameOperationBase {
   };
 
   @override
-  Future<Result<Project, ProjectMutationFailure>> handle(
+  OperationPolicySet<ProjectRenameCommand, ProjectMutationFailure>
+  preconditionPolicies(
+    ProjectRenameCommand command,
+    OperationContext context,
+  ) => OperationPolicySet([
+    ProjectMutationExistsPolicy<ProjectRenameCommand>(
+      _repository,
+      (cmd) => cmd.projectId,
+    ),
+  ]);
+
+  @override
+  Future<Result<Project, ProjectMutationFailure>> runCore(
     ProjectRenameCommand command,
   ) async {
     final id = ProjectId(command.projectId);
