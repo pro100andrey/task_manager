@@ -1,19 +1,20 @@
 // Classes are registered directly via @injectable/@lazySingleton on their own definitions.
 import 'package:injectable/injectable.dart';
 
+import '../../domain/queries/project/get_all_projects_query.dart';
+import '../../domain/queries/project/get_current_project_query.dart';
+import '../../operations/project/project_create_operation.dart';
+
 @module
 abstract class ApplicationModule {
-  // @lazySingleton
-  // ProjectCreateOperation projectCreateOperation(
-  //   TransactionPort tx,
-  //   ProjectRepository repo,
-  //   DomainEventBus eventBus,
-  //   TracingPort tracer,
-  // );
+  // Operations
+  @lazySingleton
+  ProjectCreateOperation get projectCreateOperation;
 
-  // @lazySingleton
-  // GetCurrentProjectQuery getCurrentProjectQuery(ProjectRepository repo);
+  // Queries
+  @LazySingleton()
+  GetCurrentProjectQuery get getCurrentProjectQuery;
 
-  // @lazySingleton
-  // GetAllProjectsQuery getAllProjectsQuery(ProjectRepository repo);
+  @LazySingleton()
+  GetAllProjectsQuery get getAllProjectsQuery;
 }

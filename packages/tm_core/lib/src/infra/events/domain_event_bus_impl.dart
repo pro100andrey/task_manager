@@ -1,11 +1,8 @@
 // lib/src/infrastructure/events/domain_event_bus_impl.dart
 import 'dart:async';
 
-import 'package:injectable/injectable.dart';
-
 import '../../application/ports/domain_event_bus.dart';
 
-@LazySingleton(as: DomainEventBus)
 class DomainEventBusImpl implements DomainEventBus {
   final _eventController = StreamController<Object>.broadcast();
   final _subscriptions = <StreamSubscription>[];
