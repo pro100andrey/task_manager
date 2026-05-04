@@ -1,4 +1,4 @@
-// lib/src/infrastructure/tracing/logging_tracing_port.dart
+// lib/src/adapters/tracing/logging_tracing_port_impl.dart
 import 'package:logging/logging.dart';
 
 import '../../application/ports/tracing_port.dart';

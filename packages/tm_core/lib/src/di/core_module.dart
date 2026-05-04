@@ -1,13 +1,13 @@
 import 'package:injectable/injectable.dart';
 
+import '../adapters/events/ordered_domain_event_bus_impl.dart';
+import '../adapters/repositories/mem_projects_repository_impl.dart';
+import '../adapters/tracing/logging_tracing_port_impl.dart';
+import '../adapters/transaction/no_op_transaction_port_impl.dart';
 import '../application/ports/domain_event_bus.dart';
+import '../application/ports/project_repository.dart';
 import '../application/ports/tracing_port.dart';
 import '../application/ports/transaction_port.dart';
-import '../application/repositories/project_repository.dart';
-import '../infra/events/ordered_domain_bus_impl.dart';
-import '../infra/no_op_transaction_port_impl.dart';
-import '../infra/repositories/mem_projects_repository_impl.dart';
-import '../infra/tracing/logging_tracing_port.dart';
 
 @module
 abstract class CoreModule {

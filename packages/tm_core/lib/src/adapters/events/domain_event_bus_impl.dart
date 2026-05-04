@@ -1,15 +1,10 @@
-// lib/src/infrastructure/events/domain_event_bus_impl.dart
+// lib/src/adapters/events/domain_event_bus_impl.dart
 import 'dart:async';
-import 'dart:collection';
 
 import '../../application/ports/domain_event_bus.dart';
 
-class OrderedDomainEventBusImpl implements DomainEventBus {
+class DomainEventBusImpl implements DomainEventBus {
   final _eventController = StreamController<Object>.broadcast();
-
-  final _eventQueue = Queue<Object>();
-  var _isProcessing = false;
-
   final _subscriptions = <StreamSubscription>[];
 
   @override
@@ -17,33 +12,14 @@ class OrderedDomainEventBusImpl implements DomainEventBus {
     if (_eventController.isClosed) {
       return;
     }
-
-    _eventQueue.addLast(event);
-    await _processQueue();
-  }
-
-  Future<void> _processQueue() async {
-    if (_isProcessing || _eventQueue.isEmpty) {
-      return;
-    }
-
-    _isProcessing = true;
-
-    try {
-      while (_eventQueue.isNotEmpty) {
-        final event = _eventQueue.removeFirst();
-        _eventController.add(event); // гарантированно по порядку
-      }
-    } finally {
-      _isProcessing = false;
-    }
+    _eventController.add(event);
   }
 
   @override
   Stream<T> on<T>() =>
       _eventController.stream.where((event) => event is T).cast<T>();
 
-  /// Удобный метод для подписки
+  /// Подписка с автоматической отпиской (удобно для UI/TUI)
   @override
   StreamSubscription<T> listen<T>(
     void Function(T event) onEvent, {
@@ -51,14 +27,14 @@ class OrderedDomainEventBusImpl implements DomainEventBus {
     void Function()? onDone,
     bool? cancelOnError,
   }) {
-    final sub = on<T>().listen(
+    final subscription = on<T>().listen(
       onEvent,
       onError: onError,
       onDone: onDone,
       cancelOnError: cancelOnError,
     );
-    _subscriptions.add(sub);
-    return sub;
+    _subscriptions.add(subscription);
+    return subscription;
   }
 
   @override

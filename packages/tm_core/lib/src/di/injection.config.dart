@@ -12,18 +12,18 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../adapters/events/ordered_domain_event_bus_impl.dart' as _i1027;
+import '../adapters/repositories/mem_projects_repository_impl.dart' as _i949;
+import '../adapters/tracing/logging_tracing_port_impl.dart' as _i629;
+import '../adapters/transaction/no_op_transaction_port_impl.dart' as _i1016;
 import '../application/operations/project/project_create_operation.dart'
     as _i797;
 import '../application/ports/domain_event_bus.dart' as _i512;
+import '../application/ports/project_repository.dart' as _i102;
 import '../application/ports/tracing_port.dart' as _i969;
 import '../application/ports/transaction_port.dart' as _i1007;
 import '../application/queries/project/get_all_projects_query.dart' as _i676;
 import '../application/queries/project/get_current_project_query.dart' as _i775;
-import '../application/repositories/project_repository.dart' as _i649;
-import '../infra/events/ordered_domain_bus_impl.dart' as _i978;
-import '../infra/no_op_transaction_port_impl.dart' as _i1059;
-import '../infra/repositories/mem_projects_repository_impl.dart' as _i592;
-import '../infra/tracing/logging_tracing_port.dart' as _i381;
 import 'core_module.dart' as _i154;
 import 'modules/application_module.dart' as _i705;
 
@@ -36,13 +36,16 @@ _i174.GetIt $initTmCore(
   final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
   final coreModule = _$CoreModule();
   final applicationModule = _$ApplicationModule(getIt);
-  gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
   gh.lazySingleton<_i1007.TransactionPort>(
     () => coreModule.noOpTransactionPort,
   );
-  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
-  gh.lazySingleton<_i649.ProjectRepository>(
+  gh.lazySingleton<_i102.ProjectRepository>(
     () => coreModule.projectsRepository,
+  );
+  gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
+  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
+  gh.lazySingleton<_i797.ProjectCreateOperation>(
+    () => applicationModule.projectCreateOperation,
   );
   gh.lazySingleton<_i775.GetCurrentProjectQuery>(
     () => applicationModule.getCurrentProjectQuery,
@@ -50,28 +53,25 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i676.GetAllProjectsQuery>(
     () => applicationModule.getAllProjectsQuery,
   );
-  gh.lazySingleton<_i797.ProjectCreateOperation>(
-    () => applicationModule.projectCreateOperation,
-  );
   return getIt;
 }
 
 class _$CoreModule extends _i154.CoreModule {
   @override
-  _i978.OrderedDomainEventBusImpl get domainEventBus =>
-      _i978.OrderedDomainEventBusImpl();
+  _i1016.NoOpTransactionPortImpl get noOpTransactionPort =>
+      _i1016.NoOpTransactionPortImpl();
 
   @override
-  _i1059.NoOpTransactionPortImpl get noOpTransactionPort =>
-      _i1059.NoOpTransactionPortImpl();
+  _i949.MemProjectsRepositoryImpl get projectsRepository =>
+      _i949.MemProjectsRepositoryImpl();
 
   @override
-  _i381.LoggingTracingPortImpl get tracingPort =>
-      _i381.LoggingTracingPortImpl();
+  _i1027.OrderedDomainEventBusImpl get domainEventBus =>
+      _i1027.OrderedDomainEventBusImpl();
 
   @override
-  _i592.MemProjectsRepositoryImpl get projectsRepository =>
-      _i592.MemProjectsRepositoryImpl();
+  _i629.LoggingTracingPortImpl get tracingPort =>
+      _i629.LoggingTracingPortImpl();
 }
 
 class _$ApplicationModule extends _i705.ApplicationModule {
@@ -80,19 +80,19 @@ class _$ApplicationModule extends _i705.ApplicationModule {
   final _i174.GetIt _getIt;
 
   @override
-  _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
-      _i775.GetCurrentProjectQuery(_getIt<_i649.ProjectRepository>());
-
-  @override
-  _i676.GetAllProjectsQuery get getAllProjectsQuery =>
-      _i676.GetAllProjectsQuery(_getIt<_i649.ProjectRepository>());
-
-  @override
   _i797.ProjectCreateOperation get projectCreateOperation =>
       _i797.ProjectCreateOperation(
         _getIt<_i1007.TransactionPort>(),
-        _getIt<_i649.ProjectRepository>(),
+        _getIt<_i102.ProjectRepository>(),
         _getIt<_i512.DomainEventBus>(),
         _getIt<_i969.TracingPort>(),
       );
+
+  @override
+  _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
+      _i775.GetCurrentProjectQuery(_getIt<_i102.ProjectRepository>());
+
+  @override
+  _i676.GetAllProjectsQuery get getAllProjectsQuery =>
+      _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
 }

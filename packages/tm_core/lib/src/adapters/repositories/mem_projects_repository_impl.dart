@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-import '../../application/repositories/project_repository.dart';
+import '../../application/ports/project_repository.dart';
 import '../../domain/entities/project.dart';
 import '../../domain/exceptions/project_exceptions.dart';
 import '../../domain/value_objects/project/project_id.dart';

@@ -5,9 +5,9 @@ import '../../../domain/result.dart';
 import '../../../domain/value_objects/project/project_description.dart';
 import '../../../domain/value_objects/value_objects.dart';
 import '../../ports/domain_event_bus.dart';
+import '../../ports/project_repository.dart';
 import '../../ports/tracing_port.dart';
 import '../../ports/transaction_port.dart';
-import '../../repositories/project_repository.dart';
 import '../operation.dart';
 import 'project_create_command.dart';
 

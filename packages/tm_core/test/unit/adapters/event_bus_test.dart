@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:test/test.dart';
+import 'package:tm_core/src/adapters/events/domain_event_bus_impl.dart';
+import 'package:tm_core/src/adapters/events/ordered_domain_event_bus_impl.dart';
 import 'package:tm_core/src/application/ports/domain_event_bus.dart';
-import 'package:tm_core/src/infra/events/domain_event_bus_impl.dart';
-import 'package:tm_core/src/infra/events/ordered_domain_bus_impl.dart';
 
 class _FooEvent {
   const _FooEvent(this.value);

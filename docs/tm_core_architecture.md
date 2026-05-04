@@ -37,8 +37,7 @@ packages/tm_core/
 │       │   ├── queries/              ← Read-only use cases
 │       │   │   ├── project/
 │       │   │   └── task/
-│       │   ├── ports/                ← Интерфейсы внешних зависимостей
-│       │   └── repositories/        ← Интерфейсы репозиториев
+│       │   └── ports/                ← Интерфейсы (порты) внешних зависимостей и репозиториев
 │       ├── domain/
 │       │   ├── entities/             ← Бизнес-сущности (freezed)
 │       │   ├── enums/                ← Перечисления домена
@@ -47,10 +46,11 @@ packages/tm_core/
 │       │   ├── result.dart           ← Result<T, E> — cross-cutting тип
 │       │   └── value_objects/        ← Value Objects (extension types / sealed)
 │       ├── di/                       ← Wiring через injectable + get_it
-│       └── infra/
+│       └── adapters/
 │           ├── events/               ← Реализации DomainEventBus
 │           ├── repositories/         ← In-memory реализации репозиториев
-│           └── tracing/              ← Реализация TracingPort
+│           ├── tracing/              ← Реализация TracingPort
+│           └── transaction/          ← Реализация TransactionPort
 ├── test/
 │   ├── unit/                         ← Тесты домена и инфры изолированно
 │   ├── integration/                  ← Тесты операций с in-memory зависимостями
@@ -220,36 +220,29 @@ Read-only use cases. Не используют транзакции и не пу
 
 #### `ports/`
 
-Абстракции внешних зависимостей — только интерфейсы, без реализаций.
+Абстракции внешних зависимостей и репозиториев — только интерфейсы, без реализаций.
 
 | Порт | Контракт |
 | ----- | ---------- |
 | `TransactionPort` | `Future<T> run<T>(Future<T> Function() action)` |
 | `DomainEventBus` | `publish`, `listen<T>`, `on<T>`, `dispose` |
 | `TracingPort` | `trace<T>(name, action, {attributes})` |
-
-#### `repositories/`
-
-Интерфейсы репозиториев. Реализации находятся в `infra/`.
-
-| Репозиторий | Методы |
-| ----- | ------ |
 | `ProjectRepository` | `getById`, `getByRef`, `save`, `getCurrentProject`, `switchCurrentProject`, `getAllProjects` |
 
 ---
 
-### 3.3 Infrastructure (`lib/src/infra/`)
+### 3.3 Adapters (`lib/src/adapters/`)
 
-Реализует контракты `application/ports/` и `application/repositories/`.
-**Зависит от application, но application не зависит от infra.**
+Реализует контракты `application/ports/`.
+**Зависит от application, но application не зависит от adapters.**
 
-| Реализация | Интерфейс | Описание |
-| ----------- | ----------- | ---------- |
-| `DomainEventBusImpl` | `DomainEventBus` | Простой broadcast stream |
-| `OrderedDomainEventBusImpl` | `DomainEventBus` | Queue-based, гарантирует порядок событий |
-| `MemProjectsRepositoryImpl` | `ProjectRepository` | In-memory хранилище (`Map<ProjectId, Project>`) |
-| `LoggingTracingPort` | `TracingPort` | Логирует имя операции и аттрибуты |
-| `NoOpTransactionPort` | `TransactionPort` | Нет транзакций (для тестов и in-memory) |
+| Реализация | Файл | Интерфейс | Описание |
+| ----------- | ---- | ----------- | ---------- |
+| `DomainEventBusImpl` | `adapters/events/domain_event_bus_impl.dart` | `DomainEventBus` | Простой broadcast stream |
+| `OrderedDomainEventBusImpl` | `adapters/events/ordered_domain_event_bus_impl.dart` | `DomainEventBus` | Queue-based, гарантирует порядок событий |
+| `MemProjectsRepositoryImpl` | `adapters/repositories/mem_projects_repository_impl.dart` | `ProjectRepository` | In-memory хранилище (`Map<ProjectId, Project>`) |
+| `LoggingTracingPortImpl` | `adapters/tracing/logging_tracing_port_impl.dart` | `TracingPort` | Логирует имя операции и атрибуты |
+| `NoOpTransactionPortImpl` | `adapters/transaction/no_op_transaction_port_impl.dart` | `TransactionPort` | Нет транзакций (для тестов и in-memory) |
 
 ---
 
@@ -273,14 +266,14 @@ GetIt.instance<DomainEventBus>()
 ## 4. Правила слоёв
 
 ```txt
-domain  ←  application  ←  infra
+domain  ←  application  ←  adapters
                 ↑
                di
 ```
 
 1. `domain` не имеет зависимостей внутри пакета.
 2. `application` зависит только от `domain`.
-3. `infra` реализует контракты `application`.
+3. `adapters` реализует контракты из `application/ports/`.
 4. `di` знает обо всех слоях и соединяет их.
 5. Потребители пакета импортируют **только** из `lib/tm_core.dart`.
 
@@ -383,13 +376,13 @@ export 'src/domain/value_objects/value_objects.dart';
 | Уровень | Папка | Что тестируется |
 | ----- | ------- | ----------------- |
 | Unit | `test/unit/domain/` | `Result`, Value Objects, чистые функции |
-| Unit | `test/unit/infra/` | `DomainEventBus` реализации |
+| Unit | `test/unit/adapters/` | `DomainEventBus` реализации |
 | Integration | `test/integration/operations/` | Операции с in-memory зависимостями |
 | Fixtures | `test/fixtures/` | Фабрики и builders тестовых данных |
 
 **Правила тестов:**
 
-- Integration-тесты используют `MemProjectsRepositoryImpl`, `NoOpTransactionPort`, `DomainEventBusImpl`.
+- Integration-тесты используют `MemProjectsRepositoryImpl`, `NoOpTransactionPortImpl`, `DomainEventBusImpl`.
 - Unit-тесты не используют DI — зависимости передаются напрямую.
 - Ни один тест не зависит от внешнего I/O или файловой системы.
 
