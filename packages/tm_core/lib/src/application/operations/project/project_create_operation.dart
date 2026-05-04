@@ -1,6 +1,5 @@
 import '../../../domain/entities/project.dart';
 import '../../../domain/events/domain_event.dart';
-import '../../../domain/exceptions/project_exceptions.dart';
 import '../../../domain/result.dart';
 import '../../../domain/value_objects/project/project_description.dart';
 import '../../../domain/value_objects/value_objects.dart';
@@ -10,12 +9,13 @@ import '../operation.dart';
 import '../operation_context.dart';
 import '../operation_policy.dart';
 import 'project_create_command.dart';
+import 'project_create_failure.dart';
+import 'project_create_input_valid_policy.dart';
 import 'project_create_name_unique_policy.dart';
 
-typedef _Op =
-    Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists>;
+typedef _Op = Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
 
-typedef CreateResult = Result<Project, ProjectNameAlreadyExists>;
+typedef CreateResult = Result<Project, ProjectCreateFailure>;
 
 class ProjectCreateOperation extends _Op {
   ProjectCreateOperation(
@@ -36,11 +36,14 @@ class ProjectCreateOperation extends _Op {
   };
 
   @override
-  OperationPolicySet<ProjectCreateCommand, ProjectNameAlreadyExists>
+  OperationPolicySet<ProjectCreateCommand, ProjectCreateFailure>
   preconditionPolicies(
     ProjectCreateCommand command,
     OperationContext context,
-  ) => OperationPolicySet([ProjectCreateNameUniquePolicy(_repository)]);
+  ) => OperationPolicySet([
+    ProjectCreateInputValidPolicy(),
+    ProjectCreateNameUniquePolicy(_repository),
+  ]);
 
   @override
   Future<CreateResult> runCore(

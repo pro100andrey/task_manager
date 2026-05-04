@@ -9,6 +9,7 @@ import 'package:tm_core/src/application/operations/operation_pipeline.dart';
 import 'package:tm_core/src/application/operations/project/project_change_description_command.dart';
 import 'package:tm_core/src/application/operations/project/project_change_description_operation.dart';
 import 'package:tm_core/src/application/operations/project/project_create_command.dart';
+import 'package:tm_core/src/application/operations/project/project_create_failure.dart';
 import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
 import 'package:tm_core/src/application/operations/project/project_mutation_failure.dart';
 import 'package:tm_core/src/application/operations/project/project_rename_command.dart';
@@ -17,7 +18,6 @@ import 'package:tm_core/src/application/operations/project/project_update_comman
 import 'package:tm_core/src/application/operations/project/project_update_operation.dart';
 import 'package:tm_core/src/domain/entities/project.dart';
 import 'package:tm_core/src/domain/events/domain_event.dart';
-import 'package:tm_core/src/domain/exceptions/project_exceptions.dart';
 import 'package:tm_core/src/domain/result.dart';
 
 void main() {
@@ -62,7 +62,7 @@ void main() {
         const ProjectCreateCommand(name: 'Alpha', description: 'v1'),
       );
       final createdProject =
-          (created as Success<Project, ProjectNameAlreadyExists>).value;
+          (created as Success<Project, ProjectCreateFailure>).value;
       final projectId = createdProject.id.raw;
 
       final result = await renameOp.execute(
@@ -82,7 +82,7 @@ void main() {
         const ProjectCreateCommand(name: 'Beta'),
       );
       final secondProject =
-          (second as Success<Project, ProjectNameAlreadyExists>).value;
+          (second as Success<Project, ProjectCreateFailure>).value;
       final secondId = secondProject.id.raw;
 
       final result = await renameOp.execute(
@@ -103,7 +103,7 @@ void main() {
         const ProjectCreateCommand(name: 'Alpha'),
       );
       final createdProject =
-          (created as Success<Project, ProjectNameAlreadyExists>).value;
+          (created as Success<Project, ProjectCreateFailure>).value;
       final projectId = createdProject.id.raw;
 
       final result = await changeDescriptionOp.execute(
@@ -125,7 +125,7 @@ void main() {
         const ProjectCreateCommand(name: 'Alpha'),
       );
       final createdProject =
-          (created as Success<Project, ProjectNameAlreadyExists>).value;
+          (created as Success<Project, ProjectCreateFailure>).value;
       final projectId = createdProject.id.raw;
 
       final result = await updateOp.execute(

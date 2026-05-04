@@ -1,12 +1,11 @@
-import '../../../domain/exceptions/project_exceptions.dart';
 import '../../../domain/value_objects/value_objects.dart';
 import '../../ports/project_repository.dart';
 import '../operation_context.dart';
 import '../operation_policy.dart';
 import 'project_create_command.dart';
+import 'project_create_failure.dart';
 
-typedef _Policy =
-    OperationPolicy<ProjectCreateCommand, ProjectNameAlreadyExists>;
+typedef _Policy = OperationPolicy<ProjectCreateCommand, ProjectCreateFailure>;
 
 class ProjectCreateNameUniquePolicy extends _Policy {
   ProjectCreateNameUniquePolicy(this._repository);
@@ -14,7 +13,7 @@ class ProjectCreateNameUniquePolicy extends _Policy {
   final ProjectRepository _repository;
 
   @override
-  Future<Iterable<ProjectNameAlreadyExists>> check(
+  Future<Iterable<ProjectCreateFailure>> check(
     ProjectCreateCommand command,
     OperationContext context,
   ) async {
@@ -23,7 +22,7 @@ class ProjectCreateNameUniquePolicy extends _Policy {
     );
 
     if (existing != null) {
-      return [ProjectNameAlreadyExists(command.name)];
+      return [ProjectCreateNameAlreadyExists(command.name)];
     }
 
     return const [];

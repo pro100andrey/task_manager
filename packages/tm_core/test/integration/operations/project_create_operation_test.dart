@@ -7,6 +7,7 @@ import 'package:tm_core/src/adapters/tracing/logging_tracing_port_impl.dart';
 import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dart';
 import 'package:tm_core/src/application/operations/operation_pipeline.dart';
 import 'package:tm_core/src/application/operations/project/project_create_command.dart';
+import 'package:tm_core/src/application/operations/project/project_create_failure.dart';
 import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
 import 'package:tm_core/src/domain/entities/project.dart';
 import 'package:tm_core/src/domain/exceptions/project_exceptions.dart';
@@ -36,8 +37,7 @@ void main() {
       );
 
       expect(result.isSuccess, isTrue);
-      final project =
-          (result as Success<Project, ProjectNameAlreadyExists>).value;
+      final project = (result as Success<Project, ProjectCreateFailure>).value;
       expect(project.name.raw, 'Alpha');
     });
 
@@ -48,8 +48,10 @@ void main() {
       );
 
       expect(second.isFailure, isTrue);
-      final err = (second as Failure<Project, ProjectNameAlreadyExists>).error;
-      expect(err.name, 'Alpha');
+      final err = (second as Failure<Project, ProjectCreateFailure>).error;
+      expect(err, isA<ProjectCreateNameAlreadyExists>());
+      final duplicate = err as ProjectCreateNameAlreadyExists;
+      expect(duplicate.name, 'Alpha');
     });
 
     test('publishes ProjectCreatedEvent on success', () async {
@@ -80,8 +82,7 @@ void main() {
       final result = await op.execute(
         const ProjectCreateCommand(name: 'X', description: 'details'),
       );
-      final project =
-          (result as Success<Project, ProjectNameAlreadyExists>).value;
+      final project = (result as Success<Project, ProjectCreateFailure>).value;
       expect(project.description?.raw, 'details');
     });
 
@@ -102,7 +103,7 @@ void main() {
 
     test('switchCurrentProject sets current project', () async {
       final r = await op.execute(const ProjectCreateCommand(name: 'Current'));
-      final project = (r as Success<Project, ProjectNameAlreadyExists>).value;
+      final project = (r as Success<Project, ProjectCreateFailure>).value;
 
       final switched = await repo.switchCurrentProject(project.id);
       expect(switched.name.raw, 'Current');

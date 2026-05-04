@@ -7,6 +7,7 @@ export 'src/application/operations/operation_policy.dart';
 export 'src/application/operations/project/project_change_description_command.dart';
 export 'src/application/operations/project/project_change_description_operation.dart';
 export 'src/application/operations/project/project_create_command.dart';
+export 'src/application/operations/project/project_create_failure.dart';
 export 'src/application/operations/project/project_create_operation.dart';
 export 'src/application/operations/project/project_mutation_failure.dart';
 export 'src/application/operations/project/project_rename_command.dart';
