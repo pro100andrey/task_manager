@@ -9,8 +9,12 @@ import '../../ports/project_repository.dart';
 import '../operation.dart';
 import 'project_create_command.dart';
 
-class ProjectCreateOperation
+abstract class ProjectCreateOperationBase
     extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
+  ProjectCreateOperationBase(super.pipeline);
+}
+
+class ProjectCreateOperation extends ProjectCreateOperationBase {
   ProjectCreateOperation(
     super.pipeline,
     this._repository,

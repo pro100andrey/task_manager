@@ -180,6 +180,17 @@ abstract class Operation<C, S, F> {
 3. Возвращает `Result<S, F>` — никогда не бросает ожидаемых ошибок.
 4. Публикует `DomainEvent` после успешного коммита.
 
+Для сокращения записи generics в конкретных use case допускается промежуточный base-класс, который фиксирует `Command/Success/Failure` типы.
+
+```dart
+abstract class ProjectCreateOperationBase
+    extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
+  ProjectCreateOperationBase(super.pipeline);
+}
+```
+
+В этом случае рабочая операция наследуется от `ProjectCreateOperationBase` и описывает только поведение.
+
 **Pipeline behaviors** (из `adapters/behaviors/`):
 
 | Behavior | Что делает |
@@ -197,9 +208,20 @@ abstract class Operation<C, S, F> {
 **Пример — `ProjectCreateOperation`:**
 
 ```dart
-class ProjectCreateOperation
+abstract class ProjectCreateOperationBase
     extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
-  ProjectCreateOperation(super.pipeline, this._repository, this._bus);
+  ProjectCreateOperationBase(super.pipeline);
+}
+
+class ProjectCreateOperation extends ProjectCreateOperationBase {
+  ProjectCreateOperation(
+    super.pipeline,
+    this._repository,
+    this._bus,
+  );
+
+  final ProjectRepository _repository;
+  final DomainEventBus _bus;
 
   @override
   String get operationName => 'ProjectCreateOperation';
