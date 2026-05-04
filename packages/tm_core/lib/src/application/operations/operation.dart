@@ -1,4 +1,4 @@
-import '../../domain/results/result.dart';
+import '../../domain/result.dart';
 
 // Intentional single-method interface: Operation is a named architectural
 // contract, not a top-level function.

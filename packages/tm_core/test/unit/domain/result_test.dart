@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:tm_core/src/domain/results/result.dart';
+import 'package:tm_core/src/domain/result.dart';
 
 void main() {
   group('Result', () {

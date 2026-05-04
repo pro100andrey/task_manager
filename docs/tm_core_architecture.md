@@ -32,6 +32,7 @@ packages/tm_core/
 │   ├── tm_core.dart
 │   └── src/
 │       ├── application/
+│       │   ├── guards/
 │       │   ├── operations/
 │       │   │   ├── operation.dart
 │       │   │   ├── project/
@@ -40,16 +41,12 @@ packages/tm_core/
 │       │   │   ├── project/
 │       │   │   └── task/
 │       │   ├── ports/
-│       │   ├── repositories/
-│       │   └── services/
+│       │   └── repositories/
 │       ├── domain/
 │       │   ├── entities/
 │       │   ├── events/
 │       │   ├── exceptions/
-│       │   ├── guards/
-│       │   ├── results/
-│       │   ├── services/
-│       │   ├── utils/
+│       │   ├── result.dart
 │       │   └── value_objects/
 │       ├── di/
 │       └── infra/

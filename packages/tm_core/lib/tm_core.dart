@@ -8,5 +8,5 @@ export 'src/domain/entities/project.dart';
 export 'src/domain/entities/task.dart';
 export 'src/domain/events/domain_event.dart';
 export 'src/domain/exceptions/project_exceptions.dart';
-export 'src/domain/results/result.dart';
+export 'src/domain/result.dart';
 export 'src/domain/value_objects/value_objects.dart';

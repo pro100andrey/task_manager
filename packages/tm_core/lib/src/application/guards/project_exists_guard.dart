@@ -1,6 +1,6 @@
-import '../../application/repositories/project_repository.dart';
-import '../exceptions/project_exceptions.dart';
-import '../value_objects/project/project_ref.dart';
+import '../../domain/exceptions/project_exceptions.dart';
+import '../../domain/value_objects/project/project_ref.dart';
+import '../repositories/project_repository.dart';
 
 class ProjectExistsGuard {
   ProjectExistsGuard(this._repo);
