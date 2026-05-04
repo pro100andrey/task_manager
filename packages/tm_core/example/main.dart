@@ -11,6 +11,7 @@ Future<void> main() async {
   await configureTmCoreDependencies();
 
   final createOp = getIt<ProjectCreateOperation>();
+  
   final result = await createOp.execute(
     const ProjectCreateCommand(
       name: 'My first project',

@@ -12,11 +12,14 @@ class OperationPipeline {
     Future<Result<S, F>> Function() action,
   ) {
     var next = action;
+    
     for (final behavior in _behaviors.reversed) {
       final b = behavior;
       final n = next;
+
       next = () => b.handle(ctx, n);
     }
+
     return next();
   }
 }
