@@ -17,8 +17,14 @@ import '../adapters/repositories/mem_projects_repository_impl.dart' as _i949;
 import '../adapters/tracing/logging_tracing_port_impl.dart' as _i629;
 import '../adapters/transaction/no_op_transaction_port_impl.dart' as _i1016;
 import '../application/operations/operation_pipeline.dart' as _i840;
+import '../application/operations/project/project_change_description_operation.dart'
+    as _i789;
 import '../application/operations/project/project_create_operation.dart'
     as _i797;
+import '../application/operations/project/project_rename_operation.dart'
+    as _i480;
+import '../application/operations/project/project_update_operation.dart'
+    as _i406;
 import '../application/ports/domain_event_bus.dart' as _i512;
 import '../application/ports/project_repository.dart' as _i102;
 import '../application/ports/tracing_port.dart' as _i969;
@@ -59,6 +65,15 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i676.GetAllProjectsQuery>(
     () => applicationModule.getAllProjectsQuery,
+  );
+  gh.lazySingleton<_i480.ProjectRenameOperation>(
+    () => applicationModule.projectRenameOperation,
+  );
+  gh.lazySingleton<_i789.ProjectChangeDescriptionOperation>(
+    () => applicationModule.projectChangeDescriptionOperation,
+  );
+  gh.lazySingleton<_i406.ProjectUpdateOperation>(
+    () => applicationModule.projectUpdateOperation,
   );
   return getIt;
 }
@@ -101,4 +116,28 @@ class _$ApplicationModule extends _i705.ApplicationModule {
   @override
   _i676.GetAllProjectsQuery get getAllProjectsQuery =>
       _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
+
+  @override
+  _i480.ProjectRenameOperation get projectRenameOperation =>
+      _i480.ProjectRenameOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+      );
+
+  @override
+  _i789.ProjectChangeDescriptionOperation
+  get projectChangeDescriptionOperation =>
+      _i789.ProjectChangeDescriptionOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+      );
+
+  @override
+  _i406.ProjectUpdateOperation get projectUpdateOperation =>
+      _i406.ProjectUpdateOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i480.ProjectRenameOperation>(),
+        _getIt<_i789.ProjectChangeDescriptionOperation>(),
+      );
 }
