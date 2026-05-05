@@ -36,11 +36,8 @@ extension ResultX<T, E> on Result<T, E> {
   R fold<R>({
     required R Function(T value) onSuccess,
     required R Function(E error) onFailure,
-  }) {
-    final result = this;
-    if (result is Success<T, E>) {
-      return onSuccess(result.value);
-    }
-    return onFailure((result as Failure<T, E>).error);
-  }
+  }) => switch (this) {
+    Success(:final value) => onSuccess(value),
+    Failure(:final error) => onFailure(error),
+  };
 }
