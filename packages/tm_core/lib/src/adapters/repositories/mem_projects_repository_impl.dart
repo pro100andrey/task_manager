@@ -62,7 +62,7 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
     }
 
     _storage.remove(id);
-    
+
     if (_currentProjectId == id) {
       _currentProjectId = null;
     }

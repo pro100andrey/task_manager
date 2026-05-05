@@ -129,7 +129,7 @@ void main() {
       );
       final createdProject =
           (created as Success<Project, ProjectCreateFailure>).value;
-      
+
       final result = await updateOp.execute(
         ProjectUpdateCommand(
           projectId: createdProject.id,

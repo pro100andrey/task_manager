@@ -264,7 +264,7 @@ class GetActiveFrontQuery {
     if (effort == null || effort <= 0) {
       return 0;
     }
-    
+
     final elapsed = DateTime.now()
         .difference(task.lastProgressAt)
         .inSeconds

@@ -1,6 +1,8 @@
 import 'package:uuid/uuid.dart';
 import 'package:uuid/validation.dart';
 
+/// Represents a unique identifier for a Project in the Task Manager
+/// application.
 extension type const ProjectId(String value) {
   /// Factory constructor to generate a new ProjectId with a unique UUID (v7).
   factory ProjectId.generate() {

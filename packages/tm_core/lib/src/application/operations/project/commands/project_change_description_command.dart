@@ -7,6 +7,10 @@ class ProjectChangeDescriptionCommand extends Command {
     this.description,
   });
 
+  /// The unique identifier of the project to update.
   final ProjectId projectId;
+
+  /// The new description for the project. If null, the description will not be
+  /// changed.
   final ProjectDescription? description;
 }

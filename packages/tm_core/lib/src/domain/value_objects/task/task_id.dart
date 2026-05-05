@@ -4,7 +4,6 @@ import 'package:uuid/validation.dart';
 /// A value object representing a task's unique identifier.
 extension type const TaskId._(String value) implements String {
   factory TaskId(String value) {
-
     if (!UuidValidation.isValidUUID(fromString: value)) {
       throw FormatException('Invalid UUID format for TaskId: $value');
     }
