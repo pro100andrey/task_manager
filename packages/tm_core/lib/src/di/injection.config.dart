@@ -70,6 +70,9 @@ _i174.GetIt $initTmCore(
   final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
   final coreModule = _$CoreModule(getIt);
   final applicationModule = _$ApplicationModule(getIt);
+  gh.lazySingleton<_i300.TracingLoggingConfig>(
+    () => coreModule.tracingLoggingConfig,
+  );
   gh.lazySingleton<_i159.TaskRepository>(() => coreModule.tasksRepository);
   gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
   gh.lazySingleton<_i541.TaskLinkRepository>(
@@ -90,9 +93,6 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i775.TaskLinkRemoveOperation>(
     () => applicationModule.taskLinkRemoveOperation,
-  );
-  gh.lazySingleton<_i629.LoggingTracingPortImpl>(
-    () => coreModule.loggingTracingPortImpl(gh<_i300.TracingLoggingConfig>()),
   );
   gh.lazySingleton<_i703.TaskCreateOperation>(
     () => applicationModule.taskCreateOperation,

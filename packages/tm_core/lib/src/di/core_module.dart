@@ -38,8 +38,7 @@ abstract class CoreModule {
   LoggingTracingPortImpl get tracingPort;
 
   @lazySingleton
-  LoggingTracingPortImpl loggingTracingPortImpl(TracingLoggingConfig config) =>
-      LoggingTracingPortImpl(config: config);
+  TracingLoggingConfig get tracingLoggingConfig => const TracingLoggingConfig();
 
   @lazySingleton
   OperationPipeline operationPipeline(
