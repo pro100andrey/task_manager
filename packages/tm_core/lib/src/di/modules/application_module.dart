@@ -18,6 +18,7 @@ import '../../application/operations/task_link/task_link_add_operation.dart';
 import '../../application/operations/task_link/task_link_remove_operation.dart';
 import '../../application/queries/project/get_all_projects_query.dart';
 import '../../application/queries/project/get_current_project_query.dart';
+import '../../application/queries/task/get_active_front_query.dart';
 
 @module
 abstract class ApplicationModule {
@@ -75,4 +76,8 @@ abstract class ApplicationModule {
 
   @LazySingleton()
   GetAllProjectsQuery get getAllProjectsQuery;
+
+  // Task Queries
+  @lazySingleton
+  GetActiveFrontQuery get getActiveFrontQuery;
 }

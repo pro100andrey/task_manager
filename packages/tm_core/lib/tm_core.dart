@@ -51,6 +51,8 @@ export 'src/application/operations/task_link/task_link_remove_operation.dart';
 export 'src/application/ports/task_link_repository.dart';
 export 'src/application/queries/project/get_all_projects_query.dart';
 export 'src/application/queries/project/get_current_project_query.dart';
+export 'src/application/queries/task/active_front_result.dart';
+export 'src/application/queries/task/get_active_front_query.dart';
 export 'src/di/injection.dart';
 export 'src/domain/entities/project.dart';
 export 'src/domain/entities/task.dart';

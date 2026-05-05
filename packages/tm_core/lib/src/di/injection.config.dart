@@ -51,6 +51,7 @@ import '../application/ports/tracing_port.dart' as _i969;
 import '../application/ports/transaction_port.dart' as _i1007;
 import '../application/queries/project/get_all_projects_query.dart' as _i676;
 import '../application/queries/project/get_current_project_query.dart' as _i775;
+import '../application/queries/task/get_active_front_query.dart' as _i846;
 import 'core_module.dart' as _i154;
 import 'modules/application_module.dart' as _i705;
 
@@ -86,6 +87,9 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i703.TaskCreateOperation>(
     () => applicationModule.taskCreateOperation,
+  );
+  gh.lazySingleton<_i846.GetActiveFrontQuery>(
+    () => applicationModule.getActiveFrontQuery,
   );
   gh.lazySingleton<_i797.ProjectCreateOperation>(
     () => applicationModule.projectCreateOperation,
@@ -186,6 +190,13 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i159.TaskRepository>(),
         _getIt<_i102.ProjectRepository>(),
         _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i846.GetActiveFrontQuery get getActiveFrontQuery =>
+      _i846.GetActiveFrontQuery(
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
       );
 
   @override

@@ -46,11 +46,27 @@ Future<void> main() async {
       }
   }
 
-  // final renameOp = getIt<ProjectRenameOperation>();
-  // final renameResult = await renameOp.execute(
-  //   ProjectRenameCommand(
-  //     projectId: project.,
-  //     newName: 'Renamed project',
-  //   ),
-  // );
+  final projectId = project.value!.id;
+
+  final renameOp = getIt<ProjectRenameOperation>();
+  final renameResult = await renameOp.execute(
+    ProjectRenameCommand(
+      projectId: projectId.value,
+      newName: 'Renamed project',
+    ),
+  );
+
+  switch (renameResult) {
+    case Success(:final value):
+      stdout.writeln('Project renamed to: ${value.name.value}');
+    case Failure(:final error):
+      switch (error) {
+        case ProjectMutationNotFound(:final ref):
+          stdout.writeln('Failed to rename project: not found (id: $ref)');
+        case ProjectMutationNameAlreadyExists(:final name):
+          stdout.writeln(
+            'Failed to rename project: name already exists (name: $name)',
+          );
+      }
+  }
 }
