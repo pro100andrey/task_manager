@@ -1,4 +1,6 @@
-class TaskLinkAddCommand {
+import '../../command.dart';
+
+class TaskLinkAddCommand extends Command {
   const TaskLinkAddCommand({
     required this.fromTaskId,
     required this.toTaskId,

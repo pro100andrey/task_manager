@@ -59,34 +59,37 @@ void main() {
       bus.listen<Object>(events.add);
 
       final created = await createOp.execute(
-        const ProjectCreateCommand(name: 'Alpha', description: 'v1'),
+        const ProjectCreateCommand(
+          name: .new('Alpha'),
+          description: .new('v1'),
+        ),
       );
       final createdProject =
           (created as Success<Project, ProjectCreateFailure>).value;
-      final projectId = createdProject.id.raw;
+      final projectId = createdProject.id;
 
       final result = await renameOp.execute(
-        ProjectRenameCommand(projectId: projectId, newName: 'Beta'),
+        ProjectRenameCommand(projectId: projectId, newName: const .new('Beta')),
       );
 
       expect(result.isSuccess, isTrue);
       final renamed =
           (result as Success<Project, ProjectMutationFailure>).value;
-      expect(renamed.name.raw, 'Beta');
+      expect(renamed.name, 'Beta');
       expect(events.whereType<ProjectRenamedEvent>(), hasLength(1));
     });
 
     test('ProjectRenameOperation fails on duplicate name', () async {
-      await createOp.execute(const ProjectCreateCommand(name: 'Alpha'));
+      await createOp.execute(const ProjectCreateCommand(name: .new('Alpha')));
       final second = await createOp.execute(
-        const ProjectCreateCommand(name: 'Beta'),
+        const ProjectCreateCommand(name: .new('Beta')),
       );
       final secondProject =
           (second as Success<Project, ProjectCreateFailure>).value;
-      final secondId = secondProject.id.raw;
+      final secondId = secondProject.id;
 
       final result = await renameOp.execute(
-        ProjectRenameCommand(projectId: secondId, newName: 'Alpha'),
+        ProjectRenameCommand(projectId: secondId, newName: const .new('Alpha')),
       );
 
       expect(result.isFailure, isTrue);
@@ -100,47 +103,46 @@ void main() {
       bus.listen<Object>(events.add);
 
       final created = await createOp.execute(
-        const ProjectCreateCommand(name: 'Alpha'),
+        const ProjectCreateCommand(name: .new('Alpha')),
       );
       final createdProject =
           (created as Success<Project, ProjectCreateFailure>).value;
-      final projectId = createdProject.id.raw;
+      final projectId = createdProject.id;
 
       final result = await changeDescriptionOp.execute(
         ProjectChangeDescriptionCommand(
           projectId: projectId,
-          description: 'Detailed text',
+          description: const .new('Detailed text'),
         ),
       );
 
       expect(result.isSuccess, isTrue);
       final updated =
           (result as Success<Project, ProjectMutationFailure>).value;
-      expect(updated.description?.raw, 'Detailed text');
+      expect(updated.description, 'Detailed text');
       expect(events.whereType<ProjectDescriptionChangedEvent>(), hasLength(1));
     });
 
     test('ProjectUpdateOperation changes both name and description', () async {
       final created = await createOp.execute(
-        const ProjectCreateCommand(name: 'Alpha'),
+        const ProjectCreateCommand(name: .new('Alpha')),
       );
       final createdProject =
           (created as Success<Project, ProjectCreateFailure>).value;
-      final projectId = createdProject.id.raw;
-
+      
       final result = await updateOp.execute(
         ProjectUpdateCommand(
-          projectId: projectId,
-          name: 'Omega',
-          description: 'final',
+          projectId: createdProject.id,
+          name: const .new('Omega'),
+          description: const .new('final'),
         ),
       );
 
       expect(result.isSuccess, isTrue);
       final updated =
           (result as Success<Project, ProjectMutationFailure>).value;
-      expect(updated.name.raw, 'Omega');
-      expect(updated.description?.raw, 'final');
+      expect(updated.name, 'Omega');
+      expect(updated.description, 'final');
     });
   });
 }

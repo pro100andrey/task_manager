@@ -1,4 +1,6 @@
-class TaskMoveCommand {
+import '../../command.dart';
+
+class TaskMoveCommand extends Command {
   const TaskMoveCommand({required this.taskId, this.newParentId});
 
   final String taskId;

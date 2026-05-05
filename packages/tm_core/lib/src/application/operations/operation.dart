@@ -1,9 +1,10 @@
 import '../../domain/result.dart';
+import 'command.dart';
 import 'operation_context.dart';
 import 'operation_pipeline.dart';
 import 'operation_policy.dart';
 
-abstract class Operation<C, S, F> {
+abstract class Operation<C extends Command, S, F> {
   Operation(OperationPipeline pipeline) : _pipeline = pipeline;
 
   final OperationPipeline _pipeline;

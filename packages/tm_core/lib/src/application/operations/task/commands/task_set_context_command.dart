@@ -1,4 +1,6 @@
-class TaskSetContextCommand {
+import '../../command.dart';
+
+class TaskSetContextCommand extends Command {
   const TaskSetContextCommand({
     required this.taskId,
     required this.contextState,

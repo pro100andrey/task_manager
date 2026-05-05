@@ -1,8 +1,6 @@
 import '../../../domain/entities/project.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/project/project_description.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
@@ -49,23 +47,18 @@ class ProjectChangeDescriptionOperation extends _Operation {
   Future<Result<Project, ProjectMutationFailure>> run(
     ProjectChangeDescriptionCommand command,
   ) async {
-    final id = ProjectId(command.projectId);
-    final current = await _repository.getById(id);
+    final current = await _repository.getById(command.projectId);
 
     if (current == null) {
       return Failure(ProjectMutationNotFound(command.projectId));
     }
 
-    final description = command.description == null
-        ? null
-        : ProjectDescription(command.description!);
-
-    if (current.description == description) {
+    if (current.description == command.description) {
       return Success(current);
     }
 
     final saved = await _repository.save(
-      current.copyWith(description: description),
+      current.copyWith(description: command.description),
     );
 
     await _bus.publish(DomainEvent.projectDescriptionChanged(project: saved));

@@ -1,6 +1,5 @@
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
@@ -37,16 +36,15 @@ class ProjectDeleteOperation extends _Operation {
     ProjectDeleteCommand command,
     OperationContext context,
   ) => OperationPolicySet([
-    ProjectDeleteExistsPolicy(_repository, (cmd) => cmd.projectId),
+    ProjectDeleteExistsPolicy(_repository, (cmd) => cmd.projectId.value),
   ]);
 
   @override
   Future<Result<void, ProjectDeleteFailure>> run(
     ProjectDeleteCommand command,
   ) async {
-    final id = ProjectId(command.projectId);
-    await _repository.delete(id);
-    await _bus.publish(ProjectDeletedEvent(projectId: id));
+    await _repository.delete(command.projectId);
+    await _bus.publish(ProjectDeletedEvent(projectId: command.projectId));
 
     return const Success(null);
   }

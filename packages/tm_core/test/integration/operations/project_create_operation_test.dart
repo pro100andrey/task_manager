@@ -33,18 +33,18 @@ void main() {
   group('ProjectCreateOperation', () {
     test('creates a project and returns Success', () async {
       final result = await op.execute(
-        const ProjectCreateCommand(name: 'Alpha'),
+        const ProjectCreateCommand(name: .new('Alpha')),
       );
 
       expect(result.isSuccess, isTrue);
       final project = (result as Success<Project, ProjectCreateFailure>).value;
-      expect(project.name.raw, 'Alpha');
+      expect(project.name, 'Alpha');
     });
 
     test('returns Failure when name already exists', () async {
-      await op.execute(const ProjectCreateCommand(name: 'Alpha'));
+      await op.execute(const ProjectCreateCommand(name: .new('Alpha')));
       final second = await op.execute(
-        const ProjectCreateCommand(name: 'Alpha'),
+        const ProjectCreateCommand(name: .new('Alpha')),
       );
 
       expect(second.isFailure, isTrue);
@@ -58,7 +58,7 @@ void main() {
       final events = <Object>[];
       bus.listen<Object>(events.add);
 
-      await op.execute(const ProjectCreateCommand(name: 'Beta'));
+      await op.execute(const ProjectCreateCommand(name: .new('Beta')));
       await Future<void>.delayed(Duration.zero);
 
       expect(events, hasLength(1));
@@ -68,11 +68,11 @@ void main() {
       final events = <Object>[];
       bus.listen<Object>(events.add);
 
-      await op.execute(const ProjectCreateCommand(name: 'Beta'));
+      await op.execute(const ProjectCreateCommand(name: .new('Beta')));
       await Future<void>.delayed(Duration.zero);
       final before = events.length;
 
-      await op.execute(const ProjectCreateCommand(name: 'Beta'));
+      await op.execute(const ProjectCreateCommand(name: .new('Beta')));
       await Future<void>.delayed(Duration.zero);
 
       expect(events.length, before); // no new event
@@ -80,16 +80,21 @@ void main() {
 
     test('creates project with description', () async {
       final result = await op.execute(
-        const ProjectCreateCommand(name: 'X', description: 'details'),
+        const ProjectCreateCommand(
+          name: .new('X'),
+          description: .new('details'),
+        ),
       );
       final project = (result as Success<Project, ProjectCreateFailure>).value;
-      expect(project.description?.raw, 'details');
+      expect(project.description, 'details');
     });
 
     test('fold helper returns correct branch', () async {
-      final result = await op.execute(const ProjectCreateCommand(name: 'Fold'));
+      final result = await op.execute(
+        const ProjectCreateCommand(name: .new('Fold')),
+      );
       final name = result.fold(
-        onSuccess: (p) => p.name.raw,
+        onSuccess: (p) => p.name,
         onFailure: (_) => 'FAIL',
       );
       expect(name, 'Fold');
@@ -102,19 +107,21 @@ void main() {
     });
 
     test('switchCurrentProject sets current project', () async {
-      final r = await op.execute(const ProjectCreateCommand(name: 'Current'));
+      final r = await op.execute(
+        const ProjectCreateCommand(name: .new('Current')),
+      );
       final project = (r as Success<Project, ProjectCreateFailure>).value;
 
       final switched = await repo.switchCurrentProject(project.id);
-      expect(switched.name.raw, 'Current');
+      expect(switched.name, 'Current');
 
       final current = await repo.getCurrentProject();
-      expect(current?.name.raw, 'Current');
+      expect(current?.name, 'Current');
     });
 
     test('switchCurrentProject throws for unknown id', () async {
       final id = (await op.execute(
-        const ProjectCreateCommand(name: 'X'),
+        const ProjectCreateCommand(name: .new('X')),
       )).fold(onSuccess: (p) => p.id, onFailure: (_) => throw Exception());
 
       // delete from storage by creating a fresh repo to get an unknown id

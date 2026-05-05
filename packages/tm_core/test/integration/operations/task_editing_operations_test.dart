@@ -64,13 +64,13 @@ void main() {
     taskRenameAlias = TaskRenameAliasOperation(pipeline, taskRepo, bus);
 
     final projResult = await projectCreate.execute(
-      const ProjectCreateCommand(name: 'My Project'),
+      const ProjectCreateCommand(name: .new('My Project')),
     );
     project = (projResult as Success<Project, dynamic>).value;
 
     Future<Task> createTask(String title) async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: title),
+        TaskCreateCommand(projectId: project.id.value, title: title),
       );
       return (r as Success<Task, dynamic>).value;
     }
@@ -349,7 +349,7 @@ void main() {
     test('detects deeper cycle A→B→C, then try to make A child of C', () async {
       // Create third task C
       final rC = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Task C'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Task C'),
       );
       final taskC = (rC as Success<Task, dynamic>).value;
 
@@ -376,11 +376,11 @@ void main() {
       'returns TaskMoveCrossProject when parent in different project',
       () async {
         final projResult2 = await projectCreate.execute(
-          const ProjectCreateCommand(name: 'Project 2'),
+          const ProjectCreateCommand(name: .new('Project 2')),
         );
         final project2 = (projResult2 as Success<Project, dynamic>).value;
         final rX = await taskCreate.execute(
-          TaskCreateCommand(projectId: project2.id.raw, title: 'Task X'),
+          TaskCreateCommand(projectId: project2.id.value, title: 'Task X'),
         );
         final taskX = (rX as Success<Task, dynamic>).value;
 

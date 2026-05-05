@@ -18,7 +18,7 @@ class ProjectCreateNameUniquePolicy extends _Policy {
     OperationContext context,
   ) async {
     final existing = await _repository.getByRef(
-      ProjectRef.name(ProjectName(command.name)),
+      ProjectRef.name(command.name),
     );
 
     if (existing != null) {

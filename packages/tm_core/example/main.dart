@@ -21,8 +21,8 @@ Future<void> main() async {
 
   final project = await createOp.execute(
     const ProjectCreateCommand(
-      name: 'My first project',
-      description: 'This is a sample project',
+      name: .new('My first project'),
+      description: .new('This is a sample project'),
     ),
   );
 
@@ -35,8 +35,8 @@ Future<void> main() async {
   final renameOp = getIt<ProjectRenameOperation>();
   final renameResult = await renameOp.execute(
     ProjectRenameCommand(
-      projectId: projectId.raw,
-      newName: 'Renamed project',
+      projectId: projectId,
+      newName: const .new('Renamed project'),
     ),
   );
 

@@ -13,27 +13,16 @@ class ProjectCreateInputValidPolicy extends _Policy {
   ) async {
     final failures = <ProjectCreateFailure>[];
 
-    if (command.name.isEmpty) {
-      failures.add(
-        const ProjectCreateInvalidName('ProjectName cannot be empty'),
-      );
+    if (command.name.cannotBeEmptyError case final err?) {
+      failures.add(ProjectCreateInvalidName(err));
     }
 
-    final description = command.description;
-    if (description != null) {
-      if (description.isEmpty) {
-        failures.add(
-          const ProjectCreateInvalidDescription(
-            'ProjectDescription cannot be empty',
-          ),
-        );
-      } else if (description.length > 500) {
-        failures.add(
-          const ProjectCreateInvalidDescription(
-            'ProjectDescription cannot exceed 500 characters',
-          ),
-        );
-      }
+    if (command.description?.cannotBeEmptyError case final err?) {
+      failures.add(ProjectCreateInvalidDescription(err));
+    }
+
+    if (command.description?.cannotExceedMaxLengthError case final err?) {
+      failures.add(ProjectCreateInvalidDescription(err));
     }
 
     return failures;

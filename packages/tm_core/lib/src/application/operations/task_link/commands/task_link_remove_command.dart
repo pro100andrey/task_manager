@@ -1,4 +1,6 @@
-class TaskLinkRemoveCommand {
+import '../../command.dart';
+
+class TaskLinkRemoveCommand extends Command {
   const TaskLinkRemoveCommand({
     required this.fromTaskId,
     required this.toTaskId,

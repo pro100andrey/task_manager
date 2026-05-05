@@ -1,4 +1,8 @@
-class ProjectUpdateCommand {
+
+import '../../../../domain/value_objects/value_objects.dart';
+import '../../command.dart';
+
+class ProjectUpdateCommand extends Command {
   const ProjectUpdateCommand({
     required this.projectId,
     this.name,
@@ -8,7 +12,7 @@ class ProjectUpdateCommand {
          'At least one field (name or description) must be provided.',
        );
 
-  final String projectId;
-  final String? name;
-  final String? description;
+  final ProjectId projectId;
+  final ProjectName? name;
+  final ProjectDescription? description;
 }

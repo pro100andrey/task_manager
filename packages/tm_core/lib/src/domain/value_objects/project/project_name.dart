@@ -1,11 +1,4 @@
-extension type ProjectName._(String value) {
-  factory ProjectName(String value) {
-    if (value case String(isEmpty: true)) {
-      throw ArgumentError('ProjectName cannot be empty');
-    }
-
-    return ProjectName._(value);
-  }
-
-  String get raw => value;
+extension type const ProjectName(String value) {
+  String? get cannotBeEmptyError =>
+      value.isEmpty ? 'ProjectName cannot be empty' : null;
 }

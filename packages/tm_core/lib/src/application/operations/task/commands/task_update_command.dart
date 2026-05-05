@@ -1,4 +1,6 @@
-class TaskUpdateCommand {
+import '../../command.dart';
+
+class TaskUpdateCommand extends Command {
   const TaskUpdateCommand({
     required this.taskId,
     this.title,

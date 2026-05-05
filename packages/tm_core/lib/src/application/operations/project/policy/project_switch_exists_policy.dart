@@ -1,10 +1,11 @@
 import '../../../../domain/value_objects/project/project_id.dart';
 import '../../../ports/project_repository.dart';
+import '../../command.dart';
 import '../../operation_context.dart';
 import '../../operation_policy.dart';
 import '../failures/project_switch_failure.dart';
 
-class ProjectSwitchExistsPolicy<C>
+class ProjectSwitchExistsPolicy<C extends Command>
     extends PreconditionPolicy<C, ProjectSwitchFailure> {
   ProjectSwitchExistsPolicy(this._repository, this._projectIdSelector);
 

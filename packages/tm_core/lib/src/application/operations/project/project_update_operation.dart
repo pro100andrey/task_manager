@@ -50,7 +50,7 @@ class ProjectUpdateOperation extends _Operation {
   Future<Result<Project, ProjectMutationFailure>> run(
     ProjectUpdateCommand command,
   ) async {
-    var current = await _repository.getById(.new(command.projectId));
+    var current = await _repository.getById(command.projectId);
     if (current == null) {
       return Failure(ProjectMutationNotFound(command.projectId));
     }

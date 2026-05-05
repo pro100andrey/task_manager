@@ -1,10 +1,11 @@
 import '../../../../domain/value_objects/project/project_id.dart';
 import '../../../ports/project_repository.dart';
+import '../../command.dart';
 import '../../operation_context.dart';
 import '../../operation_policy.dart';
 import '../failures/project_delete_failure.dart';
 
-class ProjectDeleteExistsPolicy<C>
+class ProjectDeleteExistsPolicy<C extends Command>
     extends PreconditionPolicy<C, ProjectDeleteFailure> {
   ProjectDeleteExistsPolicy(this._repository, this._projectIdSelector);
 

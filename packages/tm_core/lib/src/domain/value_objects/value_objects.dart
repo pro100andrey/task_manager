@@ -1,6 +1,7 @@
 ///
 library;
 
+export 'project/project_description.dart';
 export 'project/project_id.dart';
 export 'project/project_name.dart';
 export 'project/project_ref.dart';

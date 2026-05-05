@@ -5,19 +5,7 @@ import 'package:tm_core/src/adapters/events/domain_event_bus_impl.dart';
 import 'package:tm_core/src/adapters/repositories/mem_projects_repository_impl.dart';
 import 'package:tm_core/src/adapters/tracing/logging_tracing_port_impl.dart';
 import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dart';
-import 'package:tm_core/src/application/operations/operation_pipeline.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_create_command.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_delete_command.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_switch_command.dart';
-import 'package:tm_core/src/application/operations/project/failures/project_delete_failure.dart';
-import 'package:tm_core/src/application/operations/project/failures/project_switch_failure.dart';
-import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
-import 'package:tm_core/src/application/operations/project/project_delete_operation.dart';
-import 'package:tm_core/src/application/operations/project/project_switch_operation.dart';
-import 'package:tm_core/src/domain/entities/project.dart';
-import 'package:tm_core/src/domain/events/domain_event.dart';
-import 'package:tm_core/src/domain/result.dart';
-import 'package:tm_core/src/domain/value_objects/project/project_id.dart';
+import 'package:tm_core/tm_core.dart';
 
 OperationPipeline _pipeline() => OperationPipeline([
   TracingBehavior(LoggingTracingPortImpl()),
@@ -42,7 +30,7 @@ void main() {
 
   tearDown(() => bus.dispose());
 
-  Future<Project> createProject(String name) async {
+  Future<Project> createProject(ProjectName name) async {
     final r = await createOp.execute(ProjectCreateCommand(name: name));
     return (r as Success<Project, dynamic>).value;
   }
@@ -51,10 +39,10 @@ void main() {
 
   group('ProjectDeleteOperation', () {
     test('deletes an existing project and returns Success(null)', () async {
-      final project = await createProject('ToDelete');
+      final project = await createProject(const .new('ToDelete'));
 
       final result = await deleteOp.execute(
-        ProjectDeleteCommand(projectId: project.id.raw),
+        ProjectDeleteCommand(projectId: project.id),
       );
 
       expect(result.isSuccess, isTrue);
@@ -62,31 +50,30 @@ void main() {
     });
 
     test('returns ProjectDeleteNotFound for unknown id', () async {
-      final project = await createProject('Ghost');
-      final id = project.id.raw;
+      final project = await createProject(const .new('Ghost'));
 
       // delete once so it's gone
-      await deleteOp.execute(ProjectDeleteCommand(projectId: id));
+      await deleteOp.execute(ProjectDeleteCommand(projectId: project.id));
 
       final second = await deleteOp.execute(
-        ProjectDeleteCommand(projectId: id),
+        ProjectDeleteCommand(projectId: project.id),
       );
 
       expect(second.isFailure, isTrue);
       final err = (second as Failure<void, ProjectDeleteFailure>).error;
       expect(err, isA<ProjectDeleteNotFound>());
-      expect((err as ProjectDeleteNotFound).ref, id);
+      expect((err as ProjectDeleteNotFound).ref, project.id);
     });
 
     test('publishes ProjectDeletedEvent on success', () async {
       final events = <DomainEvent>[];
       bus.listen<DomainEvent>(events.add);
 
-      final project = await createProject('Evented');
+      final project = await createProject(const .new('Evented'));
       events.clear(); // discard ProjectCreatedEvent
 
       await deleteOp.execute(
-        ProjectDeleteCommand(projectId: project.id.raw),
+        ProjectDeleteCommand(projectId: project.id),
       );
       await Future<void>.delayed(Duration.zero);
 
@@ -100,7 +87,7 @@ void main() {
       final events = <DomainEvent>[];
       bus.listen<DomainEvent>(events.add);
 
-      final unknownId = ProjectId.generate().raw;
+      final unknownId = ProjectId.generate();
       await deleteOp.execute(
         ProjectDeleteCommand(projectId: unknownId),
       );
@@ -111,13 +98,13 @@ void main() {
     });
 
     test('clears current project when active project is deleted', () async {
-      final project = await createProject('Active');
+      final project = await createProject(const ProjectName('Active'));
       await repo.switchCurrentProject(project.id);
 
       expect(await repo.getCurrentProject(), isNotNull);
 
       await deleteOp.execute(
-        ProjectDeleteCommand(projectId: project.id.raw),
+        ProjectDeleteCommand(projectId: project.id),
       );
 
       expect(await repo.getCurrentProject(), isNull);
@@ -128,10 +115,10 @@ void main() {
 
   group('ProjectSwitchOperation', () {
     test('switches to existing project and returns Success(project)', () async {
-      final project = await createProject('Target');
+      final project = await createProject(const .new('Target'));
 
       final result = await switchOp.execute(
-        ProjectSwitchCommand(projectId: project.id.raw),
+        ProjectSwitchCommand(projectId: project.id.value),
       );
 
       expect(result.isSuccess, isTrue);
@@ -141,7 +128,7 @@ void main() {
     });
 
     test('returns ProjectSwitchNotFound for unknown id', () async {
-      final unknownId = ProjectId.generate().raw;
+      final unknownId = ProjectId.generate().value;
       final result = await switchOp.execute(
         ProjectSwitchCommand(projectId: unknownId),
       );
@@ -157,17 +144,17 @@ void main() {
         final events = <DomainEvent>[];
         bus.listen<DomainEvent>(events.add);
 
-        final first = await createProject('First');
-        final second = await createProject('Second');
+        final first = await createProject(const .new('First'));
+        final second = await createProject(const .new('Second'));
 
         await switchOp.execute(
-          ProjectSwitchCommand(projectId: first.id.raw),
+          ProjectSwitchCommand(projectId: first.id.value),
         );
         await Future<void>.delayed(Duration.zero);
         events.clear();
 
         await switchOp.execute(
-          ProjectSwitchCommand(projectId: second.id.raw),
+          ProjectSwitchCommand(projectId: second.id.value),
         );
         await Future<void>.delayed(Duration.zero);
 
@@ -185,11 +172,11 @@ void main() {
         final events = <DomainEvent>[];
         bus.listen<DomainEvent>(events.add);
 
-        final project = await createProject('OnlyOne');
+        final project = await createProject(const .new('OnlyOne'));
         events.clear();
 
         await switchOp.execute(
-          ProjectSwitchCommand(projectId: project.id.raw),
+          ProjectSwitchCommand(projectId: project.id.value),
         );
         await Future<void>.delayed(Duration.zero);
 
@@ -203,7 +190,7 @@ void main() {
       final events = <DomainEvent>[];
       bus.listen<DomainEvent>(events.add);
 
-      final ghostId = ProjectId.generate().raw;
+      final ghostId = ProjectId.generate().value;
       await switchOp.execute(
         ProjectSwitchCommand(projectId: ghostId),
       );
@@ -213,13 +200,13 @@ void main() {
     });
 
     test('updates getCurrentProject after switch', () async {
-      final a = await createProject('A');
-      final b = await createProject('B');
+      final a = await createProject(const .new('A'));
+      final b = await createProject(const .new('B'));
 
-      await switchOp.execute(ProjectSwitchCommand(projectId: a.id.raw));
+      await switchOp.execute(ProjectSwitchCommand(projectId: a.id.value));
       expect((await repo.getCurrentProject())?.id, a.id);
 
-      await switchOp.execute(ProjectSwitchCommand(projectId: b.id.raw));
+      await switchOp.execute(ProjectSwitchCommand(projectId: b.id.value));
       expect((await repo.getCurrentProject())?.id, b.id);
     });
   });
@@ -229,7 +216,7 @@ void main() {
   group('Project.createdAt', () {
     test('is set to UTC datetime on creation', () async {
       final before = DateTime.now().toUtc();
-      final project = await createProject('Timestamped');
+      final project = await createProject(const .new('Timestamped'));
       final after = DateTime.now().toUtc();
 
       expect(project.createdAt.isUtc, isTrue);

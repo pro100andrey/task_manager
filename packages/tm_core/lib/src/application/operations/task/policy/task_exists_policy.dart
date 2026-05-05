@@ -1,9 +1,10 @@
 import '../../../../domain/value_objects/task/task_id.dart';
 import '../../../ports/task_repository.dart';
+import '../../command.dart';
 import '../../operation_context.dart';
 import '../../operation_policy.dart';
 
-class TaskExistsPolicy<C, F> extends PreconditionPolicy<C, F> {
+class TaskExistsPolicy<C extends Command, F> extends PreconditionPolicy<C, F> {
   TaskExistsPolicy(this._repository, this._taskIdSelector, this._notFound);
 
   final TaskRepository _repository;

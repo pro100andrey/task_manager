@@ -60,13 +60,13 @@ void main() {
 
     // Create a project and three tasks for use in tests.
     final projResult = await projectCreate.execute(
-      const ProjectCreateCommand(name: 'Test Project'),
+      const ProjectCreateCommand(name: .new('Test Project')),
     );
     project = (projResult as Success<Project, dynamic>).value;
 
     Future<Task> createTask(String title) async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: title),
+        TaskCreateCommand(projectId: project.id.value, title: title),
       );
       return (r as Success<Task, dynamic>).value;
     }

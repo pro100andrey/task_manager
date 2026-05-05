@@ -1,20 +1,22 @@
+import '../../../../../tm_core.dart';
+
 sealed class ProjectMutationFailure {
   const ProjectMutationFailure();
 }
 
 final class ProjectMutationNotFound extends ProjectMutationFailure {
-  const ProjectMutationNotFound(this.ref);
+  const ProjectMutationNotFound(this.id);
 
-  final String ref;
+  final ProjectId id;
 
   @override
-  String toString() => 'ProjectMutationNotFound(ref: $ref)';
+  String toString() => 'ProjectMutationNotFound(id: $id)';
 }
 
 final class ProjectMutationNameAlreadyExists extends ProjectMutationFailure {
   const ProjectMutationNameAlreadyExists(this.name);
 
-  final String name;
+  final ProjectName name;
 
   @override
   String toString() => 'ProjectMutationNameAlreadyExists(name: $name)';

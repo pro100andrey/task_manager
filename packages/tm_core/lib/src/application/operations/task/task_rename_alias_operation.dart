@@ -15,7 +15,7 @@ import 'failures/task_rename_alias_failure.dart';
 import 'policy/task_exists_policy.dart';
 
 typedef _Operation =
-    Operation<TaskRenameAliasCommand, Task, TaskRenameAliasFailure>;
+    Operation<TaskRenameAliasCommand , Task, TaskRenameAliasFailure>;
 
 class TaskRenameAliasOperation extends _Operation {
   TaskRenameAliasOperation(super.pipeline, this._repository, this._bus);

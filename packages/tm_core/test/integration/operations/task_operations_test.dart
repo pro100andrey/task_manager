@@ -73,7 +73,7 @@ void main() {
     taskDelete = TaskDeleteOperation(pipeline, taskRepo, bus);
 
     final pr = await projectCreate.execute(
-      const ProjectCreateCommand(name: 'My Project'),
+      const ProjectCreateCommand(name: .new('My Project')),
     );
     project = (pr as Success<Project, dynamic>).value;
   });
@@ -85,7 +85,7 @@ void main() {
   group('TaskCreateOperation', () {
     test('creates a task and returns Success', () async {
       final result = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Do something'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Do something'),
       );
 
       expect(result.isSuccess, isTrue);
@@ -100,7 +100,7 @@ void main() {
       bus.listen<Object>(events.add);
 
       await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'A'),
+        TaskCreateCommand(projectId: project.id.value, title: 'A'),
       );
 
       expect(events, anyElement(isA<TaskCreatedEvent>()));
@@ -108,7 +108,7 @@ void main() {
 
     test('returns Failure for empty title', () async {
       final result = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: '  '),
+        TaskCreateCommand(projectId: project.id.value, title: '  '),
       );
 
       expect(result.isFailure, isTrue);
@@ -121,7 +121,7 @@ void main() {
     test('returns Failure when project not found', () async {
       final result = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: ProjectId.generate().raw,
+          projectId: ProjectId.generate().value,
           title: 'A',
         ),
       );
@@ -136,7 +136,7 @@ void main() {
     test('normalizes and stores alias', () async {
       final result = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.raw,
+          projectId: project.id.value,
           title: 'My Task',
           alias: 'My Task',
         ),
@@ -150,7 +150,7 @@ void main() {
     test('returns Failure when alias already exists', () async {
       await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.raw,
+          projectId: project.id.value,
           title: 'First',
           alias: 'same-alias',
         ),
@@ -158,7 +158,7 @@ void main() {
 
       final second = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.raw,
+          projectId: project.id.value,
           title: 'Second',
           alias: 'same-alias',
         ),
@@ -179,14 +179,14 @@ void main() {
 
     setUp(() async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Start me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Start me'),
       );
       pendingTask = (r as Success<Task, dynamic>).value;
     });
 
     test('transitions pending → inProgress', () async {
       final result = await taskStart.execute(
-        TaskStartCommand(taskId: pendingTask.id.raw),
+        TaskStartCommand(taskId: pendingTask.id.value),
       );
 
       expect(result.isSuccess, isTrue);
@@ -198,7 +198,7 @@ void main() {
       final events = <Object>[];
       bus.listen<Object>(events.add);
 
-      await taskStart.execute(TaskStartCommand(taskId: pendingTask.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: pendingTask.id.value));
 
       expect(events, anyElement(isA<TaskStartedEvent>()));
     });
@@ -217,10 +217,10 @@ void main() {
 
     test('returns Failure for invalid transition (completed)', () async {
       // start → done → try to start again
-      await taskStart.execute(TaskStartCommand(taskId: pendingTask.id.raw));
-      await taskDone.execute(TaskDoneCommand(taskId: pendingTask.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: pendingTask.id.value));
+      await taskDone.execute(TaskDoneCommand(taskId: pendingTask.id.value));
       final result = await taskStart.execute(
-        TaskStartCommand(taskId: pendingTask.id.raw),
+        TaskStartCommand(taskId: pendingTask.id.value),
       );
 
       expect(result.isFailure, isTrue);
@@ -238,16 +238,16 @@ void main() {
 
     setUp(() async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Complete me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Complete me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
-      final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
+      final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.value));
       inProgressTask = (r2 as Success<Task, dynamic>).value;
     });
 
     test('transitions inProgress → completed', () async {
       final result = await taskDone.execute(
-        TaskDoneCommand(taskId: inProgressTask.id.raw),
+        TaskDoneCommand(taskId: inProgressTask.id.value),
       );
 
       expect(result.isSuccess, isTrue);
@@ -260,18 +260,20 @@ void main() {
       final events = <Object>[];
       bus.listen<Object>(events.add);
 
-      await taskDone.execute(TaskDoneCommand(taskId: inProgressTask.id.raw));
+      await taskDone.execute(TaskDoneCommand(taskId: inProgressTask.id.value));
 
       expect(events, anyElement(isA<TaskCompletedEvent>()));
     });
 
     test('returns Failure when not inProgress', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Pending'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Pending'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
-      final result = await taskDone.execute(TaskDoneCommand(taskId: t.id.raw));
+      final result = await taskDone.execute(
+        TaskDoneCommand(taskId: t.id.value),
+      );
 
       expect(result.isFailure, isTrue);
       expect(
@@ -288,16 +290,16 @@ void main() {
 
     setUp(() async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Fail me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Fail me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
-      final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
+      final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.value));
       inProgressTask = (r2 as Success<Task, dynamic>).value;
     });
 
     test('transitions inProgress → failed', () async {
       final result = await taskFail.execute(
-        TaskFailCommand(taskId: inProgressTask.id.raw, reason: 'Blocked'),
+        TaskFailCommand(taskId: inProgressTask.id.value, reason: 'Blocked'),
       );
 
       expect(result.isSuccess, isTrue);
@@ -310,18 +312,20 @@ void main() {
       final events = <Object>[];
       bus.listen<Object>(events.add);
 
-      await taskFail.execute(TaskFailCommand(taskId: inProgressTask.id.raw));
+      await taskFail.execute(TaskFailCommand(taskId: inProgressTask.id.value));
 
       expect(events, anyElement(isA<TaskFailedEvent>()));
     });
 
     test('returns Failure when not inProgress', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Pending'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Pending'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
-      final result = await taskFail.execute(TaskFailCommand(taskId: t.id.raw));
+      final result = await taskFail.execute(
+        TaskFailCommand(taskId: t.id.value),
+      );
 
       expect(result.isFailure, isTrue);
       expect(
@@ -338,16 +342,16 @@ void main() {
 
     setUp(() async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Hold me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Hold me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
-      final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
+      final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.value));
       inProgressTask = (r2 as Success<Task, dynamic>).value;
     });
 
     test('transitions inProgress → onHold', () async {
       final result = await taskHold.execute(
-        TaskHoldCommand(taskId: inProgressTask.id.raw, reason: 'Waiting'),
+        TaskHoldCommand(taskId: inProgressTask.id.value, reason: 'Waiting'),
       );
 
       expect(result.isSuccess, isTrue);
@@ -359,18 +363,20 @@ void main() {
       final events = <Object>[];
       bus.listen<Object>(events.add);
 
-      await taskHold.execute(TaskHoldCommand(taskId: inProgressTask.id.raw));
+      await taskHold.execute(TaskHoldCommand(taskId: inProgressTask.id.value));
 
       expect(events, anyElement(isA<TaskPutOnHoldEvent>()));
     });
 
     test('returns Failure when not inProgress', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Pending'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Pending'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
-      final result = await taskHold.execute(TaskHoldCommand(taskId: t.id.raw));
+      final result = await taskHold.execute(
+        TaskHoldCommand(taskId: t.id.value),
+      );
 
       expect(result.isFailure, isTrue);
       expect(
@@ -385,12 +391,12 @@ void main() {
   group('TaskCancelOperation', () {
     test('cancels a pending task', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Cancel me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Cancel me'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
       final result = await taskCancel.execute(
-        TaskCancelCommand(taskId: t.id.raw, reason: 'No longer needed'),
+        TaskCancelCommand(taskId: t.id.value, reason: 'No longer needed'),
       );
 
       expect(result.isSuccess, isTrue);
@@ -400,13 +406,13 @@ void main() {
 
     test('cancels an inProgress task', () async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Cancel me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Cancel me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
-      await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: t.id.value));
 
       final result = await taskCancel.execute(
-        TaskCancelCommand(taskId: t.id.raw),
+        TaskCancelCommand(taskId: t.id.value),
       );
 
       expect(result.isSuccess, isTrue);
@@ -417,24 +423,24 @@ void main() {
       bus.listen<Object>(events.add);
 
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'C'),
+        TaskCreateCommand(projectId: project.id.value, title: 'C'),
       );
       final t = (r as Success<Task, dynamic>).value;
-      await taskCancel.execute(TaskCancelCommand(taskId: t.id.raw));
+      await taskCancel.execute(TaskCancelCommand(taskId: t.id.value));
 
       expect(events, anyElement(isA<TaskCancelledEvent>()));
     });
 
     test('returns Failure when already completed (terminal)', () async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Done'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Done'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
-      await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
-      await taskDone.execute(TaskDoneCommand(taskId: t.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: t.id.value));
+      await taskDone.execute(TaskDoneCommand(taskId: t.id.value));
 
       final result = await taskCancel.execute(
-        TaskCancelCommand(taskId: t.id.raw),
+        TaskCancelCommand(taskId: t.id.value),
       );
 
       expect(result.isFailure, isTrue);
@@ -450,12 +456,12 @@ void main() {
   group('TaskDeleteOperation', () {
     test('deletes an existing task', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Delete me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Delete me'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
       final result = await taskDelete.execute(
-        TaskDeleteCommand(taskId: t.id.raw),
+        TaskDeleteCommand(taskId: t.id.value),
       );
 
       expect(result.isSuccess, isTrue);
@@ -467,10 +473,10 @@ void main() {
       bus.listen<Object>(events.add);
 
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'D'),
+        TaskCreateCommand(projectId: project.id.value, title: 'D'),
       );
       final t = (r as Success<Task, dynamic>).value;
-      await taskDelete.execute(TaskDeleteCommand(taskId: t.id.raw));
+      await taskDelete.execute(TaskDeleteCommand(taskId: t.id.value));
 
       expect(events, anyElement(isA<TaskDeletedEvent>()));
     });
@@ -493,14 +499,14 @@ void main() {
   group('Task lifecycle: hold → resume', () {
     test('on-hold task can be restarted', () async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.raw, title: 'Resume me'),
+        TaskCreateCommand(projectId: project.id.value, title: 'Resume me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
-      await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
-      await taskHold.execute(TaskHoldCommand(taskId: t.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: t.id.value));
+      await taskHold.execute(TaskHoldCommand(taskId: t.id.value));
 
       final result = await taskStart.execute(
-        TaskStartCommand(taskId: t.id.raw),
+        TaskStartCommand(taskId: t.id.value),
       );
 
       expect(result.isSuccess, isTrue);

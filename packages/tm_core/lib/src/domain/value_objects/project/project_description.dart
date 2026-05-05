@@ -1,13 +1,8 @@
-extension type ProjectDescription._(String value) {
-  factory ProjectDescription(String value) {
-    if (value case String(isEmpty: true)) {
-      throw ArgumentError('ProjectDescription cannot be empty');
-    } else if (value case String(length: > 500)) {
-      throw ArgumentError('ProjectDescription cannot exceed 500 characters');
-    }
+extension type const ProjectDescription(String value) {
+  String? get cannotBeEmptyError =>
+      value.isEmpty ? 'ProjectDescription cannot be empty' : null;
 
-    return ProjectDescription._(value);
-  }
-
-  String get raw => value;
+  String? get cannotExceedMaxLengthError => value.length > 500
+      ? 'ProjectDescription cannot exceed 500 characters'
+      : null;
 }

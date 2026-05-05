@@ -60,7 +60,7 @@ void main() {
     query = GetActiveFrontQuery(taskRepo, linkRepo);
 
     final pr = await projectCreate.execute(
-      const ProjectCreateCommand(name: 'Test Project'),
+      const ProjectCreateCommand(name: .new('Test Project')),
     );
     project = (pr as Success<Project, dynamic>).value;
   });
@@ -73,7 +73,7 @@ void main() {
   }) async {
     final r = await taskCreate.execute(
       TaskCreateCommand(
-        projectId: project.id.raw,
+        projectId: project.id.value,
         title: title,
         businessValue: bv,
         urgencyScore: us,
@@ -88,7 +88,7 @@ void main() {
     int limit = 10,
     bool includeStalled = false,
   }) => GetActiveFrontParams(
-    projectId: project.id.raw,
+    projectId: project.id.value,
     contextFilter: contextFilter,
     limit: limit,
     includeStalled: includeStalled,
@@ -283,7 +283,7 @@ void main() {
       () async {
         final parent = await taskCreate.execute(
           TaskCreateCommand(
-            projectId: project.id.raw,
+            projectId: project.id.value,
             title: 'Parent',
             completionPolicy: TaskCompletionPolicy.allChildren,
           ),
@@ -310,7 +310,7 @@ void main() {
       () async {
         final parent = await taskCreate.execute(
           TaskCreateCommand(
-            projectId: project.id.raw,
+            projectId: project.id.value,
             title: 'Parent',
             completionPolicy: TaskCompletionPolicy.allChildren,
           ),

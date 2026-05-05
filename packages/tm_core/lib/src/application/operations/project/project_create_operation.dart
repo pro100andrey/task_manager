@@ -1,7 +1,6 @@
 import '../../../domain/entities/project.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/project/project_description.dart';
 import '../../../domain/value_objects/value_objects.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
@@ -48,12 +47,9 @@ class ProjectCreateOperation extends _Operation {
   Future<Result<Project, ProjectCreateFailure>> run(
     ProjectCreateCommand command,
   ) async {
-    final projectName = ProjectName(command.name);
-
     final id = ProjectId.generate();
-    final desc = command.description != null
-        ? ProjectDescription(command.description!)
-        : null;
+    final projectName = command.name;
+    final desc = command.description;
 
     final project = Project(
       id: id,

@@ -1,3 +1,5 @@
+import '../../../../../tm_core.dart';
+
 sealed class ProjectCreateFailure {
   const ProjectCreateFailure();
 }
@@ -5,7 +7,7 @@ sealed class ProjectCreateFailure {
 final class ProjectCreateNameAlreadyExists extends ProjectCreateFailure {
   const ProjectCreateNameAlreadyExists(this.name);
 
-  final String name;
+  final ProjectName name;
 }
 
 final class ProjectCreateInvalidName extends ProjectCreateFailure {

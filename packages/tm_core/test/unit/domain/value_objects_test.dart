@@ -11,11 +11,15 @@ void main() {
   group('ProjectId', () {
     test('accepts valid uuid', () {
       final id = ProjectId.generate();
-      expect(id.raw, isNotEmpty);
+      expect(id.value, isNotEmpty);
+      expect(id.formatError, isNull);
     });
 
     test('rejects invalid uuid', () {
-      expect(() => ProjectId('not-a-uuid'), throwsFormatException);
+      expect(
+        const ProjectId('not-a-uuid').formatError,
+        contains('Invalid UUID format for ProjectId: not-a-uuid'),
+      );
     });
 
     test('two generated ids are distinct', () {
@@ -25,25 +29,41 @@ void main() {
 
   group('ProjectName', () {
     test('accepts non-empty string', () {
-      expect(ProjectName('Alpha').raw, 'Alpha');
+      expect(const ProjectName('Alpha'), 'Alpha');
     });
 
     test('rejects empty string', () {
-      expect(() => ProjectName(''), throwsArgumentError);
+      expect(
+        const ProjectName('').cannotBeEmptyError,
+        contains('ProjectName cannot be empty'),
+      );
     });
   });
 
   group('ProjectDescription', () {
     test('accepts short description', () {
-      expect(ProjectDescription('desc').raw, 'desc');
+      expect(const ProjectDescription('desc'), 'desc');
     });
 
     test('rejects empty string', () {
-      expect(() => ProjectDescription(''), throwsArgumentError);
+      const desc = ProjectDescription('');
+      expect(
+        desc.cannotBeEmptyError,
+        contains('ProjectDescription cannot be empty'),
+      );
+
+      expect(desc.cannotExceedMaxLengthError, isNull);
     });
 
     test('rejects string over 500 chars', () {
-      expect(() => ProjectDescription('x' * 501), throwsArgumentError);
+      final desc = ProjectDescription('x' * 501);
+
+      expect(
+        desc.cannotExceedMaxLengthError,
+        contains('ProjectDescription cannot exceed 500 characters'),
+      );
+
+      expect(desc.cannotBeEmptyError, isNull);
     });
 
     test('accepts exactly 500 chars', () {
@@ -61,7 +81,7 @@ void main() {
     });
 
     test('name ref carries maybeName, maybeId is null', () {
-      final name = ProjectName('Beta');
+      const name = ProjectName('Beta');
       final ref = ProjectRef.name(name);
       expect(ref.isName, isTrue);
       expect(ref, isA<ProjectNameRef>());
@@ -71,7 +91,7 @@ void main() {
     test('value returns raw string for both types', () {
       final id = ProjectId.generate();
       expect(ProjectRef.id(id).value, id.value);
-      expect(ProjectRef.name(ProjectName('X')).value, 'X');
+      expect(ProjectRef.name(const ProjectName('X')).value, 'X');
     });
   });
 

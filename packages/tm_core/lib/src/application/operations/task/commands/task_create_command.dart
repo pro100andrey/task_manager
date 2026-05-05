@@ -1,7 +1,8 @@
 import '../../../../domain/enums/task_completion_policy.dart';
 import '../../../../domain/enums/task_context_state.dart';
+import '../../command.dart';
 
-class TaskCreateCommand {
+class TaskCreateCommand extends Command {
   const TaskCreateCommand({
     required this.projectId,
     required this.title,
@@ -12,8 +13,8 @@ class TaskCreateCommand {
     this.metadata = const {},
     this.businessValue = 0,
     this.urgencyScore = 0,
-    this.completionPolicy = TaskCompletionPolicy.manual,
-    this.contextState = TaskContextState.active,
+    this.completionPolicy = .manual,
+    this.contextState = .active,
     this.estimatedEffort,
     this.dueDate,
     this.assignedTo,
