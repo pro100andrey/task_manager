@@ -1,11 +1,15 @@
 import 'package:logging/logging.dart';
 
+import '../../../tm_core.dart' show Failure;
+import '../../domain/result.dart' show Failure;
+
 class TracingLoggingConfig {
   const TracingLoggingConfig({
     this.enabled = true,
     this.loggerName = 'TM.Core',
     this.startLevel = Level.INFO,
     this.successLevel = Level.FINE,
+    this.domainFailureLevel = Level.WARNING,
     this.errorLevel = Level.SEVERE,
     this.includeStackTrace = true,
     this.logAttributesOnError = true,
@@ -17,6 +21,10 @@ class TracingLoggingConfig {
   final String loggerName;
   final Level startLevel;
   final Level successLevel;
+
+  /// Log level used when an operation returns a domain [Failure] result
+  /// (as opposed to an unhandled exception).
+  final Level domainFailureLevel;
   final Level errorLevel;
   final bool includeStackTrace;
   final bool logAttributesOnError;

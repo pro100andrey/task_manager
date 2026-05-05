@@ -15,31 +15,30 @@ abstract class Operation<C, S, F> {
   Future<Result<S, F>> execute(C command) async {
     final context = buildContext(command);
 
-    final preconditionFailures = await preconditionPolicies(
-      command,
-      context,
-    ).evaluateAll(command, context);
+    return _pipeline.run(context, () async {
+      final preconditionFailures = await preconditionPolicies(
+        command,
+        context,
+      ).evaluateAll(command, context);
 
-    final preconditionResult = preconditionFailures.toFailureResult<S>();
-    if (preconditionResult != null) {
-      return mapResult(command, context, preconditionResult);
-    }
+      final preconditionResult = preconditionFailures.toFailureResult<S>();
+      if (preconditionResult != null) {
+        return mapResult(command, context, preconditionResult);
+      }
 
-    final coreResult = await _pipeline.run(
-      context,
-      () => run(command),
-    );
+      final coreResult = await run(command);
 
-    final invariantFailures = await invariantPolicies(
-      command,
-      context,
-      coreResult,
-    ).evaluateAll(command, context);
-    final invariantResult = invariantFailures.toFailureResult<S>();
-    final result = invariantResult ?? coreResult;
+      final invariantFailures = await invariantPolicies(
+        command,
+        context,
+        coreResult,
+      ).evaluateAll(command, context);
+      final invariantResult = invariantFailures.toFailureResult<S>();
+      final result = invariantResult ?? coreResult;
 
-    await collectAndPublishEvents(command, context, result);
-    return mapResult(command, context, result);
+      await collectAndPublishEvents(command, context, result);
+      return mapResult(command, context, result);
+    });
   }
 
   OperationContext buildContext(C command) => OperationContext(
