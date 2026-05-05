@@ -6,37 +6,7 @@ import 'package:tm_core/src/adapters/repositories/mem_projects_repository_impl.d
 import 'package:tm_core/src/adapters/repositories/mem_tasks_repository_impl.dart';
 import 'package:tm_core/src/adapters/tracing/logging_tracing_port_impl.dart';
 import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dart';
-import 'package:tm_core/src/application/operations/operation_pipeline.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_create_command.dart';
-import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_cancel_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_create_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_delete_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_done_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_fail_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_hold_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_start_command.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_cancel_failure.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_create_failure.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_delete_failure.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_done_failure.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_fail_failure.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_hold_failure.dart';
-import 'package:tm_core/src/application/operations/task/failures/task_start_failure.dart';
-import 'package:tm_core/src/application/operations/task/task_cancel_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_create_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_delete_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_done_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_fail_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_hold_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_start_operation.dart';
-import 'package:tm_core/src/domain/entities/project.dart';
-import 'package:tm_core/src/domain/entities/task.dart';
-import 'package:tm_core/src/domain/enums/task_status.dart';
-import 'package:tm_core/src/domain/events/domain_event.dart';
-import 'package:tm_core/src/domain/result.dart';
-import 'package:tm_core/src/domain/value_objects/project/project_id.dart';
-import 'package:tm_core/src/domain/value_objects/task/task_id.dart';
+import 'package:tm_core/tm_core.dart';
 
 void main() {
   late DomainEventBusImpl bus;
@@ -59,7 +29,7 @@ void main() {
     projectRepo = MemProjectsRepositoryImpl();
     taskRepo = MemTasksRepositoryImpl();
     pipeline = OperationPipeline([
-      TracingBehavior(LoggingTracingPortImpl()),
+      TracingBehavior(LoggingTracingPortImpl(config: const .new())),
       TransactionBehavior(NoOpTransactionPortImpl()),
     ]);
 

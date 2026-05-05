@@ -3,27 +3,10 @@ import 'package:tm_core/src/adapters/behaviors/tracing_behavior.dart';
 import 'package:tm_core/src/adapters/behaviors/transaction_behavior.dart';
 import 'package:tm_core/src/adapters/events/domain_event_bus_impl.dart';
 import 'package:tm_core/src/adapters/repositories/mem_projects_repository_impl.dart';
-import 'package:tm_core/src/adapters/repositories/mem_task_links_repository_impl.dart';
 import 'package:tm_core/src/adapters/repositories/mem_tasks_repository_impl.dart';
 import 'package:tm_core/src/adapters/tracing/logging_tracing_port_impl.dart';
 import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dart';
-import 'package:tm_core/src/application/operations/operation_pipeline.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_create_command.dart';
-import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_create_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_done_command.dart';
-import 'package:tm_core/src/application/operations/task/commands/task_start_command.dart';
-import 'package:tm_core/src/application/operations/task/task_create_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_done_operation.dart';
-import 'package:tm_core/src/application/operations/task/task_start_operation.dart';
-import 'package:tm_core/src/application/operations/task_link/commands/task_link_add_command.dart';
-import 'package:tm_core/src/application/operations/task_link/task_link_add_operation.dart';
-import 'package:tm_core/src/application/queries/task/active_front_result.dart';
-import 'package:tm_core/src/application/queries/task/get_active_front_query.dart';
-import 'package:tm_core/src/domain/entities/project.dart';
-import 'package:tm_core/src/domain/entities/task.dart';
-import 'package:tm_core/src/domain/enums/task_completion_policy.dart';
-import 'package:tm_core/src/domain/result.dart';
+import 'package:tm_core/tm_core.dart';
 
 void main() {
   late MemProjectsRepositoryImpl projectRepo;
@@ -48,7 +31,9 @@ void main() {
     linkRepo = MemTaskLinkRepositoryImpl();
 
     pipeline = OperationPipeline([
-      TracingBehavior(LoggingTracingPortImpl()),
+      TracingBehavior(
+        LoggingTracingPortImpl(config: const TracingLoggingConfig()),
+      ),
       TransactionBehavior(NoOpTransactionPortImpl()),
     ]);
 

@@ -5,9 +5,9 @@ import '../../application/ports/tracing_port.dart';
 import 'tracing_logging_config.dart';
 
 class LoggingTracingPortImpl implements TracingPort {
-  LoggingTracingPortImpl({TracingLoggingConfig? config})
-    : _config = config ?? const TracingLoggingConfig(),
-      _logger = Logger((config ?? const TracingLoggingConfig()).loggerName);
+  LoggingTracingPortImpl({required TracingLoggingConfig config})
+    : _config = config,
+      _logger = Logger(config.loggerName);
 
   final TracingLoggingConfig _config;
   final Logger _logger;

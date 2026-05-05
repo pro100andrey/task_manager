@@ -71,13 +71,13 @@ _i174.GetIt $initTmCore(
   final coreModule = _$CoreModule(getIt);
   final applicationModule = _$ApplicationModule(getIt);
   gh.lazySingleton<_i159.TaskRepository>(() => coreModule.tasksRepository);
+  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
   gh.lazySingleton<_i541.TaskLinkRepository>(
     () => coreModule.taskLinkRepository,
   );
   gh.lazySingleton<_i1007.TransactionPort>(
     () => coreModule.noOpTransactionPort,
   );
-  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
   gh.lazySingleton<_i102.ProjectRepository>(
     () => coreModule.projectsRepository,
   );
@@ -91,35 +91,11 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i775.TaskLinkRemoveOperation>(
     () => applicationModule.taskLinkRemoveOperation,
   );
+  gh.lazySingleton<_i629.LoggingTracingPortImpl>(
+    () => coreModule.loggingTracingPortImpl(gh<_i300.TracingLoggingConfig>()),
+  );
   gh.lazySingleton<_i703.TaskCreateOperation>(
     () => applicationModule.taskCreateOperation,
-  );
-  gh.lazySingleton<_i846.GetActiveFrontQuery>(
-    () => applicationModule.getActiveFrontQuery,
-  );
-  gh.lazySingleton<_i797.ProjectCreateOperation>(
-    () => applicationModule.projectCreateOperation,
-  );
-  gh.lazySingleton<_i480.ProjectRenameOperation>(
-    () => applicationModule.projectRenameOperation,
-  );
-  gh.lazySingleton<_i789.ProjectChangeDescriptionOperation>(
-    () => applicationModule.projectChangeDescriptionOperation,
-  );
-  gh.lazySingleton<_i460.ProjectDeleteOperation>(
-    () => applicationModule.projectDeleteOperation,
-  );
-  gh.lazySingleton<_i533.ProjectSwitchOperation>(
-    () => applicationModule.projectSwitchOperation,
-  );
-  gh.lazySingleton<_i309.TaskLinkAddOperation>(
-    () => applicationModule.taskLinkAddOperation,
-  );
-  gh.lazySingleton<_i775.GetCurrentProjectQuery>(
-    () => applicationModule.getCurrentProjectQuery,
-  );
-  gh.lazySingleton<_i676.GetAllProjectsQuery>(
-    () => applicationModule.getAllProjectsQuery,
   );
   gh.lazySingleton<_i74.TaskStartOperation>(
     () => applicationModule.taskStartOperation,
@@ -151,6 +127,33 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i338.TaskRenameAliasOperation>(
     () => applicationModule.taskRenameAliasOperation,
   );
+  gh.lazySingleton<_i797.ProjectCreateOperation>(
+    () => applicationModule.projectCreateOperation,
+  );
+  gh.lazySingleton<_i480.ProjectRenameOperation>(
+    () => applicationModule.projectRenameOperation,
+  );
+  gh.lazySingleton<_i789.ProjectChangeDescriptionOperation>(
+    () => applicationModule.projectChangeDescriptionOperation,
+  );
+  gh.lazySingleton<_i460.ProjectDeleteOperation>(
+    () => applicationModule.projectDeleteOperation,
+  );
+  gh.lazySingleton<_i533.ProjectSwitchOperation>(
+    () => applicationModule.projectSwitchOperation,
+  );
+  gh.lazySingleton<_i846.GetActiveFrontQuery>(
+    () => applicationModule.getActiveFrontQuery,
+  );
+  gh.lazySingleton<_i775.GetCurrentProjectQuery>(
+    () => applicationModule.getCurrentProjectQuery,
+  );
+  gh.lazySingleton<_i676.GetAllProjectsQuery>(
+    () => applicationModule.getAllProjectsQuery,
+  );
+  gh.lazySingleton<_i309.TaskLinkAddOperation>(
+    () => applicationModule.taskLinkAddOperation,
+  );
   gh.lazySingleton<_i406.ProjectUpdateOperation>(
     () => applicationModule.projectUpdateOperation,
   );
@@ -167,17 +170,17 @@ class _$CoreModule extends _i154.CoreModule {
       _i425.MemTasksRepositoryImpl();
 
   @override
+  _i629.LoggingTracingPortImpl get tracingPort => _i629.LoggingTracingPortImpl(
+    config: _getIt<_i300.TracingLoggingConfig>(),
+  );
+
+  @override
   _i565.MemTaskLinkRepositoryImpl get taskLinkRepository =>
       _i565.MemTaskLinkRepositoryImpl();
 
   @override
   _i1016.NoOpTransactionPortImpl get noOpTransactionPort =>
       _i1016.NoOpTransactionPortImpl();
-
-  @override
-  _i629.LoggingTracingPortImpl get tracingPort => _i629.LoggingTracingPortImpl(
-    config: _getIt<_i300.TracingLoggingConfig>(),
-  );
 
   @override
   _i949.MemProjectsRepositoryImpl get projectsRepository =>
@@ -209,71 +212,6 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i102.ProjectRepository>(),
         _getIt<_i512.DomainEventBus>(),
       );
-
-  @override
-  _i846.GetActiveFrontQuery get getActiveFrontQuery =>
-      _i846.GetActiveFrontQuery(
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i541.TaskLinkRepository>(),
-      );
-
-  @override
-  _i797.ProjectCreateOperation get projectCreateOperation =>
-      _i797.ProjectCreateOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
-      );
-
-  @override
-  _i480.ProjectRenameOperation get projectRenameOperation =>
-      _i480.ProjectRenameOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
-      );
-
-  @override
-  _i789.ProjectChangeDescriptionOperation
-  get projectChangeDescriptionOperation =>
-      _i789.ProjectChangeDescriptionOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
-      );
-
-  @override
-  _i460.ProjectDeleteOperation get projectDeleteOperation =>
-      _i460.ProjectDeleteOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
-      );
-
-  @override
-  _i533.ProjectSwitchOperation get projectSwitchOperation =>
-      _i533.ProjectSwitchOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
-      );
-
-  @override
-  _i309.TaskLinkAddOperation get taskLinkAddOperation =>
-      _i309.TaskLinkAddOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.DomainEventBus>(),
-      );
-
-  @override
-  _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
-      _i775.GetCurrentProjectQuery(_getIt<_i102.ProjectRepository>());
-
-  @override
-  _i676.GetAllProjectsQuery get getAllProjectsQuery =>
-      _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
 
   @override
   _i74.TaskStartOperation get taskStartOperation => _i74.TaskStartOperation(
@@ -346,6 +284,71 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i338.TaskRenameAliasOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i797.ProjectCreateOperation get projectCreateOperation =>
+      _i797.ProjectCreateOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i480.ProjectRenameOperation get projectRenameOperation =>
+      _i480.ProjectRenameOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i789.ProjectChangeDescriptionOperation
+  get projectChangeDescriptionOperation =>
+      _i789.ProjectChangeDescriptionOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i460.ProjectDeleteOperation get projectDeleteOperation =>
+      _i460.ProjectDeleteOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i533.ProjectSwitchOperation get projectSwitchOperation =>
+      _i533.ProjectSwitchOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i846.GetActiveFrontQuery get getActiveFrontQuery =>
+      _i846.GetActiveFrontQuery(
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
+      );
+
+  @override
+  _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
+      _i775.GetCurrentProjectQuery(_getIt<_i102.ProjectRepository>());
+
+  @override
+  _i676.GetAllProjectsQuery get getAllProjectsQuery =>
+      _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
+
+  @override
+  _i309.TaskLinkAddOperation get taskLinkAddOperation =>
+      _i309.TaskLinkAddOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
         _getIt<_i512.DomainEventBus>(),
       );
 

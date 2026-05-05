@@ -23,9 +23,7 @@ Future<void> configureTmCoreDependencies({
   bool useOrderedBus = false,
   TracingLoggingConfig? loggingConfig,
 }) async {
-  final getIt = GetIt.instance;
-
-  $initTmCore(getIt, environment: environment);
+  $initTmCore(GetIt.I, environment: environment);
 
   if (loggingConfig != null) {
     if (loggingConfig.rootLevel != null) {
@@ -39,7 +37,7 @@ Future<void> configureTmCoreDependencies({
       );
     }
 
-    getIt
+    GetIt.I
       ..unregister<TracingPort>()
       ..registerSingleton<TracingPort>(
         LoggingTracingPortImpl(config: loggingConfig),
@@ -47,7 +45,7 @@ Future<void> configureTmCoreDependencies({
   }
 
   if (useOrderedBus) {
-    getIt
+    GetIt.I
       ..unregister<DomainEventBus>()
       ..registerSingleton<DomainEventBus>(OrderedDomainEventBusImpl());
   }

@@ -5,20 +5,7 @@ import 'package:tm_core/src/adapters/events/domain_event_bus_impl.dart';
 import 'package:tm_core/src/adapters/repositories/mem_projects_repository_impl.dart';
 import 'package:tm_core/src/adapters/tracing/logging_tracing_port_impl.dart';
 import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dart';
-import 'package:tm_core/src/application/operations/operation_pipeline.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_change_description_command.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_create_command.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_rename_command.dart';
-import 'package:tm_core/src/application/operations/project/commands/project_update_command.dart';
-import 'package:tm_core/src/application/operations/project/failures/project_create_failure.dart';
-import 'package:tm_core/src/application/operations/project/failures/project_mutation_failure.dart';
-import 'package:tm_core/src/application/operations/project/project_change_description_operation.dart';
-import 'package:tm_core/src/application/operations/project/project_create_operation.dart';
-import 'package:tm_core/src/application/operations/project/project_rename_operation.dart';
-import 'package:tm_core/src/application/operations/project/project_update_operation.dart';
-import 'package:tm_core/src/domain/entities/project.dart';
-import 'package:tm_core/src/domain/events/domain_event.dart';
-import 'package:tm_core/src/domain/result.dart';
+import 'package:tm_core/tm_core.dart';
 
 void main() {
   late ProjectCreateOperation createOp;
@@ -30,7 +17,9 @@ void main() {
 
   setUp(() {
     final pipeline = OperationPipeline([
-      TracingBehavior(LoggingTracingPortImpl()),
+      TracingBehavior(
+        LoggingTracingPortImpl(config: const .new()),
+      ),
       TransactionBehavior(NoOpTransactionPortImpl()),
     ]);
 

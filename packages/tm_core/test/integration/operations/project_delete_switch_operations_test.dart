@@ -8,7 +8,7 @@ import 'package:tm_core/src/adapters/transaction/no_op_transaction_port_impl.dar
 import 'package:tm_core/tm_core.dart';
 
 OperationPipeline _pipeline() => OperationPipeline([
-  TracingBehavior(LoggingTracingPortImpl()),
+  TracingBehavior(LoggingTracingPortImpl(config: const .new())),
   TransactionBehavior(NoOpTransactionPortImpl()),
 ]);
 

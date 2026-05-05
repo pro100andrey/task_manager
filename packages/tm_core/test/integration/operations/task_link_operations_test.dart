@@ -49,7 +49,7 @@ void main() {
     linkRepo = MemTaskLinkRepositoryImpl();
 
     pipeline = OperationPipeline([
-      TracingBehavior(LoggingTracingPortImpl()),
+      TracingBehavior(LoggingTracingPortImpl(config: const .new())),
       TransactionBehavior(NoOpTransactionPortImpl()),
     ]);
 
