@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../entities/project.dart';
+import '../value_objects/project/project_id.dart';
 import '../value_objects/task/task_id.dart';
 
 part 'domain_event.freezed.dart';
@@ -20,6 +21,15 @@ sealed class DomainEvent with _$DomainEvent {
   const factory DomainEvent.projectDescriptionChanged({
     required Project project,
   }) = ProjectDescriptionChangedEvent;
+
+  const factory DomainEvent.projectDeleted({
+    required ProjectId projectId,
+  }) = ProjectDeletedEvent;
+
+  const factory DomainEvent.projectSwitched({
+    required Project currentProject,
+    Project? previousProject,
+  }) = ProjectSwitchedEvent;
 
   const factory DomainEvent.taskCreated({
     required TaskId taskId,

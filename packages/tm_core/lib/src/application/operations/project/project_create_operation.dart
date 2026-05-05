@@ -13,9 +13,10 @@ import 'failures/project_create_failure.dart';
 import 'policy/project_create_input_valid_policy.dart';
 import 'policy/project_create_name_unique_policy.dart';
 
-typedef _Op = Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
+typedef _Operation =
+    Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
 
-class ProjectCreateOperation extends _Op {
+class ProjectCreateOperation extends _Operation {
   ProjectCreateOperation(
     super.pipeline,
     this._repository,
@@ -57,6 +58,7 @@ class ProjectCreateOperation extends _Op {
     final project = Project(
       id: id,
       name: projectName,
+      createdAt: DateTime.now().toUtc(),
       description: desc,
     );
 

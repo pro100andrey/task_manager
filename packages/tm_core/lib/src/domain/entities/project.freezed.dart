@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Project {
 
- ProjectId get id; ProjectName get name; ProjectDescription? get description;
+ ProjectId get id; ProjectName get name; DateTime get createdAt; ProjectDescription? get description;
 /// Create a copy of Project
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $ProjectCopyWith<Project> get copyWith => _$ProjectCopyWithImpl<Project>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.description, description) || other.description == description));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,description);
+int get hashCode => Object.hash(runtimeType,id,name,createdAt,description);
 
 @override
 String toString() {
-  return 'Project(id: $id, name: $name, description: $description)';
+  return 'Project(id: $id, name: $name, createdAt: $createdAt, description: $description)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $ProjectCopyWith<$Res>  {
   factory $ProjectCopyWith(Project value, $Res Function(Project) _then) = _$ProjectCopyWithImpl;
 @useResult
 $Res call({
- ProjectId id, ProjectName name, ProjectDescription? description
+ ProjectId id, ProjectName name, DateTime createdAt, ProjectDescription? description
 });
 
 
@@ -62,11 +62,12 @@ class _$ProjectCopyWithImpl<$Res>
 
 /// Create a copy of Project
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? createdAt = null,Object? description = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as ProjectId,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as ProjectName,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as ProjectName,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as ProjectDescription?,
   ));
 }
@@ -79,11 +80,12 @@ as ProjectDescription?,
 
 
 class _Project implements Project {
-  const _Project({required this.id, required this.name, this.description});
+  const _Project({required this.id, required this.name, required this.createdAt, this.description});
   
 
 @override final  ProjectId id;
 @override final  ProjectName name;
+@override final  DateTime createdAt;
 @override final  ProjectDescription? description;
 
 /// Create a copy of Project
@@ -96,16 +98,16 @@ _$ProjectCopyWith<_Project> get copyWith => __$ProjectCopyWithImpl<_Project>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Project&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.description, description) || other.description == description));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,description);
+int get hashCode => Object.hash(runtimeType,id,name,createdAt,description);
 
 @override
 String toString() {
-  return 'Project(id: $id, name: $name, description: $description)';
+  return 'Project(id: $id, name: $name, createdAt: $createdAt, description: $description)';
 }
 
 
@@ -116,7 +118,7 @@ abstract mixin class _$ProjectCopyWith<$Res> implements $ProjectCopyWith<$Res> {
   factory _$ProjectCopyWith(_Project value, $Res Function(_Project) _then) = __$ProjectCopyWithImpl;
 @override @useResult
 $Res call({
- ProjectId id, ProjectName name, ProjectDescription? description
+ ProjectId id, ProjectName name, DateTime createdAt, ProjectDescription? description
 });
 
 
@@ -133,11 +135,12 @@ class __$ProjectCopyWithImpl<$Res>
 
 /// Create a copy of Project
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? createdAt = null,Object? description = freezed,}) {
   return _then(_Project(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as ProjectId,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as ProjectName,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as ProjectName,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as ProjectDescription?,
   ));
 }

@@ -52,4 +52,15 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
 
     return project;
   }
+
+  @override
+  Future<void> delete(ProjectId id) async {
+    if (!_storage.containsKey(id)) {
+      throw ProjectNotFound(id.value);
+    }
+    _storage.remove(id);
+    if (_currentProjectId == id) {
+      _currentProjectId = null;
+    }
+  }
 }

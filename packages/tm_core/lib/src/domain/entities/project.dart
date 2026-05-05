@@ -11,6 +11,7 @@ abstract class Project with _$Project {
   const factory Project({
     required ProjectId id,
     required ProjectName name,
+    required DateTime createdAt,
     ProjectDescription? description,
   }) = _Project;
 }

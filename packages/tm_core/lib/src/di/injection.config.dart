@@ -15,6 +15,7 @@ import 'package:injectable/injectable.dart' as _i526;
 import '../adapters/events/ordered_domain_event_bus_impl.dart' as _i1027;
 import '../adapters/repositories/mem_projects_repository_impl.dart' as _i949;
 import '../adapters/tracing/logging_tracing_port_impl.dart' as _i629;
+import '../adapters/tracing/tracing_logging_config.dart' as _i300;
 import '../adapters/transaction/no_op_transaction_port_impl.dart' as _i1016;
 import '../application/operations/operation_pipeline.dart' as _i840;
 import '../application/operations/project/project_change_description_operation.dart'
@@ -41,16 +42,16 @@ _i174.GetIt $initTmCore(
   _i526.EnvironmentFilter? environmentFilter,
 }) {
   final gh = _i526.GetItHelper(getIt, environment, environmentFilter);
-  final coreModule = _$CoreModule();
+  final coreModule = _$CoreModule(getIt);
   final applicationModule = _$ApplicationModule(getIt);
   gh.lazySingleton<_i1007.TransactionPort>(
     () => coreModule.noOpTransactionPort,
   );
+  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
   gh.lazySingleton<_i102.ProjectRepository>(
     () => coreModule.projectsRepository,
   );
   gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
-  gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
   gh.lazySingleton<_i840.OperationPipeline>(
     () => coreModule.operationPipeline(
       gh<_i969.TracingPort>(),
@@ -79,9 +80,18 @@ _i174.GetIt $initTmCore(
 }
 
 class _$CoreModule extends _i154.CoreModule {
+  _$CoreModule(this._getIt);
+
+  final _i174.GetIt _getIt;
+
   @override
   _i1016.NoOpTransactionPortImpl get noOpTransactionPort =>
       _i1016.NoOpTransactionPortImpl();
+
+  @override
+  _i629.LoggingTracingPortImpl get tracingPort => _i629.LoggingTracingPortImpl(
+    config: _getIt<_i300.TracingLoggingConfig>(),
+  );
 
   @override
   _i949.MemProjectsRepositoryImpl get projectsRepository =>
@@ -90,10 +100,6 @@ class _$CoreModule extends _i154.CoreModule {
   @override
   _i1027.OrderedDomainEventBusImpl get domainEventBus =>
       _i1027.OrderedDomainEventBusImpl();
-
-  @override
-  _i629.LoggingTracingPortImpl get tracingPort =>
-      _i629.LoggingTracingPortImpl();
 }
 
 class _$ApplicationModule extends _i705.ApplicationModule {

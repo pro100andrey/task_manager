@@ -9,4 +9,5 @@ abstract class ProjectRepository {
   Future<Project?> getCurrentProject();
   Future<Project> switchCurrentProject(ProjectId id);
   Future<List<Project>> getAllProjects();
+  Future<void> delete(ProjectId id);
 }
