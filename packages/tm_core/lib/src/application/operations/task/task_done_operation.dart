@@ -1,0 +1,75 @@
+import '../../../domain/entities/task.dart';
+import '../../../domain/enums/task_status.dart';
+import '../../../domain/events/domain_event.dart';
+import '../../../domain/result.dart';
+import '../../../domain/services/task_domain_services.dart';
+import '../../../domain/value_objects/task/task_id.dart';
+import '../../ports/domain_event_bus.dart';
+import '../../ports/task_repository.dart';
+import '../operation.dart';
+import '../operation_context.dart';
+import '../operation_policy.dart';
+import 'commands/task_done_command.dart';
+import 'failures/task_done_failure.dart';
+import 'policy/task_exists_policy.dart';
+
+typedef _Operation = Operation<TaskDoneCommand, Task, TaskDoneFailure>;
+
+class TaskDoneOperation extends _Operation {
+  TaskDoneOperation(super.pipeline, this._repository, this._bus);
+
+  final TaskRepository _repository;
+  final DomainEventBus _bus;
+
+  @override
+  String get operationName => 'TaskDoneOperation';
+
+  @override
+  Map<String, dynamic> traceAttributes(TaskDoneCommand command) => {
+    'taskId': command.taskId,
+  };
+
+  @override
+  OperationPolicySet<TaskDoneCommand, TaskDoneFailure> preconditionPolicies(
+    TaskDoneCommand command,
+    OperationContext context,
+  ) => OperationPolicySet([
+    TaskExistsPolicy(_repository, (cmd) => cmd.taskId, TaskDoneNotFound.new),
+  ]);
+
+  @override
+  Future<Result<Task, TaskDoneFailure>> run(TaskDoneCommand command) async {
+    final task = await _repository.getById(TaskId(command.taskId));
+    if (task == null) {
+      return Failure(TaskDoneNotFound(command.taskId));
+    }
+
+    if (task.status != TaskStatus.inProgress) {
+      return Failure(
+        TaskDoneInvalidTransition(
+          from: task.status.value,
+          to: TaskStatus.completed.value,
+        ),
+      );
+    }
+
+    final siblings = await _repository.getByProjectId(task.projectId);
+    if (!isCompletable(task, siblings)) {
+      return Failure(TaskDoneNotCompletable(command.taskId));
+    }
+
+    final now = DateTime.now().toUtc();
+    final updated = task.copyWith(
+      status: TaskStatus.completed,
+      statusReason: command.reason,
+      lastProgressAt: now,
+      completedAt: now,
+      updatedAt: now,
+    );
+
+    final saved = await _repository.save(updated);
+    await _bus.publish(TaskCompletedEvent(taskId: saved.id));
+
+    return Success(saved);
+  }
+}

@@ -491,6 +491,72 @@ as TaskId,
 /// @nodoc
 
 
+class TaskStartedEvent extends DomainEvent {
+  const TaskStartedEvent({required this.taskId}): super._();
+  
+
+ final  TaskId taskId;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TaskStartedEventCopyWith<TaskStartedEvent> get copyWith => _$TaskStartedEventCopyWithImpl<TaskStartedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskStartedEvent&&(identical(other.taskId, taskId) || other.taskId == taskId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,taskId);
+
+@override
+String toString() {
+  return 'DomainEvent.taskStarted(taskId: $taskId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TaskStartedEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $TaskStartedEventCopyWith(TaskStartedEvent value, $Res Function(TaskStartedEvent) _then) = _$TaskStartedEventCopyWithImpl;
+@useResult
+$Res call({
+ TaskId taskId
+});
+
+
+
+
+}
+/// @nodoc
+class _$TaskStartedEventCopyWithImpl<$Res>
+    implements $TaskStartedEventCopyWith<$Res> {
+  _$TaskStartedEventCopyWithImpl(this._self, this._then);
+
+  final TaskStartedEvent _self;
+  final $Res Function(TaskStartedEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
+  return _then(TaskStartedEvent(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as TaskId,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
 class TaskCompletedEvent extends DomainEvent {
   const TaskCompletedEvent({required this.taskId}): super._();
   
@@ -546,6 +612,276 @@ class _$TaskCompletedEventCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
   return _then(TaskCompletedEvent(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as TaskId,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class TaskFailedEvent extends DomainEvent {
+  const TaskFailedEvent({required this.taskId, this.reason}): super._();
+  
+
+ final  TaskId taskId;
+ final  String? reason;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TaskFailedEventCopyWith<TaskFailedEvent> get copyWith => _$TaskFailedEventCopyWithImpl<TaskFailedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskFailedEvent&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,taskId,reason);
+
+@override
+String toString() {
+  return 'DomainEvent.taskFailed(taskId: $taskId, reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TaskFailedEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $TaskFailedEventCopyWith(TaskFailedEvent value, $Res Function(TaskFailedEvent) _then) = _$TaskFailedEventCopyWithImpl;
+@useResult
+$Res call({
+ TaskId taskId, String? reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$TaskFailedEventCopyWithImpl<$Res>
+    implements $TaskFailedEventCopyWith<$Res> {
+  _$TaskFailedEventCopyWithImpl(this._self, this._then);
+
+  final TaskFailedEvent _self;
+  final $Res Function(TaskFailedEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? reason = freezed,}) {
+  return _then(TaskFailedEvent(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as TaskId,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class TaskCancelledEvent extends DomainEvent {
+  const TaskCancelledEvent({required this.taskId, this.reason}): super._();
+  
+
+ final  TaskId taskId;
+ final  String? reason;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TaskCancelledEventCopyWith<TaskCancelledEvent> get copyWith => _$TaskCancelledEventCopyWithImpl<TaskCancelledEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskCancelledEvent&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,taskId,reason);
+
+@override
+String toString() {
+  return 'DomainEvent.taskCancelled(taskId: $taskId, reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TaskCancelledEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $TaskCancelledEventCopyWith(TaskCancelledEvent value, $Res Function(TaskCancelledEvent) _then) = _$TaskCancelledEventCopyWithImpl;
+@useResult
+$Res call({
+ TaskId taskId, String? reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$TaskCancelledEventCopyWithImpl<$Res>
+    implements $TaskCancelledEventCopyWith<$Res> {
+  _$TaskCancelledEventCopyWithImpl(this._self, this._then);
+
+  final TaskCancelledEvent _self;
+  final $Res Function(TaskCancelledEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? reason = freezed,}) {
+  return _then(TaskCancelledEvent(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as TaskId,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class TaskPutOnHoldEvent extends DomainEvent {
+  const TaskPutOnHoldEvent({required this.taskId, this.reason}): super._();
+  
+
+ final  TaskId taskId;
+ final  String? reason;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TaskPutOnHoldEventCopyWith<TaskPutOnHoldEvent> get copyWith => _$TaskPutOnHoldEventCopyWithImpl<TaskPutOnHoldEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskPutOnHoldEvent&&(identical(other.taskId, taskId) || other.taskId == taskId)&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,taskId,reason);
+
+@override
+String toString() {
+  return 'DomainEvent.taskPutOnHold(taskId: $taskId, reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TaskPutOnHoldEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $TaskPutOnHoldEventCopyWith(TaskPutOnHoldEvent value, $Res Function(TaskPutOnHoldEvent) _then) = _$TaskPutOnHoldEventCopyWithImpl;
+@useResult
+$Res call({
+ TaskId taskId, String? reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$TaskPutOnHoldEventCopyWithImpl<$Res>
+    implements $TaskPutOnHoldEventCopyWith<$Res> {
+  _$TaskPutOnHoldEventCopyWithImpl(this._self, this._then);
+
+  final TaskPutOnHoldEvent _self;
+  final $Res Function(TaskPutOnHoldEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? reason = freezed,}) {
+  return _then(TaskPutOnHoldEvent(
+taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
+as TaskId,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class TaskDeletedEvent extends DomainEvent {
+  const TaskDeletedEvent({required this.taskId}): super._();
+  
+
+ final  TaskId taskId;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TaskDeletedEventCopyWith<TaskDeletedEvent> get copyWith => _$TaskDeletedEventCopyWithImpl<TaskDeletedEvent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskDeletedEvent&&(identical(other.taskId, taskId) || other.taskId == taskId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,taskId);
+
+@override
+String toString() {
+  return 'DomainEvent.taskDeleted(taskId: $taskId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TaskDeletedEventCopyWith<$Res> implements $DomainEventCopyWith<$Res> {
+  factory $TaskDeletedEventCopyWith(TaskDeletedEvent value, $Res Function(TaskDeletedEvent) _then) = _$TaskDeletedEventCopyWithImpl;
+@useResult
+$Res call({
+ TaskId taskId
+});
+
+
+
+
+}
+/// @nodoc
+class _$TaskDeletedEventCopyWithImpl<$Res>
+    implements $TaskDeletedEventCopyWith<$Res> {
+  _$TaskDeletedEventCopyWithImpl(this._self, this._then);
+
+  final TaskDeletedEvent _self;
+  final $Res Function(TaskDeletedEvent) _then;
+
+/// Create a copy of DomainEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? taskId = null,}) {
+  return _then(TaskDeletedEvent(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
 as TaskId,
   ));

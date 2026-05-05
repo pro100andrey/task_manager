@@ -46,30 +46,11 @@ Future<void> main() async {
       }
   }
 
-  final project2 = await createOp.execute(
-    const ProjectCreateCommand(
-      name: 'My first project',
-      description: 'This is a sample project',
-    ),
-  );
-
-  switch (project2) {
-    case Success(:final value):
-      stdout.writeln(
-        'Project created: ${value.name.value} (id: ${value.id.value})',
-      );
-    case Failure(:final error):
-      switch (error) {
-        case ProjectCreateNameAlreadyExists(:final name):
-          stdout.writeln(
-            'Failed to create project: name already exists ($name)',
-          );
-        case ProjectCreateInvalidName(:final reason):
-          stdout.writeln('Failed to create project: invalid name ($reason)');
-        case ProjectCreateInvalidDescription(:final reason):
-          stdout.writeln(
-            'Failed to create project: invalid description ($reason)',
-          );
-      }
-  }
+  // final renameOp = getIt<ProjectRenameOperation>();
+  // final renameResult = await renameOp.execute(
+  //   ProjectRenameCommand(
+  //     projectId: project.,
+  //     newName: 'Renamed project',
+  //   ),
+  // );
 }

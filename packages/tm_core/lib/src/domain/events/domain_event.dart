@@ -35,9 +35,32 @@ sealed class DomainEvent with _$DomainEvent {
     required TaskId taskId,
   }) = TaskCreatedEvent;
 
+  const factory DomainEvent.taskStarted({
+    required TaskId taskId,
+  }) = TaskStartedEvent;
+
   const factory DomainEvent.taskCompleted({
     required TaskId taskId,
   }) = TaskCompletedEvent;
+
+  const factory DomainEvent.taskFailed({
+    required TaskId taskId,
+    String? reason,
+  }) = TaskFailedEvent;
+
+  const factory DomainEvent.taskCancelled({
+    required TaskId taskId,
+    String? reason,
+  }) = TaskCancelledEvent;
+
+  const factory DomainEvent.taskPutOnHold({
+    required TaskId taskId,
+    String? reason,
+  }) = TaskPutOnHoldEvent;
+
+  const factory DomainEvent.taskDeleted({
+    required TaskId taskId,
+  }) = TaskDeletedEvent;
 
   const factory DomainEvent.taskReplanned({
     required TaskId taskId,

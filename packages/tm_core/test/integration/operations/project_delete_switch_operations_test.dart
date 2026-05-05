@@ -178,7 +178,8 @@ void main() {
     );
 
     test(
-      'publishes ProjectSwitchedEvent with null previousProject on first switch',
+      'publishes ProjectSwitchedEvent with null previousProject on first '
+      'switch',
       () async {
         final events = <DomainEvent>[];
         bus.listen<DomainEvent>(events.add);
