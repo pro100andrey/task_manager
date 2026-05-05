@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:injectable/injectable.dart';
 
 import '../adapters/behaviors/tracing_behavior.dart';
@@ -37,8 +39,14 @@ abstract class CoreModule {
   @LazySingleton(as: TracingPort)
   LoggingTracingPortImpl get tracingPort;
 
-  @lazySingleton
-  TracingLoggingConfig get tracingLoggingConfig => const TracingLoggingConfig();
+  @LazySingleton()
+  TracingLoggingConfig get tracingLoggingConfig => TracingLoggingConfig(
+    rootLevel: .ALL,
+    loggerName: 'tm_core',
+    onRecord: (record) => stdout.writeln(
+      '[${record.level.name}] ${record.loggerName}: ${record.message}',
+    ),
+  );
 
   @lazySingleton
   OperationPipeline operationPipeline(

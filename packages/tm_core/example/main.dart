@@ -1,19 +1,10 @@
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
-import 'package:logging/logging.dart';
 import 'package:tm_core/tm_core.dart';
 
-final tlConfig = TracingLoggingConfig(
-  rootLevel: Level.ALL,
-  loggerName: 'tm_core',
-  onRecord: (record) => stdout.writeln(
-    '[${record.level.name}] ${record.loggerName}: ${record.message}',
-  ),
-);
-
 Future<void> main() async {
-  await configureTmCoreDependencies(loggingConfig: tlConfig);
+  await configureTmCoreDependencies();
 
   final createOp = GetIt.I<ProjectCreateOperation>();
 
