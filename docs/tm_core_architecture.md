@@ -169,27 +169,27 @@ abstract class Operation<C, S, F> {
   Future<Result<S, F>> execute(C command);
 
   // переопределяется в подклассах
-  Future<Result<S, F>> handle(C command);
+  Future<Result<S, F>> run(C command);
 }
 ```
 
 Каждая операция:
 
 1. Принимает типизированный **command** объект.
-2. `execute()` автоматически оборачивает `handle()` в pipeline behaviors.
+2. `execute()` автоматически оборачивает `run()` в pipeline behaviors.
 3. Возвращает `Result<S, F>` — никогда не бросает ожидаемых ошибок.
 4. Публикует `DomainEvent` после успешного коммита.
 
-Для сокращения записи generics в конкретных use case допускается промежуточный base-класс, который фиксирует `Command/Success/Failure` типы.
+Для сокращения записи generics в конкретных use case используется `typedef` на уровне файла:
 
 ```dart
-abstract class ProjectCreateOperationBase
-    extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
-  ProjectCreateOperationBase(super.pipeline);
+typedef _Operation =
+    Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
+
+class ProjectCreateOperation extends _Operation {
+  ProjectCreateOperation(super.pipeline);
 }
 ```
-
-В этом случае рабочая операция наследуется от `ProjectCreateOperationBase` и описывает только поведение.
 
 **Pipeline behaviors** (из `adapters/behaviors/`):
 
@@ -208,12 +208,10 @@ abstract class ProjectCreateOperationBase
 **Пример — `ProjectCreateOperation`:**
 
 ```dart
-abstract class ProjectCreateOperationBase
-    extends Operation<ProjectCreateCommand, Project, ProjectNameAlreadyExists> {
-  ProjectCreateOperationBase(super.pipeline);
-}
+typedef _Operation =
+    Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
 
-class ProjectCreateOperation extends ProjectCreateOperationBase {
+class ProjectCreateOperation extends _Operation {
   ProjectCreateOperation(
     super.pipeline,
     this._repository,
@@ -231,13 +229,13 @@ class ProjectCreateOperation extends ProjectCreateOperationBase {
       {'name': command.name};
 
   @override
-  Future<Result<Project, ProjectNameAlreadyExists>> handle(
+  Future<Result<Project, ProjectCreateFailure>> run(
     ProjectCreateCommand command,
   ) async {
     // только бизнес-логика — трейсинг и транзакция применяются pipeline автоматически
     final ref = ProjectRef.name(ProjectName(command.name));
     if (await _repository.getByRef(ref) != null) {
-      return Failure(ProjectNameAlreadyExists(command.name));
+      return Failure(ProjectCreateNameAlreadyExists(command.name));
     }
     final project = Project(id: ProjectId.generate(), ...);
     final saved = await _repository.save(project);

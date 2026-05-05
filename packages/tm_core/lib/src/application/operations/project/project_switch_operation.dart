@@ -11,12 +11,10 @@ import 'commands/project_switch_command.dart';
 import 'failures/project_switch_failure.dart';
 import 'policy/project_switch_exists_policy.dart';
 
-abstract class ProjectSwitchOperationBase
-    extends Operation<ProjectSwitchCommand, Project, ProjectSwitchFailure> {
-  ProjectSwitchOperationBase(super.pipeline);
-}
+typedef _Operation =
+    Operation<ProjectSwitchCommand, Project, ProjectSwitchFailure>;
 
-class ProjectSwitchOperation extends ProjectSwitchOperationBase {
+class ProjectSwitchOperation extends _Operation {
   ProjectSwitchOperation(
     super.pipeline,
     this._repository,

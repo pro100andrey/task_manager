@@ -10,12 +10,10 @@ import 'commands/project_delete_command.dart';
 import 'failures/project_delete_failure.dart';
 import 'policy/project_delete_exists_policy.dart';
 
-abstract class ProjectDeleteOperationBase
-    extends Operation<ProjectDeleteCommand, void, ProjectDeleteFailure> {
-  ProjectDeleteOperationBase(super.pipeline);
-}
+typedef _Operation =
+    Operation<ProjectDeleteCommand, void, ProjectDeleteFailure>;
 
-class ProjectDeleteOperation extends ProjectDeleteOperationBase {
+class ProjectDeleteOperation extends _Operation {
   ProjectDeleteOperation(
     super.pipeline,
     this._repository,

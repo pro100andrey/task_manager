@@ -11,12 +11,10 @@ import 'commands/project_rename_command.dart';
 import 'failures/project_mutation_failure.dart';
 import 'policy/project_mutation_exists_policy.dart';
 
-abstract class ProjectRenameOperationBase
-    extends Operation<ProjectRenameCommand, Project, ProjectMutationFailure> {
-  ProjectRenameOperationBase(super.pipeline);
-}
+typedef _Operation =
+    Operation<ProjectRenameCommand, Project, ProjectMutationFailure>;
 
-class ProjectRenameOperation extends ProjectRenameOperationBase {
+class ProjectRenameOperation extends _Operation {
   ProjectRenameOperation(
     super.pipeline,
     this._repository,
