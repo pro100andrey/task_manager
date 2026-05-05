@@ -8,22 +8,14 @@ import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
 import '../operation_policy.dart';
-import 'project_change_description_command.dart';
-import 'project_mutation_exists_policy.dart';
-import 'project_mutation_failure.dart';
+import 'commands/project_change_description_command.dart';
+import 'failures/project_mutation_failure.dart';
+import 'policy/project_mutation_exists_policy.dart';
 
-abstract class ProjectChangeDescriptionOperationBase
-    extends
-        Operation<
-          ProjectChangeDescriptionCommand,
-          Project,
-          ProjectMutationFailure
-        > {
-  ProjectChangeDescriptionOperationBase(super.pipeline);
-}
+typedef _Op =
+    Operation<ProjectChangeDescriptionCommand, Project, ProjectMutationFailure>;
 
-class ProjectChangeDescriptionOperation
-    extends ProjectChangeDescriptionOperationBase {
+class ProjectChangeDescriptionOperation extends _Op {
   ProjectChangeDescriptionOperation(
     super.pipeline,
     this._repository,
@@ -57,7 +49,7 @@ class ProjectChangeDescriptionOperation
   ]);
 
   @override
-  Future<Result<Project, ProjectMutationFailure>> runCore(
+  Future<Result<Project, ProjectMutationFailure>> run(
     ProjectChangeDescriptionCommand command,
   ) async {
     final id = ProjectId(command.projectId);
@@ -78,6 +70,7 @@ class ProjectChangeDescriptionOperation
     final saved = await _repository.save(
       current.copyWith(description: description),
     );
+
     await _bus.publish(DomainEvent.projectDescriptionChanged(project: saved));
 
     return Success(saved);

@@ -19,7 +19,7 @@ abstract class Operation<C, S, F> {
       command,
       context,
     ).evaluateAll(command, context);
-    
+
     final preconditionResult = preconditionFailures.toFailureResult<S>();
     if (preconditionResult != null) {
       return mapResult(command, context, preconditionResult);
@@ -27,7 +27,7 @@ abstract class Operation<C, S, F> {
 
     final coreResult = await _pipeline.run(
       context,
-      () => runCore(command),
+      () => run(command),
     );
 
     final invariantFailures = await invariantPolicies(
@@ -70,5 +70,5 @@ abstract class Operation<C, S, F> {
     Result<S, F> result,
   ) => result;
 
-  Future<Result<S, F>> runCore(C command);
+  Future<Result<S, F>> run(C command);
 }

@@ -1,8 +1,8 @@
-import '../../../domain/value_objects/project/project_id.dart';
-import '../../ports/project_repository.dart';
-import '../operation_context.dart';
-import '../operation_policy.dart';
-import 'project_mutation_failure.dart';
+import '../../../../domain/value_objects/project/project_id.dart';
+import '../../../ports/project_repository.dart';
+import '../../operation_context.dart';
+import '../../operation_policy.dart';
+import '../failures/project_mutation_failure.dart';
 
 class ProjectMutationExistsPolicy<C>
     extends PreconditionPolicy<C, ProjectMutationFailure> {
@@ -26,7 +26,9 @@ class ProjectMutationExistsPolicy<C>
     final existing = await _repository.getById(ProjectId(projectId));
 
     if (existing == null) {
-      return [ProjectMutationNotFound(projectId)];
+      return [
+        ProjectMutationNotFound(projectId),
+      ];
     }
 
     return const [];

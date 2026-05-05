@@ -5,13 +5,13 @@ import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
 import '../operation_policy.dart';
-import 'project_change_description_command.dart';
+import 'commands/project_change_description_command.dart';
+import 'commands/project_rename_command.dart';
+import 'commands/project_update_command.dart';
+import 'failures/project_mutation_failure.dart';
+import 'policy/project_mutation_exists_policy.dart';
 import 'project_change_description_operation.dart';
-import 'project_mutation_exists_policy.dart';
-import 'project_mutation_failure.dart';
-import 'project_rename_command.dart';
 import 'project_rename_operation.dart';
-import 'project_update_command.dart';
 
 abstract class ProjectUpdateOperationBase
     extends Operation<ProjectUpdateCommand, Project, ProjectMutationFailure> {
@@ -53,7 +53,7 @@ class ProjectUpdateOperation extends ProjectUpdateOperationBase {
   ]);
 
   @override
-  Future<Result<Project, ProjectMutationFailure>> runCore(
+  Future<Result<Project, ProjectMutationFailure>> run(
     ProjectUpdateCommand command,
   ) async {
     var current = await _repository.getById(ProjectId(command.projectId));

@@ -8,14 +8,12 @@ import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
 import '../operation_policy.dart';
-import 'project_create_command.dart';
-import 'project_create_failure.dart';
-import 'project_create_input_valid_policy.dart';
-import 'project_create_name_unique_policy.dart';
+import 'commands/project_create_command.dart';
+import 'failures/project_create_failure.dart';
+import 'policy/project_create_input_valid_policy.dart';
+import 'policy/project_create_name_unique_policy.dart';
 
 typedef _Op = Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
-
-typedef CreateResult = Result<Project, ProjectCreateFailure>;
 
 class ProjectCreateOperation extends _Op {
   ProjectCreateOperation(
@@ -46,7 +44,7 @@ class ProjectCreateOperation extends _Op {
   ]);
 
   @override
-  Future<CreateResult> runCore(
+  Future<Result<Project, ProjectCreateFailure>> run(
     ProjectCreateCommand command,
   ) async {
     final projectName = ProjectName(command.name);

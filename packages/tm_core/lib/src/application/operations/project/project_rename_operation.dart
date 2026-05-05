@@ -7,9 +7,9 @@ import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
 import '../operation_policy.dart';
-import 'project_mutation_exists_policy.dart';
-import 'project_mutation_failure.dart';
-import 'project_rename_command.dart';
+import 'commands/project_rename_command.dart';
+import 'failures/project_mutation_failure.dart';
+import 'policy/project_mutation_exists_policy.dart';
 
 abstract class ProjectRenameOperationBase
     extends Operation<ProjectRenameCommand, Project, ProjectMutationFailure> {
@@ -48,7 +48,7 @@ class ProjectRenameOperation extends ProjectRenameOperationBase {
   ]);
 
   @override
-  Future<Result<Project, ProjectMutationFailure>> runCore(
+  Future<Result<Project, ProjectMutationFailure>> run(
     ProjectRenameCommand command,
   ) async {
     final id = ProjectId(command.projectId);

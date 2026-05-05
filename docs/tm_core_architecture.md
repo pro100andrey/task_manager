@@ -256,14 +256,6 @@ Read-only use cases. Не используют транзакции и не пу
 | `GetAllProjectsQuery` | `Future<List<Project>>` |
 | `GetCurrentProjectQuery` | `Future<Project?>` |
 
-#### `guards/`
-
-Предусловия, которые вызываются в начале операции. Бросают `Exception` при нарушении.
-
-| Guard | Проверяет |
-| ----- | ---------- |
-| `ProjectExistsGuard` | Проект с данным `ProjectRef` существует |
-
 #### `ports/`
 
 Абстракции внешних зависимостей и репозиториев — только интерфейсы, без реализаций.
