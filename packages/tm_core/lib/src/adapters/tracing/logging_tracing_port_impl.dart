@@ -63,6 +63,25 @@ class LoggingTracingPortImpl implements TracingPort {
   }
 
   @override
+  void logDomainFailure(
+    String operationName,
+    Object error, {
+    Map<String, dynamic>? attributes,
+  }) {
+    if (!_config.enabled) {
+      return;
+    }
+
+    final attrs = attributes == null || attributes.isEmpty
+        ? ''
+        : ' $attributes';
+    _logger.log(
+      _config.domainFailureLevel,
+      '✗ $operationName returned domain failure$attrs: $error',
+    );
+  }
+
+  @override
   T traceSync<T>(
     String operationName,
     T Function() action, {

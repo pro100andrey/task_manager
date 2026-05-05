@@ -12,8 +12,8 @@ abstract class Operation<C, S, F> {
 
   Map<String, dynamic> traceAttributes(C command) => const {};
 
-  Future<Result<S, F>> execute(C command) async {
-    final context = buildContext(command);
+  Future<Result<S, F>> execute(C command) {
+    final context = _buildContext(command);
 
     return _pipeline.run(context, () async {
       final preconditionFailures = await preconditionPolicies(
@@ -33,6 +33,7 @@ abstract class Operation<C, S, F> {
         context,
         coreResult,
       ).evaluateAll(command, context);
+
       final invariantResult = invariantFailures.toFailureResult<S>();
       final result = invariantResult ?? coreResult;
 
@@ -41,7 +42,7 @@ abstract class Operation<C, S, F> {
     });
   }
 
-  OperationContext buildContext(C command) => OperationContext(
+  OperationContext _buildContext(C command) => OperationContext(
     name: operationName,
     attributes: traceAttributes(command),
   );

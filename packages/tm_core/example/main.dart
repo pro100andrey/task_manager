@@ -27,7 +27,6 @@ Future<void> main() async {
   );
 
   if (project.isFailure) {
-    stdout.writeln('Failed to create project: ${project.error}');
     exit(1);
   }
 
@@ -35,14 +34,13 @@ Future<void> main() async {
 
   final renameOp = getIt<ProjectRenameOperation>();
   final renameResult = await renameOp.execute(
-    const ProjectRenameCommand(
-      projectId: '019df825-cdfc-7988-a7ad-7cf3b5a74a51',
+    ProjectRenameCommand(
+      projectId: projectId.raw,
       newName: 'Renamed project',
     ),
   );
 
   if (renameResult.isFailure) {
-    stdout.writeln('Project rename failed: ${renameResult.error}');
     exit(1);
   }
 }

@@ -1,8 +1,13 @@
-
 abstract class TracingPort {
   Future<T> trace<T>(
     String operationName,
     Future<T> Function() action, {
+    Map<String, dynamic>? attributes,
+  });
+
+  void logDomainFailure(
+    String operationName,
+    Object error, {
     Map<String, dynamic>? attributes,
   });
 
