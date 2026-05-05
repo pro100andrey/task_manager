@@ -66,6 +66,25 @@ sealed class DomainEvent with _$DomainEvent {
     required TaskId taskId,
   }) = TaskReplannedEvent;
 
+  const factory DomainEvent.taskUpdated({
+    required TaskId taskId,
+  }) = TaskUpdatedEvent;
+
+  const factory DomainEvent.taskContextChanged({
+    required TaskId taskId,
+    required String contextState,
+  }) = TaskContextChangedEvent;
+
+  const factory DomainEvent.taskMoved({
+    required TaskId taskId,
+    TaskId? newParentId,
+  }) = TaskMovedEvent;
+
+  const factory DomainEvent.taskAliasRenamed({
+    required TaskId taskId,
+    required String newAlias,
+  }) = TaskAliasRenamedEvent;
+
   const factory DomainEvent.taskLinkAdded({
     required TaskId fromTaskId,
     required TaskId toTaskId,

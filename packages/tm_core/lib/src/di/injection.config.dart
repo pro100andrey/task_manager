@@ -38,7 +38,13 @@ import '../application/operations/task/task_delete_operation.dart' as _i96;
 import '../application/operations/task/task_done_operation.dart' as _i841;
 import '../application/operations/task/task_fail_operation.dart' as _i545;
 import '../application/operations/task/task_hold_operation.dart' as _i906;
+import '../application/operations/task/task_move_operation.dart' as _i506;
+import '../application/operations/task/task_rename_alias_operation.dart'
+    as _i338;
+import '../application/operations/task/task_set_context_operation.dart'
+    as _i523;
 import '../application/operations/task/task_start_operation.dart' as _i74;
+import '../application/operations/task/task_update_operation.dart' as _i652;
 import '../application/operations/task_link/task_link_add_operation.dart'
     as _i309;
 import '../application/operations/task_link/task_link_remove_operation.dart'
@@ -132,6 +138,18 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i96.TaskDeleteOperation>(
     () => applicationModule.taskDeleteOperation,
+  );
+  gh.lazySingleton<_i652.TaskUpdateOperation>(
+    () => applicationModule.taskUpdateOperation,
+  );
+  gh.lazySingleton<_i523.TaskSetContextOperation>(
+    () => applicationModule.taskSetContextOperation,
+  );
+  gh.lazySingleton<_i506.TaskMoveOperation>(
+    () => applicationModule.taskMoveOperation,
+  );
+  gh.lazySingleton<_i338.TaskRenameAliasOperation>(
+    () => applicationModule.taskRenameAliasOperation,
   );
   gh.lazySingleton<_i406.ProjectUpdateOperation>(
     () => applicationModule.projectUpdateOperation,
@@ -299,6 +317,37 @@ class _$ApplicationModule extends _i705.ApplicationModule {
     _getIt<_i159.TaskRepository>(),
     _getIt<_i512.DomainEventBus>(),
   );
+
+  @override
+  _i652.TaskUpdateOperation get taskUpdateOperation =>
+      _i652.TaskUpdateOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i523.TaskSetContextOperation get taskSetContextOperation =>
+      _i523.TaskSetContextOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i506.TaskMoveOperation get taskMoveOperation => _i506.TaskMoveOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i512.DomainEventBus>(),
+  );
+
+  @override
+  _i338.TaskRenameAliasOperation get taskRenameAliasOperation =>
+      _i338.TaskRenameAliasOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
 
   @override
   _i406.ProjectUpdateOperation get projectUpdateOperation =>

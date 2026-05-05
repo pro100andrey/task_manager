@@ -26,47 +26,23 @@ Future<void> main() async {
     ),
   );
 
-  switch (project) {
-    case Success(:final value):
-      stdout.writeln(
-        'Project created: ${value.name.value} (id: ${value.id.value})',
-      );
-    case Failure(:final error):
-      switch (error) {
-        case ProjectCreateNameAlreadyExists(:final name):
-          stdout.writeln(
-            'Failed to create project: name already exists ($name)',
-          );
-        case ProjectCreateInvalidName(:final reason):
-          stdout.writeln('Failed to create project: invalid name ($reason)');
-        case ProjectCreateInvalidDescription(:final reason):
-          stdout.writeln(
-            'Failed to create project: invalid description ($reason)',
-          );
-      }
+  if (project.isFailure) {
+    stdout.writeln('Failed to create project: ${project.error}');
+    exit(1);
   }
 
   final projectId = project.value!.id;
 
   final renameOp = getIt<ProjectRenameOperation>();
   final renameResult = await renameOp.execute(
-    ProjectRenameCommand(
-      projectId: projectId.value,
+    const ProjectRenameCommand(
+      projectId: '019df825-cdfc-7988-a7ad-7cf3b5a74a51',
       newName: 'Renamed project',
     ),
   );
 
-  switch (renameResult) {
-    case Success(:final value):
-      stdout.writeln('Project renamed to: ${value.name.value}');
-    case Failure(:final error):
-      switch (error) {
-        case ProjectMutationNotFound(:final ref):
-          stdout.writeln('Failed to rename project: not found (id: $ref)');
-        case ProjectMutationNameAlreadyExists(:final name):
-          stdout.writeln(
-            'Failed to rename project: name already exists (name: $name)',
-          );
-      }
+  if (renameResult.isFailure) {
+    stdout.writeln('Project rename failed: ${renameResult.error}');
+    exit(1);
   }
 }

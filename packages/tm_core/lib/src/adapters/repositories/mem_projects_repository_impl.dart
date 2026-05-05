@@ -23,12 +23,13 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
   @override
   Future<Project> save(Project project) async {
     _storage[project.id] = project;
+
     return project;
   }
 
   @override
   Future<List<Project>> getAllProjects() async =>
-      UnmodifiableListView(_storage.values).toList();
+      UnmodifiableListView(_storage.values);
 
   @override
   Future<Project?> getById(ProjectId id) async => _storage[id];
@@ -48,6 +49,7 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
     if (project == null) {
       throw ProjectNotFound(id.value);
     }
+
     _currentProjectId = id;
 
     return project;
@@ -58,7 +60,9 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
     if (!_storage.containsKey(id)) {
       throw ProjectNotFound(id.value);
     }
+
     _storage.remove(id);
+    
     if (_currentProjectId == id) {
       _currentProjectId = null;
     }

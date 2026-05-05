@@ -86,6 +86,7 @@ class TaskLinkAddOperation extends _Operation {
     if (fromTask == null) {
       return Failure(TaskLinkAddFromNotFound(command.fromTaskId));
     }
+    
     final toTask = await _taskRepository.getById(toId);
     if (toTask == null) {
       return Failure(TaskLinkAddToNotFound(command.toTaskId));
