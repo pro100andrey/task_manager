@@ -32,7 +32,9 @@ class OrderedDomainEventBusImpl implements DomainEventBus {
     try {
       while (_eventQueue.isNotEmpty) {
         final event = _eventQueue.removeFirst();
-        _eventController.add(event); // гарантированно по порядку
+        // Guarantee that events are published in the order they were added to
+        // the queue
+        _eventController.add(event);
       }
     } finally {
       _isProcessing = false;
@@ -43,7 +45,7 @@ class OrderedDomainEventBusImpl implements DomainEventBus {
   Stream<T> on<T>() =>
       _eventController.stream.where((event) => event is T).cast<T>();
 
-  /// Удобный метод для подписки
+  /// Convenient method for subscribing to events of type [T].
   @override
   StreamSubscription<T> listen<T>(
     void Function(T event) onEvent, {

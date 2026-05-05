@@ -46,28 +46,35 @@ class ProjectRenameOperation extends _Operation {
   Future<Result<Project, ProjectMutationFailure>> run(
     ProjectRenameCommand command,
   ) async {
+    // Check if the project exists
     final current = await _repository.getById(command.projectId);
-
+    
     if (current == null) {
       return Failure(ProjectMutationNotFound(command.projectId));
     }
 
+    // Check if the new name is already taken by another project
     final existingByName = await _repository.getByRef(
       ProjectRef.name(command.newName),
     );
+   
     if (existingByName != null && existingByName.id != command.projectId) {
       return Failure(ProjectMutationNameAlreadyExists(command.newName));
     }
 
+    // If the name is unchanged, return the current project without saving
     if (current.name == command.newName) {
       return Success(current);
     }
 
+    // Update the project's name and save it
     final saved = await _repository.save(
       current.copyWith(name: command.newName),
     );
 
+    // Publish a ProjectRenamedEvent after successful rename
     await _bus.publish(DomainEvent.projectRenamed(project: saved));
+
     return Success(saved);
   }
 }

@@ -5,12 +5,12 @@ sealed class ProjectMutationFailure {
 }
 
 final class ProjectMutationNotFound extends ProjectMutationFailure {
-  const ProjectMutationNotFound(this.id);
+  const ProjectMutationNotFound(this.projectId);
 
-  final ProjectId id;
+  final ProjectId projectId;
 
   @override
-  String toString() => 'ProjectMutationNotFound(id: $id)';
+  String toString() => 'ProjectMutationNotFound(projectId: $projectId)';
 }
 
 final class ProjectMutationNameAlreadyExists extends ProjectMutationFailure {

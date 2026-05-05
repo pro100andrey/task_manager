@@ -13,7 +13,7 @@ class ProjectSwitchExistsPolicy<C extends Command>
   // This selector is only invoked with the same command instance that enters
   // check(), so the generic callback remains type-safe in this usage.
   // ignore: unsafe_variance
-  final String Function(C command) _projectIdSelector;
+  final ProjectId Function(C command) _projectIdSelector;
 
   @override
   Future<Iterable<ProjectSwitchFailure>> check(
@@ -21,7 +21,7 @@ class ProjectSwitchExistsPolicy<C extends Command>
     OperationContext context,
   ) async {
     final projectId = _projectIdSelector(command);
-    final existing = await _repository.getById(ProjectId(projectId));
+    final existing = await _repository.getById(projectId);
     if (existing == null) {
       return [ProjectSwitchNotFound(projectId)];
     }

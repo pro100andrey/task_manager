@@ -34,6 +34,7 @@ class MemTaskLinkRepositoryImpl implements TaskLinkRepository {
   @override
   Future<TaskLink> save(TaskLink link) async {
     _links[_key(link.fromTaskId, link.toTaskId, link.linkType)] = link;
+
     return link;
   }
 

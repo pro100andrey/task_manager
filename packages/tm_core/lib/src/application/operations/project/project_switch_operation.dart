@@ -1,7 +1,6 @@
 import '../../../domain/entities/project.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
@@ -46,8 +45,7 @@ class ProjectSwitchOperation extends _Operation {
     ProjectSwitchCommand command,
   ) async {
     final previousProject = await _repository.getCurrentProject();
-    final id = ProjectId(command.projectId);
-    final current = await _repository.switchCurrentProject(id);
+    final current = await _repository.switchCurrentProject(command.projectId);
 
     await _bus.publish(
       ProjectSwitchedEvent(

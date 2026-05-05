@@ -118,7 +118,7 @@ void main() {
       final project = await createProject(const .new('Target'));
 
       final result = await switchOp.execute(
-        ProjectSwitchCommand(projectId: project.id.value),
+        ProjectSwitchCommand(projectId: project.id),
       );
 
       expect(result.isSuccess, isTrue);
@@ -128,7 +128,7 @@ void main() {
     });
 
     test('returns ProjectSwitchNotFound for unknown id', () async {
-      final unknownId = ProjectId.generate().value;
+      final unknownId = ProjectId.generate();
       final result = await switchOp.execute(
         ProjectSwitchCommand(projectId: unknownId),
       );
@@ -148,13 +148,13 @@ void main() {
         final second = await createProject(const .new('Second'));
 
         await switchOp.execute(
-          ProjectSwitchCommand(projectId: first.id.value),
+          ProjectSwitchCommand(projectId: first.id),
         );
         await Future<void>.delayed(Duration.zero);
         events.clear();
 
         await switchOp.execute(
-          ProjectSwitchCommand(projectId: second.id.value),
+          ProjectSwitchCommand(projectId: second.id),
         );
         await Future<void>.delayed(Duration.zero);
 
@@ -176,7 +176,7 @@ void main() {
         events.clear();
 
         await switchOp.execute(
-          ProjectSwitchCommand(projectId: project.id.value),
+          ProjectSwitchCommand(projectId: project.id),
         );
         await Future<void>.delayed(Duration.zero);
 
@@ -190,7 +190,7 @@ void main() {
       final events = <DomainEvent>[];
       bus.listen<DomainEvent>(events.add);
 
-      final ghostId = ProjectId.generate().value;
+      final ghostId = ProjectId.generate();
       await switchOp.execute(
         ProjectSwitchCommand(projectId: ghostId),
       );
@@ -203,10 +203,10 @@ void main() {
       final a = await createProject(const .new('A'));
       final b = await createProject(const .new('B'));
 
-      await switchOp.execute(ProjectSwitchCommand(projectId: a.id.value));
+      await switchOp.execute(ProjectSwitchCommand(projectId: a.id));
       expect((await repo.getCurrentProject())?.id, a.id);
 
-      await switchOp.execute(ProjectSwitchCommand(projectId: b.id.value));
+      await switchOp.execute(ProjectSwitchCommand(projectId: b.id));
       expect((await repo.getCurrentProject())?.id, b.id);
     });
   });

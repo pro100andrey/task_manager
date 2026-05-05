@@ -19,7 +19,8 @@ class DomainEventBusImpl implements DomainEventBus {
   Stream<T> on<T>() =>
       _eventController.stream.where((event) => event is T).cast<T>();
 
-  /// Подписка с автоматической отпиской (удобно для UI/TUI)
+  /// Subscribes to events of type [T] and returns a [StreamSubscription] that
+  /// can be used to cancel the subscription.
   @override
   StreamSubscription<T> listen<T>(
     void Function(T event) onEvent, {
