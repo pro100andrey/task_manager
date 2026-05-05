@@ -37,10 +37,7 @@ class ProjectDeleteOperation extends _Operation {
     ProjectDeleteCommand command,
     OperationContext context,
   ) => OperationPolicySet([
-    ProjectDeleteExistsPolicy<ProjectDeleteCommand>(
-      _repository,
-      (cmd) => cmd.projectId,
-    ),
+    ProjectDeleteExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 
   @override

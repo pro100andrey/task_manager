@@ -12,10 +12,10 @@ import 'commands/project_change_description_command.dart';
 import 'failures/project_mutation_failure.dart';
 import 'policy/project_mutation_exists_policy.dart';
 
-typedef _Op =
+typedef _Operation =
     Operation<ProjectChangeDescriptionCommand, Project, ProjectMutationFailure>;
 
-class ProjectChangeDescriptionOperation extends _Op {
+class ProjectChangeDescriptionOperation extends _Operation {
   ProjectChangeDescriptionOperation(
     super.pipeline,
     this._repository,
@@ -42,10 +42,7 @@ class ProjectChangeDescriptionOperation extends _Op {
     ProjectChangeDescriptionCommand command,
     OperationContext context,
   ) => OperationPolicySet([
-    ProjectMutationExistsPolicy<ProjectChangeDescriptionCommand>(
-      _repository,
-      (cmd) => cmd.projectId,
-    ),
+    ProjectMutationExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 
   @override

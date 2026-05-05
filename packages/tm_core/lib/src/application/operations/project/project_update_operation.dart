@@ -1,6 +1,5 @@
 import '../../../domain/entities/project.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
@@ -44,17 +43,14 @@ class ProjectUpdateOperation extends _Operation {
     ProjectUpdateCommand command,
     OperationContext context,
   ) => OperationPolicySet([
-    ProjectMutationExistsPolicy<ProjectUpdateCommand>(
-      _repository,
-      (cmd) => cmd.projectId,
-    ),
+    ProjectMutationExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 
   @override
   Future<Result<Project, ProjectMutationFailure>> run(
     ProjectUpdateCommand command,
   ) async {
-    var current = await _repository.getById(ProjectId(command.projectId));
+    var current = await _repository.getById(.new(command.projectId));
     if (current == null) {
       return Failure(ProjectMutationNotFound(command.projectId));
     }
@@ -67,9 +63,9 @@ class ProjectUpdateOperation extends _Operation {
         ),
       );
       switch (renameResult) {
-        case Success<Project, ProjectMutationFailure>(:final value):
+        case Success(:final value):
           current = value;
-        case Failure<Project, ProjectMutationFailure>(:final error):
+        case Failure(:final error):
           return Failure(error);
       }
     }
@@ -82,9 +78,9 @@ class ProjectUpdateOperation extends _Operation {
         ),
       );
       switch (changeDescriptionResult) {
-        case Success<Project, ProjectMutationFailure>(:final value):
+        case Success(:final value):
           current = value;
-        case Failure<Project, ProjectMutationFailure>(:final error):
+        case Failure(:final error):
           return Failure(error);
       }
     }

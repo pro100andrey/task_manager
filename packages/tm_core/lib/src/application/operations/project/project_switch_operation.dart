@@ -38,10 +38,7 @@ class ProjectSwitchOperation extends _Operation {
     ProjectSwitchCommand command,
     OperationContext context,
   ) => OperationPolicySet([
-    ProjectSwitchExistsPolicy<ProjectSwitchCommand>(
-      _repository,
-      (cmd) => cmd.projectId,
-    ),
+    ProjectSwitchExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 
   @override
