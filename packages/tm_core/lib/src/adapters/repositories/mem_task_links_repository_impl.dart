@@ -1,0 +1,50 @@
+import '../../application/ports/task_link_repository.dart';
+import '../../domain/entities/task_link.dart';
+import '../../domain/enums/link_type.dart';
+import '../../domain/value_objects/task/task_id.dart';
+
+class MemTaskLinkRepositoryImpl implements TaskLinkRepository {
+  // Composite key: '${from}:${to}:${type}'
+  final _links = <String, TaskLink>{};
+
+  static String _key(TaskId from, TaskId to, LinkType type) =>
+      '${from.raw}:${to.raw}:${type.value}';
+
+  @override
+  Future<List<TaskLink>> getByTaskId(TaskId taskId) async => _links.values
+      .where((l) => l.fromTaskId == taskId || l.toTaskId == taskId)
+      .toList();
+
+  @override
+  Future<List<TaskLink>> getAllByProjectLinks(
+    List<TaskId> projectTaskIds,
+  ) async {
+    final ids = projectTaskIds.map((t) => t.raw).toSet();
+    return _links.values
+        .where(
+          (l) => ids.contains(l.fromTaskId.raw) && ids.contains(l.toTaskId.raw),
+        )
+        .toList();
+  }
+
+  @override
+  Future<TaskLink?> get(TaskId from, TaskId to, LinkType type) async =>
+      _links[_key(from, to, type)];
+
+  @override
+  Future<TaskLink> save(TaskLink link) async {
+    _links[_key(link.fromTaskId, link.toTaskId, link.linkType)] = link;
+    return link;
+  }
+
+  @override
+  Future<void> delete(TaskId from, TaskId to, LinkType? type) async {
+    if (type != null) {
+      _links.remove(_key(from, to, type));
+    } else {
+      for (final lt in LinkType.values) {
+        _links.remove(_key(from, to, lt));
+      }
+    }
+  }
+}

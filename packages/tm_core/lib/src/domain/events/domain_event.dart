@@ -65,4 +65,16 @@ sealed class DomainEvent with _$DomainEvent {
   const factory DomainEvent.taskReplanned({
     required TaskId taskId,
   }) = TaskReplannedEvent;
+
+  const factory DomainEvent.taskLinkAdded({
+    required TaskId fromTaskId,
+    required TaskId toTaskId,
+    required String linkType,
+  }) = TaskLinkAddedEvent;
+
+  const factory DomainEvent.taskLinkRemoved({
+    required TaskId fromTaskId,
+    required TaskId toTaskId,
+    required String linkType,
+  }) = TaskLinkRemovedEvent;
 }

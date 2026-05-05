@@ -14,6 +14,7 @@ import 'package:injectable/injectable.dart' as _i526;
 
 import '../adapters/events/ordered_domain_event_bus_impl.dart' as _i1027;
 import '../adapters/repositories/mem_projects_repository_impl.dart' as _i949;
+import '../adapters/repositories/mem_task_links_repository_impl.dart' as _i565;
 import '../adapters/repositories/mem_tasks_repository_impl.dart' as _i425;
 import '../adapters/tracing/logging_tracing_port_impl.dart' as _i629;
 import '../adapters/tracing/tracing_logging_config.dart' as _i300;
@@ -38,8 +39,13 @@ import '../application/operations/task/task_done_operation.dart' as _i841;
 import '../application/operations/task/task_fail_operation.dart' as _i545;
 import '../application/operations/task/task_hold_operation.dart' as _i906;
 import '../application/operations/task/task_start_operation.dart' as _i74;
+import '../application/operations/task_link/task_link_add_operation.dart'
+    as _i309;
+import '../application/operations/task_link/task_link_remove_operation.dart'
+    as _i775;
 import '../application/ports/domain_event_bus.dart' as _i512;
 import '../application/ports/project_repository.dart' as _i102;
+import '../application/ports/task_link_repository.dart' as _i541;
 import '../application/ports/task_repository.dart' as _i159;
 import '../application/ports/tracing_port.dart' as _i969;
 import '../application/ports/transaction_port.dart' as _i1007;
@@ -58,6 +64,9 @@ _i174.GetIt $initTmCore(
   final coreModule = _$CoreModule(getIt);
   final applicationModule = _$ApplicationModule(getIt);
   gh.lazySingleton<_i159.TaskRepository>(() => coreModule.tasksRepository);
+  gh.lazySingleton<_i541.TaskLinkRepository>(
+    () => coreModule.taskLinkRepository,
+  );
   gh.lazySingleton<_i1007.TransactionPort>(
     () => coreModule.noOpTransactionPort,
   );
@@ -71,6 +80,9 @@ _i174.GetIt $initTmCore(
       gh<_i969.TracingPort>(),
       gh<_i1007.TransactionPort>(),
     ),
+  );
+  gh.lazySingleton<_i775.TaskLinkRemoveOperation>(
+    () => applicationModule.taskLinkRemoveOperation,
   );
   gh.lazySingleton<_i703.TaskCreateOperation>(
     () => applicationModule.taskCreateOperation,
@@ -89,6 +101,9 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i533.ProjectSwitchOperation>(
     () => applicationModule.projectSwitchOperation,
+  );
+  gh.lazySingleton<_i309.TaskLinkAddOperation>(
+    () => applicationModule.taskLinkAddOperation,
   );
   gh.lazySingleton<_i775.GetCurrentProjectQuery>(
     () => applicationModule.getCurrentProjectQuery,
@@ -130,6 +145,10 @@ class _$CoreModule extends _i154.CoreModule {
       _i425.MemTasksRepositoryImpl();
 
   @override
+  _i565.MemTaskLinkRepositoryImpl get taskLinkRepository =>
+      _i565.MemTaskLinkRepositoryImpl();
+
+  @override
   _i1016.NoOpTransactionPortImpl get noOpTransactionPort =>
       _i1016.NoOpTransactionPortImpl();
 
@@ -151,6 +170,14 @@ class _$ApplicationModule extends _i705.ApplicationModule {
   _$ApplicationModule(this._getIt);
 
   final _i174.GetIt _getIt;
+
+  @override
+  _i775.TaskLinkRemoveOperation get taskLinkRemoveOperation =>
+      _i775.TaskLinkRemoveOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i541.TaskLinkRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
 
   @override
   _i703.TaskCreateOperation get taskCreateOperation =>
@@ -199,6 +226,15 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i533.ProjectSwitchOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i309.TaskLinkAddOperation get taskLinkAddOperation =>
+      _i309.TaskLinkAddOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
         _getIt<_i512.DomainEventBus>(),
       );
 

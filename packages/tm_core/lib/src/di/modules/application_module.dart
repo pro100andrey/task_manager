@@ -14,6 +14,8 @@ import '../../application/operations/task/task_done_operation.dart';
 import '../../application/operations/task/task_fail_operation.dart';
 import '../../application/operations/task/task_hold_operation.dart';
 import '../../application/operations/task/task_start_operation.dart';
+import '../../application/operations/task_link/task_link_add_operation.dart';
+import '../../application/operations/task_link/task_link_remove_operation.dart';
 import '../../application/queries/project/get_all_projects_query.dart';
 import '../../application/queries/project/get_current_project_query.dart';
 
@@ -59,6 +61,13 @@ abstract class ApplicationModule {
 
   @lazySingleton
   TaskDeleteOperation get taskDeleteOperation;
+
+  // TaskLink Operations
+  @lazySingleton
+  TaskLinkAddOperation get taskLinkAddOperation;
+
+  @lazySingleton
+  TaskLinkRemoveOperation get taskLinkRemoveOperation;
 
   // Project Queries
   @LazySingleton()

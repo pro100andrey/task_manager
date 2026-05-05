@@ -104,7 +104,8 @@ void main() {
       await deleteOp.execute(
         ProjectDeleteCommand(projectId: unknownId),
       );
-      await Future<void>.delayed(Duration.zero);
+
+      await Future.delayed(Duration.zero);
 
       expect(events, isEmpty);
     });
