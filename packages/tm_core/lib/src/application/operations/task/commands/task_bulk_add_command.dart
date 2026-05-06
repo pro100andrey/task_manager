@@ -1,3 +1,5 @@
+import '../../../../domain/enums/task_completion_policy.dart';
+import '../../../../domain/enums/task_context_state.dart';
 import '../../command.dart';
 
 class TaskBulkAddTaskSpec {
@@ -13,8 +15,8 @@ class TaskBulkAddTaskSpec {
 
   final String title;
   final String? parentId;
-  final String? contextState;
-  final String? completionPolicy;
+  final TaskContextState? contextState;
+  final TaskCompletionPolicy? completionPolicy;
   final int businessValue;
   final int urgencyScore;
   final String? description;

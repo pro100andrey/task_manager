@@ -4,8 +4,6 @@ import '../../../domain/entities/reflection.dart';
 import '../../../domain/entities/task.dart';
 import '../../../domain/entities/task_link.dart';
 import '../../../domain/enums/link_type.dart';
-import '../../../domain/enums/reflection_source.dart';
-import '../../../domain/enums/reflection_type.dart';
 import '../../../domain/enums/task_completion_policy.dart';
 import '../../../domain/enums/task_context_state.dart';
 import '../../../domain/enums/task_last_action_type.dart';
@@ -86,17 +84,8 @@ class TaskReflectOperation extends _Operation {
       return Failure(TaskReflectInvalidBudget(command.reflectionBudget));
     }
 
-    final reflectionType = ReflectionType.tryParse(command.reflectionType);
-    if (reflectionType == null) {
-      return Failure(
-        TaskReflectInvalidReflectionType(command.reflectionType),
-      );
-    }
-
-    final source = ReflectionSource.tryParse(command.source);
-    if (source == null) {
-      return Failure(TaskReflectInvalidSource(command.source));
-    }
+    final reflectionType = command.reflectionType;
+    final source = command.source;
 
     Task? task;
     if (command.taskId != null) {

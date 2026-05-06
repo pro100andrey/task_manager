@@ -136,41 +136,10 @@ class TaskBulkAddOperation extends _Operation {
           ? TaskDescription(spec.description!.trim())
           : null;
 
-      TaskContextState contextState;
-      if (spec.contextState != null) {
-        final matched = TaskContextState.values
-            .where((e) => e.name == spec.contextState!.toLowerCase())
-            .firstOrNull;
-        if (matched == null) {
-          return Failure(
-            TaskBulkAddTaskCreationFailed(
-              i,
-              'unknown contextState: ${spec.contextState}',
-            ),
-          );
-        }
-        contextState = matched;
-      } else {
-        contextState = TaskContextState.active;
-      }
+      final contextState = spec.contextState ?? TaskContextState.active;
 
-      TaskCompletionPolicy completionPolicy;
-      if (spec.completionPolicy != null) {
-        final matched = TaskCompletionPolicy.values
-            .where((e) => e.name == spec.completionPolicy!)
-            .firstOrNull;
-        if (matched == null) {
-          return Failure(
-            TaskBulkAddTaskCreationFailed(
-              i,
-              'unknown completionPolicy: ${spec.completionPolicy}',
-            ),
-          );
-        }
-        completionPolicy = matched;
-      } else {
-        completionPolicy = TaskCompletionPolicy.allChildren;
-      }
+      final completionPolicy =
+          spec.completionPolicy ?? TaskCompletionPolicy.allChildren;
 
       final task = Task(
         id: TaskId.generate(),

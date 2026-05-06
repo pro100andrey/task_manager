@@ -1,19 +1,21 @@
+import '../../../../domain/enums/reflection_source.dart';
+import '../../../../domain/enums/reflection_type.dart';
 import '../../command.dart';
 
 class TaskReflectCommand extends Command {
   const TaskReflectCommand({
     required this.content,
     this.taskId,
-    this.reflectionType = 'observation',
+    this.reflectionType = ReflectionType.observation,
     this.reflectionBudget = 3,
     this.triggerReplan = false,
-    this.source = 'mcp',
+    this.source = ReflectionSource.mcp,
   });
 
   final String? taskId;
   final String content;
-  final String reflectionType;
+  final ReflectionType reflectionType;
   final int reflectionBudget;
   final bool triggerReplan;
-  final String source;
+  final ReflectionSource source;
 }

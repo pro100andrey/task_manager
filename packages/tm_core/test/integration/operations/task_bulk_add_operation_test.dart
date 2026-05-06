@@ -188,42 +188,43 @@ void main() {
     expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 1);
   });
 
-  test('rejects task with unknown contextState', () async {
+  test('applies explicit contextState from spec', () async {
     final result = await taskBulkAdd.execute(
       TaskBulkAddCommand(
         projectId: project.id.value,
         tasks: const [
           TaskBulkAddTaskSpec(title: 'Ok'),
-          TaskBulkAddTaskSpec(title: 'Bad context', contextState: 'invalid'),
-        ],
-      ),
-    );
-
-    expect(result.isFailure, isTrue);
-    final failure =
-        (result as Failure<TaskBulkAddResult, TaskBulkAddFailure>).error;
-    expect(failure, isA<TaskBulkAddTaskCreationFailed>());
-    expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 1);
-  });
-
-  test('rejects task with unknown completionPolicy', () async {
-    final result = await taskBulkAdd.execute(
-      TaskBulkAddCommand(
-        projectId: project.id.value,
-        tasks: const [
           TaskBulkAddTaskSpec(
-            title: 'Bad policy',
-            completionPolicy: 'notAPolicy',
+            title: 'Backlog task',
+            contextState: TaskContextState.backlog,
           ),
         ],
       ),
     );
 
-    expect(result.isFailure, isTrue);
-    final failure =
-        (result as Failure<TaskBulkAddResult, TaskBulkAddFailure>).error;
-    expect(failure, isA<TaskBulkAddTaskCreationFailed>());
-    expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 0);
+    expect(result.isSuccess, isTrue);
+    final value =
+        (result as Success<TaskBulkAddResult, TaskBulkAddFailure>).value;
+    expect(value.tasks[1].contextState, TaskContextState.backlog);
+  });
+
+  test('applies explicit completionPolicy from spec', () async {
+    final result = await taskBulkAdd.execute(
+      TaskBulkAddCommand(
+        projectId: project.id.value,
+        tasks: const [
+          TaskBulkAddTaskSpec(
+            title: 'Custom policy',
+            completionPolicy: TaskCompletionPolicy.manual,
+          ),
+        ],
+      ),
+    );
+
+    expect(result.isSuccess, isTrue);
+    final value =
+        (result as Success<TaskBulkAddResult, TaskBulkAddFailure>).value;
+    expect(value.tasks.first.completionPolicy, TaskCompletionPolicy.manual);
   });
 
   test('rejects task with empty title', () async {

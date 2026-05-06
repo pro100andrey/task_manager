@@ -20,19 +20,6 @@ class TaskReflectInvalidContent extends TaskReflectFailure {
     : super('INVALID_CONTENT', message);
 }
 
-class TaskReflectInvalidReflectionType extends TaskReflectFailure {
-  const TaskReflectInvalidReflectionType(String reflectionType)
-    : super(
-        'INVALID_REFLECTION_TYPE',
-        'Invalid reflection type: $reflectionType',
-      );
-}
-
-class TaskReflectInvalidSource extends TaskReflectFailure {
-  const TaskReflectInvalidSource(String source)
-    : super('INVALID_SOURCE', 'Invalid reflection source: $source');
-}
-
 class TaskReflectInvalidBudget extends TaskReflectFailure {
   const TaskReflectInvalidBudget(int budget)
     : super(

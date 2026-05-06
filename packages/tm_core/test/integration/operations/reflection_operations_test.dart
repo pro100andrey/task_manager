@@ -122,7 +122,7 @@ void main() {
         TaskReflectCommand(
           taskId: task.id.raw,
           content: 'Need to revise approach.',
-          reflectionType: 'replan_trigger',
+          reflectionType: ReflectionType.replanTrigger,
           triggerReplan: true,
         ),
       );
@@ -160,7 +160,7 @@ void main() {
       TaskReflectCommand(
         taskId: task.id.raw,
         content: 'Old blocker',
-        reflectionType: 'blocker',
+        reflectionType: ReflectionType.blocker,
       ),
     );
 
@@ -170,7 +170,7 @@ void main() {
       TaskReflectCommand(
         taskId: task.id.raw,
         content: 'Fresh insight',
-        reflectionType: 'insight',
+        reflectionType: ReflectionType.insight,
       ),
     );
     await taskReflect.execute(
