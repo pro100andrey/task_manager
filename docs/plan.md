@@ -20,7 +20,7 @@
 
 | Что | Спека | Статус |
 |---|---|---|
-| `TaskHistory` (Audit Trail) | §3.9 | ❌ **полностью отсутствует** — нет entity, port, adapter, ни одной записи при изменениях |
+| `TaskHistory` (Audit Trail) | §3.9 | ✅ entity + port + mem adapter |
 | `source` enum в операциях | §3.8, §3.9 | ⚠️ команды (напр. `TaskReflectCommand`) принимают `source` как raw String, не enum |
 
 ### 0.3 Архитектурные наблюдения
@@ -154,9 +154,9 @@
 
 | Что | Спека | Описание |
 |---|---|---|
-| `TaskHistory` entity | §3.9 | Audit trail. Нет entity, нет port, нет adapter, нет записей нигде |
-| `TaskHistory` port | §3.9 | `TaskHistoryRepository` — отсутствует |
-| `TaskHistory` mem adapter | §3.9 | Для тестов и in-memory mode |
+| `TaskHistory` entity | §3.9 | ✅ `task_history.dart` |
+| `TaskHistory` port | §3.9 | ✅ `task_history_repository.dart` |
+| `TaskHistory` mem adapter | §3.9 | ✅ `mem_task_history_repository_impl.dart` |
 
 ---
 
@@ -175,7 +175,7 @@
 
 ### Средний приоритет
 
-9. `TaskHistory` entity + port (без адаптера пока — заглушка)
+9. ~~`TaskHistory` entity + port (без адаптера пока — заглушка)~~ ✅ **DONE** (entity + port + mem adapter)
 10. ~~`calculateStaleness(task, now)` и `calculateUnblockScore` как публичные функции~~ ✅ **DONE**
 11. ~~`task_graph` query~~ ✅ **DONE**
 12. ~~**[B3]** `TaskBulkAddTaskCreationFailed`~~ ✅ **DONE** (используется при B1 fix)
