@@ -98,6 +98,7 @@ export 'src/application/queries/task/active_front_result.dart';
 export 'src/application/queries/task/get_active_front_query.dart';
 export 'src/application/queries/task/get_task_by_ref_query.dart';
 export 'src/application/queries/task/link_list_query.dart';
+export 'src/application/queries/task/task_graph_query.dart';
 export 'src/application/queries/task/task_list_query.dart';
 export 'src/application/queries/task/task_show_query.dart';
 export 'src/di/injection.dart';

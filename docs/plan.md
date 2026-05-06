@@ -104,7 +104,7 @@
 | `task_show` | §11.3 | ✅ `task_show_query.dart` | 🧪 `task_queries_test.dart` |
 | `task_resolve` | §7, §11.3 | ✅ `get_task_by_ref_query.dart` | 🧪 `task_queries_test.dart` |
 | `link_list` | §11.8 | ✅ `link_list_query.dart` | 🧪 `task_queries_test.dart` |
-| `task_graph` | §8.2 | ❌ не реализовано | ⚠️ нужен тест |
+| `task_graph` | §8.2 | ✅ `task_graph_query.dart` | 🧪 `task_queries_test.dart` |
 | `project_list` | §11.3 | ✅ `get_all_projects_query.dart` | ⚠️ нужен тест |
 | `project_current` | §11.3 | ✅ `get_current_project_query.dart` | ⚠️ нужен тест |
 | `kg_entity_list` | §11.14 | ✅ `get_knowledge_entities_query.dart` | 🧪 `get_knowledge_entity_query_test.dart` |
@@ -177,7 +177,7 @@
 
 9. `TaskHistory` entity + port (без адаптера пока — заглушка)
 10. ~~`calculateStaleness(task, now)` и `calculateUnblockScore` как публичные функции~~ ✅ **DONE**
-11. `task_graph` query
+11. ~~`task_graph` query~~ ✅ **DONE**
 12. ~~**[B3]** `TaskBulkAddTaskCreationFailed`~~ ✅ **DONE** (используется при B1 fix)
 
 ### Низкий приоритет

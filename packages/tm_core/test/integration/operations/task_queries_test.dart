@@ -475,4 +475,162 @@ void main() {
       expect(result!.task.id, task.id);
     });
   });
+
+  // ── TaskGraphQuery ────────────────────────────────────────────────────────
+
+  group('TaskGraphQuery (task_graph)', () {
+    late TaskGraphQuery taskGraph;
+
+    setUp(() {
+      taskGraph = TaskGraphQuery(taskRepo, linkRepo);
+    });
+
+    test('returns all project tasks as nodes with ep and depth', () async {
+      final a = await createTask('A', bv: 80, us: 60);
+      final b = await createTask('B', bv: 40, us: 40, parentId: a.id.raw);
+
+      final result = await taskGraph.execute(
+        TaskGraphParams(projectId: project.id.value),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.nodes, hasLength(2));
+
+      final nodeA = result.nodes.firstWhere((n) => n.task.id == a.id);
+      final nodeB = result.nodes.firstWhere((n) => n.task.id == b.id);
+
+      expect(nodeA.depth, 0);
+      expect(nodeB.depth, 1);
+      expect(nodeA.ep, closeTo(80 * 0.85 + 60 * 0.15, 0.001));
+      // Hard Cap: min(ep(A)=77.0, own(B)=40.0) = 40.0
+      expect(nodeB.ep, closeTo(40.0, 0.001));
+    });
+
+    test('returns edges (links) between included nodes', () async {
+      final a = await createTask('A');
+      final b = await createTask('B');
+      await linkAdd.execute(
+        TaskLinkAddCommand(
+          fromTaskId: a.id.raw,
+          toTaskId: b.id.raw,
+          linkType: 'strong',
+        ),
+      );
+
+      final result = await taskGraph.execute(
+        TaskGraphParams(projectId: project.id.value),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.edges, hasLength(1));
+      expect(result.edges.first.fromTaskId, a.id);
+      expect(result.edges.first.toTaskId, b.id);
+    });
+
+    test('rootRef scopes graph to subtree', () async {
+      final root = await createTask('Root');
+      final child = await createTask('Child', parentId: root.id.raw);
+      await createTask('Other Root');
+
+      final result = await taskGraph.execute(
+        TaskGraphParams(
+          projectId: project.id.value,
+          rootRef: root.id.raw,
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.nodes, hasLength(2));
+      final ids = result.nodes.map((n) => n.task.id).toSet();
+      expect(ids, contains(root.id));
+      expect(ids, contains(child.id));
+    });
+
+    test('depth param limits hierarchy depth', () async {
+      final root = await createTask('Root');
+      final child = await createTask('Child', parentId: root.id.raw);
+      await createTask('Grandchild', parentId: child.id.raw);
+
+      final result = await taskGraph.execute(
+        TaskGraphParams(
+          projectId: project.id.value,
+          depth: 1,
+        ),
+      );
+
+      expect(result, isNotNull);
+      // depth=1: root (depth 0) + child (depth 1), grandchild excluded
+      final depths = result!.nodes.map((n) => n.depth).toSet();
+      expect(depths, containsAll([0, 1]));
+      expect(depths, isNot(contains(2)));
+    });
+
+    test('linkType filter excludes non-matching edges', () async {
+      final a = await createTask('A');
+      final b = await createTask('B');
+      final c = await createTask('C');
+      await linkAdd.execute(
+        TaskLinkAddCommand(
+          fromTaskId: a.id.raw,
+          toTaskId: b.id.raw,
+          linkType: 'strong',
+        ),
+      );
+      await linkAdd.execute(
+        TaskLinkAddCommand(
+          fromTaskId: a.id.raw,
+          toTaskId: c.id.raw,
+          linkType: 'soft',
+        ),
+      );
+
+      final result = await taskGraph.execute(
+        TaskGraphParams(
+          projectId: project.id.value,
+          linkType: 'strong',
+        ),
+      );
+
+      expect(result, isNotNull);
+      expect(result!.edges, hasLength(1));
+      expect(result.edges.first.toTaskId, b.id);
+    });
+
+    test('returns null for invalid project ID', () async {
+      final result = await taskGraph.execute(
+        const TaskGraphParams(projectId: 'not-a-uuid'),
+      );
+      expect(result, isNull);
+    });
+
+    test('returns null for unknown rootRef', () async {
+      final result = await taskGraph.execute(
+        TaskGraphParams(
+          projectId: project.id.value,
+          rootRef: TaskId.generate().raw,
+        ),
+      );
+      expect(result, isNull);
+    });
+
+    test('returns null for invalid linkType', () async {
+      await createTask('A');
+      final result = await taskGraph.execute(
+        TaskGraphParams(
+          projectId: project.id.value,
+          linkType: 'unknown',
+        ),
+      );
+      expect(result, isNull);
+    });
+
+    test('empty project returns empty graph', () async {
+      final result = await taskGraph.execute(
+        TaskGraphParams(projectId: project.id.value),
+      );
+      expect(result, isNotNull);
+      expect(result!.nodes, isEmpty);
+      expect(result.edges, isEmpty);
+    });
+  });
 }
