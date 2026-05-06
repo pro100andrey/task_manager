@@ -1,433 +1,309 @@
 ---
-version: 3.0
-date: 2026-05-04
+version: 3.1
+date: 2026-05-06
 status: accepted
 ---
 
-# TM HTM — Архитектура пакета `tm_core`
+# TM HTM: Архитектура пакета tm_core
 
 ## 1. Назначение
 
-`tm_core` — это **чистое ядро** системы TM HTM, полностью независимое от инфраструктуры (БД, CLI, TUI, MCP).
+`tm_core` реализует прикладное и доменное ядро TM HTM и не зависит от внешних интерфейсов (CLI, TUI, MCP).
 
-Пакет реализует всю бизнес-логику согласно принципам **Clean Architecture**, **DDD** и **Event-Driven Architecture**. Внешние адаптеры (`tm_mcp` и др.) зависят от `tm_core`, но не наоборот.
+Пакет следует принципам Clean Architecture:
 
-**Ключевые цели:**
+- бизнес-модель и правила в domain;
+- use case-слой в application;
+- in-memory/adapters реализации инфраструктурных контрактов;
+- композиция зависимостей через DI.
 
-- Содержать всю бизнес-логику и правила системы.
-- Быть максимально тестируемым (unit + integration без реальной БД).
-- Обеспечивать атомарность мутаций через `TransactionPort`.
-- Возвращать ожидаемые бизнес-ошибки через `Result<S, F>`, не через исключения.
-
----
+Текущее состояние пакета: в ядре реализованы project/task/task_link операции и Active Front query, а части knowledge/reflection/replan пока не включены в архитектурный контур `tm_core`.
 
 ## 2. Структура пакета
 
 ```txt
 packages/tm_core/
 ├── lib/
-│   ├── tm_core.dart                  ← Public API (только отсюда импортируют потребители)
+│   ├── tm_core.dart
 │   └── src/
-│       ├── application/
-│       │   ├── guards/               ← Предусловия операций
-│       │   ├── operations/           ← Мутирующие use cases
-│       │   │   ├── operation.dart    ← Базовый контракт Operation<C, S, F>
-│       │   │   ├── project/
-│       │   │   └── task/
-│       │   ├── queries/              ← Read-only use cases
-│       │   │   ├── project/
-│       │   │   └── task/
-│       │   └── ports/                ← Интерфейсы (порты) внешних зависимостей и репозиториев
 │       ├── domain/
-│       │   ├── entities/             ← Бизнес-сущности (freezed)
-│       │   ├── enums/                ← Перечисления домена
-│       │   ├── events/               ← Domain Events (freezed sealed)
-│       │   ├── exceptions/           ← Исключения для неожиданных сбоев
-│       │   ├── result.dart           ← Result<T, E> — cross-cutting тип
-│       │   └── value_objects/        ← Value Objects (extension types / sealed)
-│       ├── di/                       ← Wiring через injectable + get_it
-│       └── adapters/
-│           ├── events/               ← Реализации DomainEventBus
-│           ├── repositories/         ← In-memory реализации репозиториев
-│           ├── tracing/              ← Реализация TracingPort
-│           └── transaction/          ← Реализация TransactionPort
+│       │   ├── entities/
+│       │   ├── enums/
+│       │   ├── events/
+│       │   ├── exceptions/
+│       │   ├── services/
+│       │   ├── value_objects/
+│       │   └── result.dart
+│       ├── application/
+│       │   ├── operations/
+│       │   │   ├── project/
+│       │   │   ├── task/
+│       │   │   └── task_link/
+│       │   ├── queries/
+│       │   │   ├── project/
+│       │   │   └── task/
+│       │   └── ports/
+│       ├── adapters/
+│       │   ├── behaviors/
+│       │   ├── events/
+│       │   ├── repositories/
+│       │   ├── tracing/
+│       │   └── transaction/
+│       └── di/
+│           └── modules/
 ├── test/
-│   ├── unit/                         ← Тесты домена и инфры изолированно
-│   ├── integration/                  ← Тесты операций с in-memory зависимостями
-│   └── fixtures/                     ← Фабрики тестовых данных
+│   ├── unit/
+│   ├── integration/
+│   └── fixtures/
 └── example/
 ```
 
----
+Примечание: отдельной директории `application/guards` нет. Роль guard'ов выполняют policy-классы в `application/operations/**/policy`.
 
-## 3. Слои
+## 3. Domain
 
-### 3.1 Domain (`lib/src/domain/`)
+### 3.1 Entities
 
-Сердце системы. **Не зависит ни от одного другого слоя.** Содержит только бизнес-правила.
+Сущности объявлены через freezed и иммутабельны.
 
-#### `entities/`
+- `Project`
+  - `id`, `name`, `createdAt`, `description?`
+- `Task`
+  - базовые поля задачи;
+  - иерархия (`parentId`), контекст (`contextState`), политика завершения (`completionPolicy`), приоритетные оси (`businessValue`, `urgencyScore`), lifecycle-поля (`status`, `lastActionType`, `lastProgressAt`, `completedAt`), metadata/tags;
+- `TaskLink`
+  - направленная связь между задачами (`fromTaskId -> toTaskId`) с `linkType` (`strong`/`soft`) и `label?`.
 
-Иммутабельные агрегаты и сущности, сгенерированные через `freezed`.
+### 3.2 Value Objects
 
-| Класс | Поля |
-| ----- | ---- |
-| `Project` | `ProjectId id`, `ProjectName name`, `ProjectDescription? description` |
-| `Task` | `TaskId id`, `TaskTitle title`, `TaskStatus status`, `TaskId? parentId`, `TaskDescription? description` |
+Используются extension type/typed wrappers для доменных примитивов:
 
-#### `value_objects/`
+- project: `ProjectId`, `ProjectName`, `ProjectDescription`, `ProjectRef`;
+- task: `TaskId`, `TaskTitle`, `TaskDescription`, `TaskAlias`.
 
-Строго типизированные обёртки над примитивами. Каждый VO:
+`ProjectRef` поддерживает оба варианта резолва (id/name) через `ProjectIdRef`/`ProjectNameRef`.
 
-- Валидирует данные в конструкторе (бросает `ArgumentError` / `FormatException`).
-- Предоставляет `.raw` геттер для доступа к значению.
-- Реализован как `extension type` (нулевой рантайм-overhead).
+### 3.3 Enums
 
-| VO | Тип | Валидация |
-| ---- | ----- | ----------- |
-| `ProjectId` | `String` (UUID v7) | `UuidValidation.isValidUUID` |
-| `ProjectName` | `String` | не пустой |
-| `ProjectDescription` | `String` | не пустой, ≤ 500 символов |
-| `ProjectRef` | sealed: `_ProjectIdRef` / `_ProjectNameRef` | — |
-| `TaskId` | `String` (UUID v7) | `UuidValidation.isValidUUID` |
-| `TaskTitle` | `String` | не пустой |
-| `TaskDescription` | `String` | не пустой, ≤ 500 символов |
+Ключевые перечисления:
 
-`ProjectRef` — полиморфная ссылка на проект. Предоставляет безопасный API:
+- `TaskStatus`
+- `TaskContextState`
+- `TaskCompletionPolicy`
+- `TaskLastActionType`
+- `LinkType`
 
-```dart
-sealed class ProjectRef {
-  factory ProjectRef.id(ProjectId id);
-  factory ProjectRef.name(ProjectName name);
+### 3.4 Domain Services
 
-  ProjectId?   get maybeId;    // null если это NameRef
-  ProjectName? get maybeName;  // null если это IdRef
-  String       get value;      // сырое строковое значение
-}
-```
+Чистые функции в domain:
 
-#### `events/`
+- `task_graph.dart`: построение strong adjacency, `detectCycle`, `topologicalSort`, `findReadyTasks`;
+- `task_domain_services.dart`: `normalizeAlias`, `isCompletable`.
 
-`DomainEvent` — `freezed` sealed класс. Все события системы живут здесь.
+### 3.5 Domain Events
 
-```dart
-@freezed
-sealed class DomainEvent {
-  const factory DomainEvent.projectCreated({required Project project})   = ProjectCreatedEvent;
-  const factory DomainEvent.taskCreated({required TaskId taskId})        = TaskCreatedEvent;
-  const factory DomainEvent.taskCompleted({required TaskId taskId})      = TaskCompletedEvent;
-  const factory DomainEvent.taskReplanned({required TaskId taskId})      = TaskReplannedEvent;
-}
-```
+`DomainEvent` реализован как sealed/freezed и включает project/task/task_link события:
 
-События публикуются через `DomainEventBus` **после** успешного коммита транзакции.
+- project: create/rename/change_description/delete/switch;
+- task: create/start/complete/fail/cancel/hold/delete/replanned/update/context_changed/moved/alias_renamed;
+- task_link: added/removed.
 
-#### `exceptions/`
+Важно: наличие типа события не означает наличие соответствующего use case. Например, `taskReplanned` определен как событие, но операция `task_replan` в `tm_core` пока отсутствует.
 
-Исключения для **непредвиденных** сбоев (программные ошибки, нарушения инвариантов).
-Ожидаемые бизнес-ошибки возвращаются через `Result<S, F>`, а не бросаются.
+### 3.6 Ошибки и Result
 
-```dart
-class ProjectNotFound implements Exception { final String ref; }
-class ProjectNameAlreadyExists implements Exception { final String name; }
-```
+- ожидаемые исходы операций возвращаются через `Result<S, F>`;
+- `Success`/`Failure` используются во всех operation use case;
+- исключения в domain остаются для нештатных случаев/валидации VO.
 
-#### `result.dart`
+## 4. Application
 
-Cross-cutting sealed тип для моделирования ожидаемых исходов операций.
+### 4.1 Operations
 
-```dart
-sealed class Result<T, E> {
-  bool get isSuccess;
-  bool get isFailure;
-  R fold<R>({required R Function(T) onSuccess, required R Function(E) onFailure});
-}
-final class Success<T, E> extends Result<T, E> { final T value; }
-final class Failure<T, E> extends Result<T, E> { final E error; }
-```
+Базовый контракт `Operation<C, S, F>`:
 
----
+- `execute()` запускает pipeline;
+- применяет `preconditionPolicies`;
+- выполняет `run()`;
+- применяет `invariantPolicies`;
+- вызывает `collectAndPublishEvents` и `mapResult`.
 
-### 3.2 Application (`lib/src/application/`)
+Политики задаются через:
 
-Оркестрирует выполнение бизнес-сценариев. Зависит от `domain`, но не от `infra`.
+- `OperationPolicy`
+- `PreconditionPolicy`
+- `InvariantPolicy`
+- `OperationPolicySet`
 
-#### `operations/`
+Реализованные operation-группы:
 
-Мутирующие use cases. Каждая операция реализует только бизнес-логику в методе `handle()`. Сквозные concerns (трейсинг, транзакция) автоматически применяются через `OperationPipeline`.
+- Project
+  - `ProjectCreateOperation`
+  - `ProjectRenameOperation`
+  - `ProjectChangeDescriptionOperation`
+  - `ProjectUpdateOperation`
+  - `ProjectDeleteOperation`
+  - `ProjectSwitchOperation`
 
-Базовый контракт:
+- Task
+  - `TaskCreateOperation`
+  - `TaskStartOperation`
+  - `TaskDoneOperation`
+  - `TaskFailOperation`
+  - `TaskCancelOperation`
+  - `TaskHoldOperation`
+  - `TaskDeleteOperation`
+  - `TaskUpdateOperation`
+  - `TaskSetContextOperation`
+  - `TaskMoveOperation`
+  - `TaskRenameAliasOperation`
 
-```dart
-abstract class Operation<C, S, F> {
-  Operation(OperationPipeline pipeline);
-
-  String get operationName;
-  Map<String, dynamic> traceAttributes(C command) => const {};
-
-  // final — делегирует в pipeline
-  Future<Result<S, F>> execute(C command);
-
-  // переопределяется в подклассах
-  Future<Result<S, F>> run(C command);
-}
-```
+- TaskLink
+  - `TaskLinkAddOperation`
+  - `TaskLinkRemoveOperation`
 
-Каждая операция:
+### 4.2 Queries
 
-1. Принимает типизированный **command** объект.
-2. `execute()` автоматически оборачивает `run()` в pipeline behaviors.
-3. Возвращает `Result<S, F>` — никогда не бросает ожидаемых ошибок.
-4. Публикует `DomainEvent` после успешного коммита.
-
-Для сокращения записи generics в конкретных use case используется `typedef` на уровне файла:
-
-```dart
-typedef _Operation =
-    Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
+Реализованные read-only use case:
 
-class ProjectCreateOperation extends _Operation {
-  ProjectCreateOperation(super.pipeline);
-}
-```
+- `GetAllProjectsQuery`
+- `GetCurrentProjectQuery`
+- `GetActiveFrontQuery`
 
-**Pipeline behaviors** (из `adapters/behaviors/`):
+`GetActiveFrontQuery` возвращает агрегированный read-model (`ActiveFrontResult`) с:
 
-| Behavior | Что делает |
-| -------- | ---------- |
-| `TracingBehavior` | Оборачивает в `TracingPort.trace(operationName, attributes)` |
-| `TransactionBehavior` | Оборачивает в `TransactionPort.run()` |
+- `front`
+- `waitingChildren`
+- `blockedByStrong`
+- `stalledTasks`
 
-**Текущие операции:**
+Логика включает вычисление EP/Hard Cap/depth/staleness на уровне query.
 
-| Операция | Command | Success | Failure |
-| -------- | ------- | ------- | ------- |
-| `ProjectCreateOperation` | `ProjectCreateCommand` | `Project` | `ProjectNameAlreadyExists` |
-| `TaskDoneOperation` | — | — | — *(в разработке)* |
+### 4.3 Ports
 
-**Пример — `ProjectCreateOperation`:**
+Порты application-слоя:
 
-```dart
-typedef _Operation =
-    Operation<ProjectCreateCommand, Project, ProjectCreateFailure>;
+- `ProjectRepository`
+- `TaskRepository`
+- `TaskLinkRepository`
+- `DomainEventBus`
+- `TracingPort`
+- `TransactionPort`
 
-class ProjectCreateOperation extends _Operation {
-  ProjectCreateOperation(
-    super.pipeline,
-    this._repository,
-    this._bus,
-  );
+## 5. Adapters
 
-  final ProjectRepository _repository;
-  final DomainEventBus _bus;
+### 5.1 Behaviors (pipeline middleware)
 
-  @override
-  String get operationName => 'ProjectCreateOperation';
+- `TracingBehavior`: оборачивает операцию через `TracingPort.trace(...)` и отдельно логирует `Failure` как domain failure;
+- `TransactionBehavior`: оборачивает операцию через `TransactionPort.run(...)`.
 
-  @override
-  Map<String, dynamic> traceAttributes(ProjectCreateCommand command) =>
-      {'name': command.name};
+### 5.2 Events
 
-  @override
-  Future<Result<Project, ProjectCreateFailure>> run(
-    ProjectCreateCommand command,
-  ) async {
-    // только бизнес-логика — трейсинг и транзакция применяются pipeline автоматически
-    final ref = ProjectRef.name(ProjectName(command.name));
-    if (await _repository.getByRef(ref) != null) {
-      return Failure(ProjectCreateNameAlreadyExists(command.name));
-    }
-    final project = Project(id: ProjectId.generate(), ...);
-    final saved = await _repository.save(project);
-    await _bus.publish(ProjectCreatedEvent(project: saved));
-    return Success(saved);
-  }
-}
-```
+- `DomainEventBusImpl`: broadcast stream;
+- `OrderedDomainEventBusImpl`: очередь + последовательная публикация событий.
 
-#### `queries/`
+### 5.3 Repositories
 
-Read-only use cases. Не используют транзакции и не публикуют события.
+In-memory реализации:
 
-| Query | Возвращает |
-| ----- | ---------- |
-| `GetAllProjectsQuery` | `Future<List<Project>>` |
-| `GetCurrentProjectQuery` | `Future<Project?>` |
+- `MemProjectsRepositoryImpl`
+- `MemTasksRepositoryImpl`
+- `MemTaskLinkRepositoryImpl`
 
-#### `ports/`
+### 5.4 Tracing/Transaction
 
-Абстракции внешних зависимостей и репозиториев — только интерфейсы, без реализаций.
+- `LoggingTracingPortImpl` + `TracingLoggingConfig`;
+- `NoOpTransactionPortImpl`.
 
-| Порт | Контракт |
-| ----- | ---------- |
-| `TransactionPort` | `Future<T> run<T>(Future<T> Function() action)` |
-| `DomainEventBus` | `publish`, `listen<T>`, `on<T>`, `dispose` |
-| `TracingPort` | `trace<T>(name, action, {attributes})` |
-| `ProjectRepository` | `getById`, `getByRef`, `save`, `getCurrentProject`, `switchCurrentProject`, `getAllProjects` |
+## 6. DI
 
----
+DI конфигурация построена на `injectable + get_it`:
 
-### 3.3 Adapters (`lib/src/adapters/`)
+- `CoreModule`: биндинги портов на адаптеры + `OperationPipeline`;
+- `modules/ApplicationModule`: регистрации operation/query сервисов;
+- `configureTmCoreDependencies(...)` в `di/injection.dart`.
 
-Реализует контракты `application/ports/`.
-**Зависит от application, но application не зависит от adapters.**
+Параметры инициализации:
 
-| Реализация | Файл | Интерфейс | Описание |
-| ----------- | ---- | ----------- | ---------- |
-| `DomainEventBusImpl` | `adapters/events/domain_event_bus_impl.dart` | `DomainEventBus` | Простой broadcast stream |
-| `OrderedDomainEventBusImpl` | `adapters/events/ordered_domain_event_bus_impl.dart` | `DomainEventBus` | Queue-based, гарантирует порядок событий |
-| `MemProjectsRepositoryImpl` | `adapters/repositories/mem_projects_repository_impl.dart` | `ProjectRepository` | In-memory хранилище (`Map<ProjectId, Project>`) |
-| `LoggingTracingPortImpl` | `adapters/tracing/logging_tracing_port_impl.dart` | `TracingPort` | Логирует имя операции и атрибуты |
-| `NoOpTransactionPortImpl` | `adapters/transaction/no_op_transaction_port_impl.dart` | `TransactionPort` | Нет транзакций (для тестов и in-memory) |
+- `environment`;
+- `useOrderedBus` (опциональная замена реализации `DomainEventBus` на `OrderedDomainEventBusImpl`).
 
----
+## 7. Потоки выполнения
 
-### 3.4 DI (`lib/src/di/`)
-
-Связывает интерфейсы с реализациями через `injectable` + `get_it`.
-
-```dart
-// Точка входа
-await configureTmCoreDependencies();
-
-// После этого доступно:
-GetIt.instance<ProjectCreateOperation>()
-GetIt.instance<DomainEventBus>()
-```
-
-По умолчанию регистрируется `OrderedDomainEventBusImpl` (гарантированный порядок событий).
-
----
-
-## 4. Правила слоёв
+### 7.1 Мутирующий use case
 
 ```txt
-domain  ←  application  ←  adapters
-                ↑
-               di
+Adapter -> Operation.execute(command)
+        -> OperationPipeline
+           -> TracingBehavior
+           -> TransactionBehavior
+              -> policies (preconditions/invariants)
+              -> run(command)
+              -> Result<Success|Failure>
 ```
 
-1. `domain` не имеет зависимостей внутри пакета.
-2. `application` зависит только от `domain`.
-3. `adapters` реализует контракты из `application/ports/`.
-4. `di` знает обо всех слоях и соединяет их.
-5. Потребители пакета импортируют **только** из `lib/tm_core.dart`.
+Важно:
 
----
+- публикация событий выполняется на success-path конкретной операции;
+- при текущем `NoOpTransactionPortImpl` транзакционная семантика фактически passthrough;
+- гарантия "событие строго после коммита БД" появится только с транзакционным persistent adapter.
 
-## 5. Флоу мутирующей операции
+### 7.2 Query use case
 
 ```txt
-Адаптер (CLI / MCP / TUI)
-  │
-  ▼
-Operation.execute(command)
-  │
-  ├─► TracingPort.trace(...)        ← оборачивает весь вызов
-  │     │
-  │     └─► TransactionPort.run(...)  ← атомарная единица
-  │           │
-  │           ├─► Guard.check(...)    ← предусловия (до изменений)
-  │           │
-  │           ├─► Repository.getBy*  ← загрузка данных
-  │           │
-  │           ├─► [бизнес-логика / Value Object валидация]
-  │           │
-  │           ├─► Repository.save(...)  ← сохранение
-  │           │
-  │           └─► DomainEventBus.publish(...)  ← события после коммита
-  │
-  └─► Result<Success, Failure>  →  Адаптер
+Adapter -> Query.execute(params)
+        -> repository read(s)
+        -> projection/aggregation
+        -> DTO/read model
 ```
 
-**Правила флоу:**
+Query не публикуют события и не изменяют состояние.
 
-- Ожидаемые бизнес-ошибки → `Failure(...)`, не `throw`.
-- Непредвиденные сбои (нарушение инварианта, I/O) → `throw Exception`.
-- События публикуются только при `Success` пути.
-- Трейсинг охватывает полный жизненный цикл операции включая ошибки.
+## 8. Public API
 
----
+Единая точка импорта для потребителей: `lib/tm_core.dart`.
 
-## 6. Флоу read-only запроса
+Файл экспортирует:
 
-```txt
-Адаптер
-  │
-  ▼
-Query.execute([params])
-  │
-  └─► Repository.get*(...)  →  данные / null / список
-  │
-  └─► [опционально: фильтрация / маппинг]
-  │
-  └─► List<T> / T?  →  Адаптер
-```
+- operation framework;
+- команды/ошибки/операции project/task/task_link;
+- project/task/task_link queries;
+- domain entities/enums/events/services/exceptions/result;
+- DI bootstrap;
+- часть adapter-утилит, используемых в интеграционных сценариях.
 
-Запросы не используют `TransactionPort`, не публикуют события и не мутируют состояние.
-
----
-
-## 7. Флоу событий
-
-```txt
-Operation
-  │
-  └─► DomainEventBus.publish(DomainEvent)
-          │
-          ├─► OrderedDomainEventBusImpl: помещает в очередь, обрабатывает последовательно
-          │
-          └─► Подписчики (listen<T> / on<T>):
-                - другие части application
-                - адаптеры (например, tm_mcp транслирует события в MCP notifications)
-```
-
-`OrderedDomainEventBusImpl` гарантирует, что события обрабатываются в порядке публикации, даже если обработчик асинхронный.
-
----
-
-## 8. Public API (`lib/tm_core.dart`)
-
-Всё, что нужно потребителям пакета, экспортируется из одного файла. Импорт из `src/` напрямую не допускается.
-
-```dart
-export 'src/application/operations/operation.dart';
-export 'src/application/operations/project/project_create_command.dart';
-export 'src/application/operations/project/project_create_operation.dart';
-export 'src/application/queries/project/get_all_projects_query.dart';
-export 'src/application/queries/project/get_current_project_query.dart';
-export 'src/di/injection.dart';
-export 'src/domain/entities/project.dart';
-export 'src/domain/entities/task.dart';
-export 'src/domain/events/domain_event.dart';
-export 'src/domain/exceptions/project_exceptions.dart';
-export 'src/domain/result.dart';
-export 'src/domain/value_objects/value_objects.dart';
-```
-
----
+Практика для потребителей: импортировать только `package:tm_core/tm_core.dart`.
 
 ## 9. Тестирование
 
-| Уровень | Папка | Что тестируется |
-| ----- | ------- | ----------------- |
-| Unit | `test/unit/domain/` | `Result`, Value Objects, чистые функции |
-| Unit | `test/unit/adapters/` | `DomainEventBus` реализации |
-| Integration | `test/integration/operations/` | Операции с in-memory зависимостями |
-| Fixtures | `test/fixtures/` | Фабрики и builders тестовых данных |
+Фактическое покрытие тестами:
 
-**Правила тестов:**
+- unit/domain: `result`, value objects, `task_graph`, `task_domain_services`;
+- unit/adapters: event bus;
+- integration/operations:
+  - project create/update/delete/switch;
+  - task lifecycle и editing;
+  - task links;
+  - active front query.
 
-- Integration-тесты используют `MemProjectsRepositoryImpl`, `NoOpTransactionPortImpl`, `DomainEventBusImpl`.
-- Unit-тесты не используют DI — зависимости передаются напрямую.
-- Ни один тест не зависит от внешнего I/O или файловой системы.
+Тесты выполняются с in-memory репозиториями и без внешнего I/O.
 
----
+## 10. Границы текущей версии
 
-## 10. Definition of Done
+В текущем `tm_core` отсутствуют отдельные подсистемы:
 
-- `dart analyze` в `packages/tm_core` — No issues.
-- Все операции возвращают `Result<S, F>`.
-- Нет `UnimplementedError` в активно используемых методах.
-- Нет ожидаемых бизнес-ошибок через `throw` (только через `Failure`).
-- Потребители пакета не импортируют из `src/`.
+- knowledge entities/refs;
+- reflection log и budget;
+- atomic replan + PNR;
+- audit trail (`task_history`);
+- SQLite persistence слой.
+
+Это сознательно фиксирует текущую архитектурную границу пакета и не противоречит разделению core/adapters.
+
+## 11. Definition of Done для текущего контура
+
+- `dart analyze` в `packages/tm_core` без критических замечаний.
+- Все реализованные operations возвращают `Result<S, F>`.
+- Pipeline применяется ко всем operation use case.
+- Реализованные integration тесты проходят на in-memory контурах.
+- Публичный контракт доступен через `lib/tm_core.dart`.

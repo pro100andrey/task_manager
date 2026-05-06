@@ -61,7 +61,6 @@ class TaskStartOperation extends _Operation {
     final updated = task.copyWith(
       status: TaskStatus.inProgress,
       statusReason: command.reason,
-      lastProgressAt: now,
       updatedAt: now,
     );
 

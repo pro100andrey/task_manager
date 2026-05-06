@@ -44,7 +44,7 @@ class GetActiveFrontQuery {
     final taskMap = <String, Task>{for (final t in tasks) t.id.raw: t};
     final completedIds = <String>{
       for (final t in tasks)
-        if (t.status.isTerminal) t.id.raw,
+        if (t.status.isCompleted) t.id.raw,
     };
 
     // Build children map: parentId → [children]

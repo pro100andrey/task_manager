@@ -6,6 +6,7 @@ import 'package:tm_core/src/domain/value_objects/project/project_ref.dart';
 import 'package:tm_core/src/domain/value_objects/task/task_description.dart';
 import 'package:tm_core/src/domain/value_objects/task/task_id.dart';
 import 'package:tm_core/src/domain/value_objects/task/task_title.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   group('ProjectId', () {
@@ -96,12 +97,17 @@ void main() {
   });
 
   group('TaskId', () {
-    test('accepts valid uuid', () {
+    test('accepts valid uuid v7', () {
       expect(TaskId.generate, returnsNormally);
     });
 
     test('rejects invalid uuid', () {
       expect(() => TaskId('bad'), throwsFormatException);
+    });
+
+    test('rejects valid uuid that is not v7', () {
+      final v4 = const Uuid().v4();
+      expect(() => TaskId(v4), throwsFormatException);
     });
   });
 

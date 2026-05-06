@@ -140,6 +140,21 @@ void main() {
         isA<TaskCreateAliasAlreadyExists>(),
       );
     });
+
+    test('applies spec defaults and initial task fields', () async {
+      final result = await taskCreate.execute(
+        TaskCreateCommand(projectId: project.id.value, title: 'Defaults'),
+      );
+
+      expect(result.isSuccess, isTrue);
+      final task = (result as Success<Task, TaskCreateFailure>).value;
+      expect(task.businessValue, 50);
+      expect(task.urgencyScore, 50);
+      expect(task.completionPolicy, TaskCompletionPolicy.allChildren);
+      expect(task.planVersion, 0);
+      expect(task.lastActionType, TaskLastActionType.execution);
+      expect(task.lastProgressAt, task.createdAt);
+    });
   });
 
   // ─────────────────────────── TaskStartOperation ────────────────────────────
@@ -155,6 +170,7 @@ void main() {
     });
 
     test('transitions pending → inProgress', () async {
+      final before = pendingTask.lastProgressAt;
       final result = await taskStart.execute(
         TaskStartCommand(taskId: pendingTask.id.value),
       );
@@ -162,6 +178,7 @@ void main() {
       expect(result.isSuccess, isTrue);
       final task = (result as Success<Task, TaskStartFailure>).value;
       expect(task.status, TaskStatus.inProgress);
+      expect(task.lastProgressAt, before);
     });
 
     test('publishes TaskStartedEvent', () async {
@@ -268,6 +285,7 @@ void main() {
     });
 
     test('transitions inProgress → failed', () async {
+      final before = inProgressTask.lastProgressAt;
       final result = await taskFail.execute(
         TaskFailCommand(taskId: inProgressTask.id.value, reason: 'Blocked'),
       );
@@ -276,6 +294,7 @@ void main() {
       final task = (result as Success<Task, TaskFailFailure>).value;
       expect(task.status, TaskStatus.failed);
       expect(task.statusReason, 'Blocked');
+      expect(task.lastProgressAt, before);
     });
 
     test('publishes TaskFailedEvent', () async {

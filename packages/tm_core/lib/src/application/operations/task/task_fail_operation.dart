@@ -60,7 +60,6 @@ class TaskFailOperation extends _Operation {
     final updated = task.copyWith(
       status: TaskStatus.failed,
       statusReason: command.reason,
-      lastProgressAt: now,
       updatedAt: now,
     );
 

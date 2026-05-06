@@ -19,6 +19,8 @@ void main() {
   late TaskCreateOperation taskCreate;
   late TaskStartOperation taskStart;
   late TaskDoneOperation taskDone;
+  late TaskFailOperation taskFail;
+  late TaskCancelOperation taskCancel;
   late TaskLinkAddOperation linkAdd;
   late GetActiveFrontQuery query;
 
@@ -41,6 +43,8 @@ void main() {
     taskCreate = TaskCreateOperation(pipeline, taskRepo, projectRepo, bus);
     taskStart = TaskStartOperation(pipeline, taskRepo, bus);
     taskDone = TaskDoneOperation(pipeline, taskRepo, bus);
+    taskFail = TaskFailOperation(pipeline, taskRepo, bus);
+    taskCancel = TaskCancelOperation(pipeline, taskRepo, bus);
     linkAdd = TaskLinkAddOperation(pipeline, taskRepo, linkRepo, bus);
     query = GetActiveFrontQuery(taskRepo, linkRepo);
 
@@ -55,6 +59,7 @@ void main() {
     int bv = 50,
     int us = 50,
     String? parentId,
+    TaskCompletionPolicy completionPolicy = TaskCompletionPolicy.manual,
   }) async {
     final r = await taskCreate.execute(
       TaskCreateCommand(
@@ -63,6 +68,7 @@ void main() {
         businessValue: bv,
         urgencyScore: us,
         parentId: parentId,
+        completionPolicy: completionPolicy,
       ),
     );
     return (r as Success<Task, dynamic>).value;
@@ -206,6 +212,43 @@ void main() {
       expect(result.blockedByStrong, isEmpty);
     });
 
+    test('failed prerequisite does not unblock dependent task', () async {
+      final a = await createTask('A');
+      final b = await createTask('B');
+      await linkAdd.execute(
+        TaskLinkAddCommand(
+          fromTaskId: a.id.raw,
+          toTaskId: b.id.raw,
+          linkType: 'strong',
+        ),
+      );
+
+      await taskStart.execute(TaskStartCommand(taskId: a.id.raw));
+      await taskFail.execute(TaskFailCommand(taskId: a.id.raw));
+
+      final result = await query.execute(params());
+      expect(result.front.map((i) => i.task.id), isNot(contains(b.id)));
+      expect(result.blockedByStrong.map((i) => i.task.id), contains(b.id));
+    });
+
+    test('cancelled prerequisite does not unblock dependent task', () async {
+      final a = await createTask('A');
+      final b = await createTask('B');
+      await linkAdd.execute(
+        TaskLinkAddCommand(
+          fromTaskId: a.id.raw,
+          toTaskId: b.id.raw,
+          linkType: 'strong',
+        ),
+      );
+
+      await taskCancel.execute(TaskCancelCommand(taskId: a.id.raw));
+
+      final result = await query.execute(params());
+      expect(result.front.map((i) => i.task.id), isNot(contains(b.id)));
+      expect(result.blockedByStrong.map((i) => i.task.id), contains(b.id));
+    });
+
     test('unblockScore reflects how many tasks depend on this task', () async {
       final a = await createTask('A');
       final b = await createTask('B');
@@ -270,7 +313,6 @@ void main() {
           TaskCreateCommand(
             projectId: project.id.value,
             title: 'Parent',
-            completionPolicy: TaskCompletionPolicy.allChildren,
           ),
         );
         final parentTask = (parent as Success<Task, dynamic>).value;
@@ -297,7 +339,6 @@ void main() {
           TaskCreateCommand(
             projectId: project.id.value,
             title: 'Parent',
-            completionPolicy: TaskCompletionPolicy.allChildren,
           ),
         );
         final parentTask = (parent as Success<Task, dynamic>).value;
