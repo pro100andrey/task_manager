@@ -113,7 +113,8 @@ class TaskBulkAddOperation extends _Operation {
     final createdTasks = <Task>[];
     final now = DateTime.now().toUtc();
 
-    for (final spec in command.tasks) {
+    for (var i = 0; i < command.tasks.length; i++) {
+      final spec = command.tasks[i];
       TaskId? parentId;
       if (spec.parentId != null) {
         try {
@@ -123,24 +124,53 @@ class TaskBulkAddOperation extends _Operation {
         }
       }
 
-      final title = TaskTitle(spec.title.trim());
+      final trimmedTitle = spec.title.trim();
+      if (trimmedTitle.isEmpty) {
+        return Failure(
+          TaskBulkAddTaskCreationFailed(i, 'title cannot be empty'),
+        );
+      }
+      final title = TaskTitle(trimmedTitle);
+
       final description = spec.description != null
           ? TaskDescription(spec.description!.trim())
           : null;
 
-      final contextState = spec.contextState != null
-          ? TaskContextState.values
-                    .where((e) => e.name == spec.contextState!.toLowerCase())
-                    .firstOrNull ??
-                TaskContextState.active
-          : TaskContextState.active;
+      TaskContextState contextState;
+      if (spec.contextState != null) {
+        final matched = TaskContextState.values
+            .where((e) => e.name == spec.contextState!.toLowerCase())
+            .firstOrNull;
+        if (matched == null) {
+          return Failure(
+            TaskBulkAddTaskCreationFailed(
+              i,
+              'unknown contextState: ${spec.contextState}',
+            ),
+          );
+        }
+        contextState = matched;
+      } else {
+        contextState = TaskContextState.active;
+      }
 
-      final completionPolicy = spec.completionPolicy != null
-          ? TaskCompletionPolicy.values
-                    .where((e) => e.name == spec.completionPolicy!)
-                    .firstOrNull ??
-                TaskCompletionPolicy.allChildren
-          : TaskCompletionPolicy.allChildren;
+      TaskCompletionPolicy completionPolicy;
+      if (spec.completionPolicy != null) {
+        final matched = TaskCompletionPolicy.values
+            .where((e) => e.name == spec.completionPolicy!)
+            .firstOrNull;
+        if (matched == null) {
+          return Failure(
+            TaskBulkAddTaskCreationFailed(
+              i,
+              'unknown completionPolicy: ${spec.completionPolicy}',
+            ),
+          );
+        }
+        completionPolicy = matched;
+      } else {
+        completionPolicy = TaskCompletionPolicy.allChildren;
+      }
 
       final task = Task(
         id: TaskId.generate(),

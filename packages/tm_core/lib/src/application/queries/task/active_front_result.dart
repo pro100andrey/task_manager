@@ -1,5 +1,6 @@
 import '../../../domain/entities/task.dart';
 import '../../../domain/enums/task_completion_policy.dart';
+import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 
 class ActiveFrontItem {
@@ -9,6 +10,7 @@ class ActiveFrontItem {
     required this.depth,
     required this.staleness,
     required this.unblockScore,
+    required this.softContext,
   });
 
   /// The task ready to work on.
@@ -25,6 +27,9 @@ class ActiveFrontItem {
 
   /// Number of pending tasks directly unblocked if this task completes.
   final int unblockScore;
+
+  /// Soft-link context: tasks related via soft links.
+  final SoftContext softContext;
 
   /// Whether the task is stalled (in `front` but staleness > 1.0).
   bool get isStalled => staleness > 1.0;

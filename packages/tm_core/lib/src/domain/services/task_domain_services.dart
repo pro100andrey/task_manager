@@ -1,4 +1,5 @@
 import '../entities/task.dart';
+import '../entities/task_link.dart';
 import '../enums/task_completion_policy.dart';
 import '../enums/task_last_action_type.dart';
 import '../exceptions/task_exceptions.dart';
@@ -157,4 +158,100 @@ Map<String, dynamic> incrementTaskPnrCompleted(Task task, {int delta = 1}) {
     ...task.metadata,
     _pnrWindowsKey: updated.map((window) => window.toJson()).toList(),
   };
+}
+
+/// Soft context for a task: tasks linked via soft links.
+///
+/// - `informs`: tasks with a soft link TO the task (they inform this task).
+/// - `informedBy`: tasks with a soft link FROM the task
+///   (this task informs them).
+/// - `related`: tasks linked with a soft link labelled 'related'
+///   (either direction).
+class SoftContext {
+  const SoftContext({
+    required this.informs,
+    required this.informedBy,
+    required this.related,
+  });
+
+  final List<Task> informs;
+  final List<Task> informedBy;
+  final List<Task> related;
+}
+
+/// Staleness score per §5.3: how overdue the task is relative to its effort
+/// estimate.
+///
+/// Returns 0 when `task.estimatedEffort` is null or ≤ 0.
+double calculateStaleness(Task task, DateTime now) {
+  final effort = task.estimatedEffort;
+  if (effort == null || effort <= 0) {
+    return 0;
+  }
+  final elapsed = now.difference(task.lastProgressAt).inSeconds.toDouble();
+  return elapsed / (effort * 3600 * 2 + 4 * 3600);
+}
+
+/// Unblock score: number of non-completed tasks directly unblocked if
+/// `taskId` is completed (strong links from `taskId` to pending tasks).
+///
+/// `links` — all relevant links; `completedIds` — completed task IDs.
+int calculateUnblockScore(
+  String taskId,
+  List<TaskLink> links,
+  Set<String> completedIds,
+) => links
+    .where(
+      (l) =>
+          l.linkType.isStrong &&
+          l.fromTaskId.raw == taskId &&
+          !completedIds.contains(l.toTaskId.raw),
+    )
+    .length;
+
+/// Returns the `SoftContext` for `taskId` based on soft links and `taskMap`.
+///
+/// Implements §5.7: soft links inform the agent which tasks share context.
+SoftContext getSoftContext(
+  String taskId,
+  List<TaskLink> links,
+  Map<String, Task> taskMap,
+) {
+  final softLinks = links.where((l) => !l.linkType.isStrong).toList();
+
+  // Tasks whose soft link points TO taskId (they inform this task)
+  final informs = softLinks
+      .where((l) => l.toTaskId.raw == taskId && l.label != 'related')
+      .map((l) => taskMap[l.fromTaskId.raw])
+      .nonNulls
+      .toList();
+
+  // Tasks that this task's soft link points TO (this task informs them)
+  final informedBy = softLinks
+      .where((l) => l.fromTaskId.raw == taskId && l.label != 'related')
+      .map((l) => taskMap[l.toTaskId.raw])
+      .nonNulls
+      .toList();
+
+  // Tasks linked with label='related' in either direction
+  final related = softLinks
+      .where(
+        (l) =>
+            l.label == 'related' &&
+            (l.fromTaskId.raw == taskId || l.toTaskId.raw == taskId),
+      )
+      .map((l) {
+        final otherId = l.fromTaskId.raw == taskId
+            ? l.toTaskId.raw
+            : l.fromTaskId.raw;
+        return taskMap[otherId];
+      })
+      .nonNulls
+      .toList();
+
+  return SoftContext(
+    informs: informs,
+    informedBy: informedBy,
+    related: related,
+  );
 }

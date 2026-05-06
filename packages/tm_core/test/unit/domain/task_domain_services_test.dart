@@ -1,5 +1,7 @@
 import 'package:test/test.dart';
 import 'package:tm_core/src/domain/entities/task.dart';
+import 'package:tm_core/src/domain/entities/task_link.dart';
+import 'package:tm_core/src/domain/enums/link_type.dart';
 import 'package:tm_core/src/domain/enums/task_completion_policy.dart';
 import 'package:tm_core/src/domain/enums/task_context_state.dart';
 import 'package:tm_core/src/domain/enums/task_last_action_type.dart';
@@ -15,6 +17,8 @@ Task _makeTask({
   TaskId? parentId,
   TaskStatus status = TaskStatus.pending,
   TaskCompletionPolicy policy = TaskCompletionPolicy.manual,
+  double? estimatedEffort,
+  DateTime? lastProgressAt,
 }) {
   final now = DateTime.now().toUtc();
   return Task(
@@ -27,15 +31,30 @@ Task _makeTask({
     businessValue: 0,
     urgencyScore: 0,
     lastActionType: TaskLastActionType.planning,
-    lastProgressAt: now,
+    lastProgressAt: lastProgressAt ?? now,
     createdAt: now,
     updatedAt: now,
     tags: const [],
     metadata: const {},
     planVersion: 1,
     parentId: parentId,
+    estimatedEffort: estimatedEffort,
   );
 }
+
+TaskLink _makeLink({
+  required TaskId from,
+  required TaskId to,
+  LinkType type = LinkType.strong,
+  String? label,
+}) => TaskLink(
+  id: 'link-${from.raw}-${to.raw}',
+  fromTaskId: from,
+  toTaskId: to,
+  linkType: type,
+  createdAt: DateTime.now().toUtc(),
+  label: label,
+);
 
 void main() {
   group('normalizeAlias', () {
@@ -135,6 +154,148 @@ void main() {
         parentId: parent.id,
       );
       expect(isCompletable(parent, [parent, child]), isTrue);
+    });
+  });
+
+  group('calculateStaleness', () {
+    test('returns 0 when estimatedEffort is null', () {
+      final task = _makeTask();
+      expect(calculateStaleness(task, DateTime.now().toUtc()), 0);
+    });
+
+    test('returns 0 when estimatedEffort is zero', () {
+      final task = _makeTask(estimatedEffort: 0);
+      expect(calculateStaleness(task, DateTime.now().toUtc()), 0);
+    });
+
+    test('returns 0 when estimatedEffort is negative', () {
+      final task = _makeTask(estimatedEffort: -1);
+      expect(calculateStaleness(task, DateTime.now().toUtc()), 0);
+    });
+
+    test('returns > 1.0 when elapsed exceeds expected window', () {
+      final past = DateTime.now().toUtc().subtract(const Duration(days: 10));
+      final task = _makeTask(estimatedEffort: 1, lastProgressAt: past);
+      expect(
+        calculateStaleness(task, DateTime.now().toUtc()),
+        greaterThan(1.0),
+      );
+    });
+
+    test('returns 0 when lastProgressAt is now', () {
+      final now = DateTime.now().toUtc();
+      final task = _makeTask(estimatedEffort: 4, lastProgressAt: now);
+      expect(calculateStaleness(task, now), 0);
+    });
+  });
+
+  group('calculateUnblockScore', () {
+    test('counts strong links from taskId to non-completed tasks', () {
+      final a = TaskId.generate();
+      final b = TaskId.generate();
+      final c = TaskId.generate();
+      final links = [
+        _makeLink(from: a, to: b),
+        _makeLink(from: a, to: c),
+      ];
+      expect(calculateUnblockScore(a.raw, links, {}), 2);
+    });
+
+    test('excludes completed tasks', () {
+      final a = TaskId.generate();
+      final b = TaskId.generate();
+      final c = TaskId.generate();
+      final links = [
+        _makeLink(from: a, to: b),
+        _makeLink(from: a, to: c),
+      ];
+      expect(calculateUnblockScore(a.raw, links, {b.raw}), 1);
+    });
+
+    test('ignores soft links', () {
+      final a = TaskId.generate();
+      final b = TaskId.generate();
+      final links = [
+        _makeLink(from: a, to: b, type: LinkType.soft),
+      ];
+      expect(calculateUnblockScore(a.raw, links, {}), 0);
+    });
+
+    test('returns 0 when no links exist', () {
+      final a = TaskId.generate();
+      expect(calculateUnblockScore(a.raw, [], {}), 0);
+    });
+  });
+
+  group('getSoftContext', () {
+    late Task taskA;
+    late Task taskB;
+    late Task taskC;
+    late Map<String, Task> taskMap;
+
+    setUp(() {
+      taskA = _makeTask();
+      taskB = _makeTask();
+      taskC = _makeTask();
+      taskMap = {
+        taskA.id.raw: taskA,
+        taskB.id.raw: taskB,
+        taskC.id.raw: taskC,
+      };
+    });
+
+    test('informs: tasks with soft link TO taskId', () {
+      final links = [
+        _makeLink(from: taskB.id, to: taskA.id, type: LinkType.soft),
+      ];
+      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      expect(ctx.informs, [taskB]);
+      expect(ctx.informedBy, isEmpty);
+    });
+
+    test('informedBy: tasks with soft link FROM taskId', () {
+      final links = [
+        _makeLink(from: taskA.id, to: taskB.id, type: LinkType.soft),
+      ];
+      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      expect(ctx.informedBy, [taskB]);
+      expect(ctx.informs, isEmpty);
+    });
+
+    test('related: tasks linked with label=related (both directions)', () {
+      final links = [
+        _makeLink(
+          from: taskA.id,
+          to: taskB.id,
+          type: LinkType.soft,
+          label: 'related',
+        ),
+        _makeLink(
+          from: taskC.id,
+          to: taskA.id,
+          type: LinkType.soft,
+          label: 'related',
+        ),
+      ];
+      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      expect(ctx.related, containsAll([taskB, taskC]));
+      expect(ctx.informs, isEmpty);
+      expect(ctx.informedBy, isEmpty);
+    });
+
+    test('strong links are ignored', () {
+      final links = [_makeLink(from: taskB.id, to: taskA.id)];
+      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      expect(ctx.informs, isEmpty);
+      expect(ctx.informedBy, isEmpty);
+      expect(ctx.related, isEmpty);
+    });
+
+    test('returns empty context when no links', () {
+      final ctx = getSoftContext(taskA.id.raw, [], taskMap);
+      expect(ctx.informs, isEmpty);
+      expect(ctx.informedBy, isEmpty);
+      expect(ctx.related, isEmpty);
     });
   });
 }

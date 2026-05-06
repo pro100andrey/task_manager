@@ -2,6 +2,7 @@ import '../../../domain/entities/task.dart';
 import '../../../domain/enums/task_completion_policy.dart';
 import '../../../domain/enums/task_context_state.dart';
 import '../../../domain/enums/task_status.dart';
+import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/project/project_id.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/task_link_repository.dart';
@@ -59,9 +60,6 @@ class GetActiveFrontQuery {
     // Convention: TaskLink(from=A, to=B) means A is a prerequisite of B.
     // So for task B, prerequisites are all `from` values where `to = B`.
     final prerequisites = <String, Set<String>>{};
-    // Build dependents: taskId → [dependent IDs] (tasks that need this task
-    // done)
-    final dependents = <String, List<String>>{};
     for (final link in links) {
       if (!link.linkType.isStrong) {
         continue;
@@ -69,7 +67,6 @@ class GetActiveFrontQuery {
       final prereq = link.fromTaskId.raw;
       final dependent = link.toTaskId.raw;
       prerequisites.putIfAbsent(dependent, () => {}).add(prereq);
-      dependents.putIfAbsent(prereq, () => []).add(dependent);
     }
 
     // Compute effective priority with Hard Cap
@@ -103,7 +100,7 @@ class GetActiveFrontQuery {
 
       // Context filter
       final inAllowed = allowedContexts.contains(task.contextState);
-      final staleness = _staleness(task);
+      final staleness = calculateStaleness(task, DateTime.now());
       final isStalled = staleness > 1.0;
       if (!inAllowed) {
         // Backlog stalled tasks can be included if requested
@@ -133,10 +130,12 @@ class GetActiveFrontQuery {
 
       final ep = epMap[task.id.raw] ?? _ownEp(task);
       final depth = depthMap[task.id.raw] ?? 0;
-      // Unblock score: count of pending dependents of this task
-      final unblockScore = (dependents[task.id.raw] ?? [])
-          .where((id) => !completedIds.contains(id))
-          .length;
+      final unblockScore = calculateUnblockScore(
+        task.id.raw,
+        links,
+        completedIds,
+      );
+      final softContext = getSoftContext(task.id.raw, links, taskMap);
 
       front.add(
         ActiveFrontItem(
@@ -145,6 +144,7 @@ class GetActiveFrontQuery {
           depth: depth,
           staleness: staleness,
           unblockScore: unblockScore,
+          softContext: softContext,
         ),
       );
     }
@@ -257,20 +257,6 @@ class GetActiveFrontQuery {
       };
     }
     return {TaskContextState.active, TaskContextState.inReview};
-  }
-
-  static double _staleness(Task task) {
-    final effort = task.estimatedEffort;
-    if (effort == null || effort <= 0) {
-      return 0;
-    }
-
-    final elapsed = DateTime.now()
-        .difference(task.lastProgressAt)
-        .inSeconds
-        .toDouble();
-    final denominator = effort * 3600 * 2 + 4 * 3600;
-    return elapsed / denominator;
   }
 
   static int _remainingChildren(

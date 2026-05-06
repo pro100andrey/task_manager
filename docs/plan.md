@@ -12,9 +12,9 @@
 
 | # | Файл | Описание | Severity |
 |---|---|---|---|
-| B1 | `task_bulk_add_operation.dart` | `TaskTitle(spec.title.trim())` может бросить исключение на пустом title — не обёрнут в try-catch, выбросит необработанное исключение вместо `TaskBulkAddValidationError` | HIGH |
-| B2 | `task_bulk_add_operation.dart` | Невалидный `contextState` / `completionPolicy` строка — тихий fallback на дефолт вместо validation error. Вызывающий получает Success с неожиданными значениями | MEDIUM |
-| B3 | `task_bulk_add_failure.dart` | `TaskBulkAddTaskCreationFailed(int taskIndex, String message)` определён в freezed union но **никогда не используется** — мёртвый код | LOW |
+| B1 | `task_bulk_add_operation.dart` | ~~`TaskTitle(spec.title.trim())` может бросить исключение на пустом title~~ | ~~HIGH~~ **FIXED** |
+| B2 | `task_bulk_add_operation.dart` | ~~Невалидный `contextState` / `completionPolicy` строка — тихий fallback~~ | ~~MEDIUM~~ **FIXED** |
+| B3 | `task_bulk_add_failure.dart` | ~~`TaskBulkAddTaskCreationFailed` определён но никогда не используется~~ | ~~LOW~~ **FIXED** |
 
 ### 0.2 Отсутствующие в plan.md сущности
 
@@ -73,7 +73,7 @@
 | `task_set_context` | §11.9 | ✅ `task_set_context_operation.dart` | 🧪 `task_editing_operations_test.dart` |
 | `task_move` | §11.10 | ✅ `task_move_operation.dart` | 🧪 `task_editing_operations_test.dart` |
 | `task_breakdown` | §11.3 | ✅ `task_breakdown_operation.dart` | 🧪 `task_breakdown_operation_test.dart` |
-| `task_bulk_add` | §11.3, §8.4 | ✅ `task_bulk_add_operation.dart` | 🧪 `task_bulk_add_operation_test.dart` | 🐛 B1,B2,B3 |
+| `task_bulk_add` | §11.3, §8.4 | ✅ `task_bulk_add_operation.dart` | 🧪 `task_bulk_add_operation_test.dart` (8 тестов) |
 | `task_bulk_plan` | §11.3, §8.4 | ❌ не реализовано | ⚠️ нужен тест | |
 | `task_replan` | §11.12 | ✅ `task_replan_operation.dart` | 🧪 `task_replan_operation_test.dart` |
 | `task_reflect` | §11.11 | ✅ `task_reflect_operation.dart` | 🧪 `reflection_operations_test.dart` |
@@ -125,9 +125,9 @@
 | `topologicalSort(adjacency)` | §5.6 | ✅ `task_graph.dart` | 🧪 `task_graph_test.dart` |
 | `detectCycle(adjacency)` | §5.6 | ✅ `task_graph.dart` | 🧪 `task_graph_test.dart` |
 | `findReadyTasks(tasks, links)` | §5.6 | ✅ `task_graph.dart` | 🧪 `task_graph_test.dart` |
-| `getSoftContext(taskId, links, tasks)` | §5.7 | ❌ не реализовано | ⚠️ нужен тест |
-| `calculateStaleness(task, now)` | §5.3, §14.1 | ❌ публичной функции нет (логика inline в `get_active_front`) | ⚠️ нужен unit тест |
-| `calculateUnblockScore(...)` | §14.1 | ❌ публичной функции нет (inline в query) | ⚠️ нужен unit тест |
+| `getSoftContext(taskId, links, tasks)` | §5.7 | ✅ `task_domain_services.dart` | 🧪 `task_domain_services_test.dart` |
+| `calculateStaleness(task, now)` | §5.3, §14.1 | ✅ `task_domain_services.dart` | 🧪 `task_domain_services_test.dart` |
+| `calculateUnblockScore(...)` | §14.1 | ✅ `task_domain_services.dart` | 🧪 `task_domain_services_test.dart` |
 | `kgAutoBridge(...)` | §5.8 | ✅ `knowledge_domain_services.dart` | 🧪 `kg_task_link_operations_test.dart` |
 
 ---
@@ -141,7 +141,7 @@
 | `front[].depth` | §11.4 | ✅ |
 | `front[].staleness` | §11.4 | ✅ |
 | `front[].unblockScore` | §11.4 | ✅ |
-| `front[].softContext` | §11.4 | ❌ отсутствует в `ActiveFrontItem` — зависит от `getSoftContext` |
+| `front[].softContext` | §11.4 | ✅ `SoftContext` в `ActiveFrontItem`, расчёт через `getSoftContext` |
 | `waitingChildren` | §11.4 | ✅ |
 | `blockedByStrong` | §11.4 | ✅ |
 | `stalledTasks` | §11.4 | ✅ |
@@ -164,10 +164,10 @@
 
 ### Высокий приоритет (блокируют MCP)
 
-1. **[B1] Исправить** `task_bulk_add`: поймать исключение при `TaskTitle(...)`, вернуть `TaskBulkAddValidationError`
-2. **[B2] Исправить** `task_bulk_add`: невалидные `contextState`/`completionPolicy` → validation error, не silent fallback
-3. `getSoftContext(taskId, links, tasks)` — чистая функция в `task_domain_services.dart`
-4. `softContext` поле в `ActiveFrontItem` + расчёт в `GetActiveFrontQuery`
+1. ~~**[B1] Исправить** `task_bulk_add`: поймать исключение при `TaskTitle(...)`~~ ✅ **DONE**
+2. ~~**[B2] Исправить** `task_bulk_add`: невалидные enum-строки → validation error~~ ✅ **DONE**
+3. ~~`getSoftContext(taskId, links, tasks)` — чистая функция~~ ✅ **DONE**
+4. ~~`softContext` поле в `ActiveFrontItem`~~ ✅ **DONE**
 5. `task_list` query — список задач с фильтрами
 6. `task_show` query — детали + softContext + ep + staleness + knowledgeEntities
 7. `task_resolve` query — UUID/alias → Task (§7)
@@ -176,9 +176,9 @@
 ### Средний приоритет
 
 9. `TaskHistory` entity + port (без адаптера пока — заглушка)
-10. `calculateStaleness(task, now)` и `calculateUnblockScore` как публичные функции в domain services
+10. ~~`calculateStaleness(task, now)` и `calculateUnblockScore` как публичные функции~~ ✅ **DONE**
 11. `task_graph` query
-12. **[B3] Удалить** `TaskBulkAddTaskCreationFailed` или использовать его (при B1 fix)
+12. ~~**[B3]** `TaskBulkAddTaskCreationFailed`~~ ✅ **DONE** (используется при B1 fix)
 
 ### Низкий приоритет
 

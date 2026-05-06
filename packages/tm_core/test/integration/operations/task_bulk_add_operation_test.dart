@@ -169,4 +169,60 @@ void main() {
       expect(value.tasks.first.urgencyScore, 80);
     },
   );
+
+  test('rejects task with empty title', () async {
+    final result = await taskBulkAdd.execute(
+      TaskBulkAddCommand(
+        projectId: project.id.value,
+        tasks: const [
+          TaskBulkAddTaskSpec(title: 'Valid'),
+          TaskBulkAddTaskSpec(title: '   '),
+        ],
+      ),
+    );
+
+    expect(result.isFailure, isTrue);
+    final failure =
+        (result as Failure<TaskBulkAddResult, TaskBulkAddFailure>).error;
+    expect(failure, isA<TaskBulkAddTaskCreationFailed>());
+    expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 1);
+  });
+
+  test('rejects task with unknown contextState', () async {
+    final result = await taskBulkAdd.execute(
+      TaskBulkAddCommand(
+        projectId: project.id.value,
+        tasks: const [
+          TaskBulkAddTaskSpec(title: 'Ok'),
+          TaskBulkAddTaskSpec(title: 'Bad context', contextState: 'invalid'),
+        ],
+      ),
+    );
+
+    expect(result.isFailure, isTrue);
+    final failure =
+        (result as Failure<TaskBulkAddResult, TaskBulkAddFailure>).error;
+    expect(failure, isA<TaskBulkAddTaskCreationFailed>());
+    expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 1);
+  });
+
+  test('rejects task with unknown completionPolicy', () async {
+    final result = await taskBulkAdd.execute(
+      TaskBulkAddCommand(
+        projectId: project.id.value,
+        tasks: const [
+          TaskBulkAddTaskSpec(
+            title: 'Bad policy',
+            completionPolicy: 'notAPolicy',
+          ),
+        ],
+      ),
+    );
+
+    expect(result.isFailure, isTrue);
+    final failure =
+        (result as Failure<TaskBulkAddResult, TaskBulkAddFailure>).error;
+    expect(failure, isA<TaskBulkAddTaskCreationFailed>());
+    expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 0);
+  });
 }
