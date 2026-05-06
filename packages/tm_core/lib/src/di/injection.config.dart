@@ -13,12 +13,22 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
 import '../adapters/events/ordered_domain_event_bus_impl.dart' as _i1027;
+import '../adapters/repositories/mem_knowledge_repository_impl.dart' as _i756;
 import '../adapters/repositories/mem_projects_repository_impl.dart' as _i949;
+import '../adapters/repositories/mem_reflection_repository_impl.dart' as _i817;
+import '../adapters/repositories/mem_task_knowledge_ref_repository_impl.dart'
+    as _i503;
 import '../adapters/repositories/mem_task_links_repository_impl.dart' as _i565;
 import '../adapters/repositories/mem_tasks_repository_impl.dart' as _i425;
 import '../adapters/tracing/logging_tracing_port_impl.dart' as _i629;
 import '../adapters/tracing/tracing_logging_config.dart' as _i300;
 import '../adapters/transaction/no_op_transaction_port_impl.dart' as _i1016;
+import '../application/operations/knowledge/kg_entity_add_operation.dart'
+    as _i999;
+import '../application/operations/knowledge/kg_entity_update_operation.dart'
+    as _i445;
+import '../application/operations/knowledge/kg_task_link_operation.dart'
+    as _i360;
 import '../application/operations/operation_pipeline.dart' as _i840;
 import '../application/operations/project/project_change_description_operation.dart'
     as _i789;
@@ -32,6 +42,8 @@ import '../application/operations/project/project_switch_operation.dart'
     as _i533;
 import '../application/operations/project/project_update_operation.dart'
     as _i406;
+import '../application/operations/reflection/task_reflect_operation.dart'
+    as _i459;
 import '../application/operations/task/task_cancel_operation.dart' as _i781;
 import '../application/operations/task/task_create_operation.dart' as _i703;
 import '../application/operations/task/task_delete_operation.dart' as _i96;
@@ -50,13 +62,23 @@ import '../application/operations/task_link/task_link_add_operation.dart'
 import '../application/operations/task_link/task_link_remove_operation.dart'
     as _i775;
 import '../application/ports/domain_event_bus.dart' as _i512;
+import '../application/ports/knowledge_repository.dart' as _i470;
 import '../application/ports/project_repository.dart' as _i102;
+import '../application/ports/reflection_repository.dart' as _i603;
+import '../application/ports/task_knowledge_ref_repository.dart' as _i571;
 import '../application/ports/task_link_repository.dart' as _i541;
 import '../application/ports/task_repository.dart' as _i159;
 import '../application/ports/tracing_port.dart' as _i969;
 import '../application/ports/transaction_port.dart' as _i1007;
+import '../application/queries/knowledge/get_knowledge_entities_query.dart'
+    as _i49;
+import '../application/queries/knowledge/get_knowledge_entity_query.dart'
+    as _i585;
+import '../application/queries/knowledge/get_task_knowledge_entities_query.dart'
+    as _i1061;
 import '../application/queries/project/get_all_projects_query.dart' as _i676;
 import '../application/queries/project/get_current_project_query.dart' as _i775;
+import '../application/queries/reflection/reflection_list_query.dart' as _i723;
 import '../application/queries/task/get_active_front_query.dart' as _i846;
 import 'core_module.dart' as _i154;
 import 'modules/application_module.dart' as _i705;
@@ -73,18 +95,33 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i300.TracingLoggingConfig>(
     () => coreModule.tracingLoggingConfig,
   );
+  gh.lazySingleton<_i603.ReflectionRepository>(
+    () => coreModule.reflectionRepository,
+  );
   gh.lazySingleton<_i159.TaskRepository>(() => coreModule.tasksRepository);
   gh.lazySingleton<_i969.TracingPort>(() => coreModule.tracingPort);
+  gh.lazySingleton<_i470.KnowledgeRepository>(
+    () => coreModule.knowledgeRepository,
+  );
   gh.lazySingleton<_i541.TaskLinkRepository>(
     () => coreModule.taskLinkRepository,
   );
   gh.lazySingleton<_i1007.TransactionPort>(
     () => coreModule.noOpTransactionPort,
   );
+  gh.lazySingleton<_i49.GetKnowledgeEntitiesQuery>(
+    () => applicationModule.getKnowledgeEntitiesQuery,
+  );
   gh.lazySingleton<_i102.ProjectRepository>(
     () => coreModule.projectsRepository,
   );
+  gh.lazySingleton<_i571.TaskKnowledgeRefRepository>(
+    () => coreModule.taskKnowledgeRefRepository,
+  );
   gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
+  gh.lazySingleton<_i723.ReflectionListQuery>(
+    () => applicationModule.reflectionListQuery,
+  );
   gh.lazySingleton<_i840.OperationPipeline>(
     () => coreModule.operationPipeline(
       gh<_i969.TracingPort>(),
@@ -127,6 +164,15 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i338.TaskRenameAliasOperation>(
     () => applicationModule.taskRenameAliasOperation,
   );
+  gh.lazySingleton<_i585.GetKnowledgeEntityQuery>(
+    () => applicationModule.getKnowledgeEntityQuery,
+  );
+  gh.lazySingleton<_i999.KgEntityAddOperation>(
+    () => applicationModule.kgEntityAddOperation,
+  );
+  gh.lazySingleton<_i459.TaskReflectOperation>(
+    () => applicationModule.taskReflectOperation,
+  );
   gh.lazySingleton<_i797.ProjectCreateOperation>(
     () => applicationModule.projectCreateOperation,
   );
@@ -145,11 +191,20 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i846.GetActiveFrontQuery>(
     () => applicationModule.getActiveFrontQuery,
   );
+  gh.lazySingleton<_i360.KgTaskLinkOperation>(
+    () => applicationModule.kgTaskLinkOperation,
+  );
   gh.lazySingleton<_i775.GetCurrentProjectQuery>(
     () => applicationModule.getCurrentProjectQuery,
   );
   gh.lazySingleton<_i676.GetAllProjectsQuery>(
     () => applicationModule.getAllProjectsQuery,
+  );
+  gh.lazySingleton<_i1061.GetTaskKnowledgeEntitiesQuery>(
+    () => applicationModule.getTaskKnowledgeEntitiesQuery,
+  );
+  gh.lazySingleton<_i445.KgEntityUpdateOperation>(
+    () => applicationModule.kgEntityUpdateOperation,
   );
   gh.lazySingleton<_i309.TaskLinkAddOperation>(
     () => applicationModule.taskLinkAddOperation,
@@ -166,6 +221,10 @@ class _$CoreModule extends _i154.CoreModule {
   final _i174.GetIt _getIt;
 
   @override
+  _i817.MemReflectionRepositoryImpl get reflectionRepository =>
+      _i817.MemReflectionRepositoryImpl();
+
+  @override
   _i425.MemTasksRepositoryImpl get tasksRepository =>
       _i425.MemTasksRepositoryImpl();
 
@@ -173,6 +232,10 @@ class _$CoreModule extends _i154.CoreModule {
   _i629.LoggingTracingPortImpl get tracingPort => _i629.LoggingTracingPortImpl(
     config: _getIt<_i300.TracingLoggingConfig>(),
   );
+
+  @override
+  _i756.MemKnowledgeRepositoryImpl get knowledgeRepository =>
+      _i756.MemKnowledgeRepositoryImpl();
 
   @override
   _i565.MemTaskLinkRepositoryImpl get taskLinkRepository =>
@@ -187,6 +250,10 @@ class _$CoreModule extends _i154.CoreModule {
       _i949.MemProjectsRepositoryImpl();
 
   @override
+  _i503.MemTaskKnowledgeRefRepositoryImpl get taskKnowledgeRefRepository =>
+      _i503.MemTaskKnowledgeRefRepositoryImpl();
+
+  @override
   _i1027.OrderedDomainEventBusImpl get domainEventBus =>
       _i1027.OrderedDomainEventBusImpl();
 }
@@ -195,6 +262,18 @@ class _$ApplicationModule extends _i705.ApplicationModule {
   _$ApplicationModule(this._getIt);
 
   final _i174.GetIt _getIt;
+
+  @override
+  _i49.GetKnowledgeEntitiesQuery get getKnowledgeEntitiesQuery =>
+      _i49.GetKnowledgeEntitiesQuery(_getIt<_i470.KnowledgeRepository>());
+
+  @override
+  _i723.ReflectionListQuery get reflectionListQuery =>
+      _i723.ReflectionListQuery(
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i603.ReflectionRepository>(),
+      );
 
   @override
   _i775.TaskLinkRemoveOperation get taskLinkRemoveOperation =>
@@ -288,6 +367,33 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       );
 
   @override
+  _i585.GetKnowledgeEntityQuery get getKnowledgeEntityQuery =>
+      _i585.GetKnowledgeEntityQuery(
+        _getIt<_i470.KnowledgeRepository>(),
+        _getIt<_i571.TaskKnowledgeRefRepository>(),
+        _getIt<_i159.TaskRepository>(),
+      );
+
+  @override
+  _i999.KgEntityAddOperation get kgEntityAddOperation =>
+      _i999.KgEntityAddOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i470.KnowledgeRepository>(),
+      );
+
+  @override
+  _i459.TaskReflectOperation get taskReflectOperation =>
+      _i459.TaskReflectOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i603.ReflectionRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
   _i797.ProjectCreateOperation get projectCreateOperation =>
       _i797.ProjectCreateOperation(
         _getIt<_i840.OperationPipeline>(),
@@ -336,12 +442,36 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       );
 
   @override
+  _i360.KgTaskLinkOperation get kgTaskLinkOperation =>
+      _i360.KgTaskLinkOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i470.KnowledgeRepository>(),
+        _getIt<_i571.TaskKnowledgeRefRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
+      );
+
+  @override
   _i775.GetCurrentProjectQuery get getCurrentProjectQuery =>
       _i775.GetCurrentProjectQuery(_getIt<_i102.ProjectRepository>());
 
   @override
   _i676.GetAllProjectsQuery get getAllProjectsQuery =>
       _i676.GetAllProjectsQuery(_getIt<_i102.ProjectRepository>());
+
+  @override
+  _i1061.GetTaskKnowledgeEntitiesQuery get getTaskKnowledgeEntitiesQuery =>
+      _i1061.GetTaskKnowledgeEntitiesQuery(
+        _getIt<_i571.TaskKnowledgeRefRepository>(),
+        _getIt<_i470.KnowledgeRepository>(),
+      );
+
+  @override
+  _i445.KgEntityUpdateOperation get kgEntityUpdateOperation =>
+      _i445.KgEntityUpdateOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i470.KnowledgeRepository>(),
+      );
 
   @override
   _i309.TaskLinkAddOperation get taskLinkAddOperation =>
