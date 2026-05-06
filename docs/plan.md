@@ -100,10 +100,10 @@
 | Запрос | Спека | Реализация | Тест |
 |---|---|---|---|
 | `get_active_front` | §11.4 | ✅ `get_active_front_query.dart` | 🧪 `active_front_query_test.dart` |
-| `task_list` | §11.3 | ❌ не реализовано | ⚠️ нужен тест |
-| `task_show` | §11.3 | ❌ не реализовано | ⚠️ нужен тест |
-| `task_resolve` | §7, §11.3 | ❌ не реализовано | ⚠️ нужен тест |
-| `link_list` | §11.8 | ❌ не реализовано | ⚠️ нужен тест |
+| `task_list` | §11.3 | ✅ `task_list_query.dart` | 🧪 `task_queries_test.dart` |
+| `task_show` | §11.3 | ✅ `task_show_query.dart` | 🧪 `task_queries_test.dart` |
+| `task_resolve` | §7, §11.3 | ✅ `get_task_by_ref_query.dart` | 🧪 `task_queries_test.dart` |
+| `link_list` | §11.8 | ✅ `link_list_query.dart` | 🧪 `task_queries_test.dart` |
 | `task_graph` | §8.2 | ❌ не реализовано | ⚠️ нужен тест |
 | `project_list` | §11.3 | ✅ `get_all_projects_query.dart` | ⚠️ нужен тест |
 | `project_current` | §11.3 | ✅ `get_current_project_query.dart` | ⚠️ нужен тест |
@@ -168,10 +168,10 @@
 2. ~~**[B2] Исправить** `task_bulk_add`: невалидные enum-строки → validation error~~ ✅ **DONE**
 3. ~~`getSoftContext(taskId, links, tasks)` — чистая функция~~ ✅ **DONE**
 4. ~~`softContext` поле в `ActiveFrontItem`~~ ✅ **DONE**
-5. `task_list` query — список задач с фильтрами
-6. `task_show` query — детали + softContext + ep + staleness + knowledgeEntities
-7. `task_resolve` query — UUID/alias → Task (§7)
-8. `link_list` query — список связей
+5. ~~`task_list` query~~ ✅ **DONE**
+6. ~~`task_show` query~~ ✅ **DONE**
+7. ~~`task_resolve` query~~ ✅ **DONE**
+8. ~~`link_list` query~~ ✅ **DONE**
 
 ### Средний приоритет
 
