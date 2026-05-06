@@ -44,6 +44,7 @@ import '../application/operations/project/project_update_operation.dart'
     as _i406;
 import '../application/operations/reflection/task_reflect_operation.dart'
     as _i459;
+import '../application/operations/task/task_breakdown_operation.dart' as _i489;
 import '../application/operations/task/task_cancel_operation.dart' as _i781;
 import '../application/operations/task/task_create_operation.dart' as _i703;
 import '../application/operations/task/task_delete_operation.dart' as _i96;
@@ -213,6 +214,9 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i360.KgTaskLinkOperation>(
     () => applicationModule.kgTaskLinkOperation,
+  );
+  gh.lazySingleton<_i489.TaskBreakdownOperation>(
+    () => applicationModule.taskBreakdownOperation,
   );
   gh.lazySingleton<_i296.TaskReplanOperation>(
     () => applicationModule.taskReplanOperation,
@@ -478,6 +482,15 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i470.KnowledgeRepository>(),
         _getIt<_i571.TaskKnowledgeRefRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
+      );
+
+  @override
+  _i489.TaskBreakdownOperation get taskBreakdownOperation =>
+      _i489.TaskBreakdownOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
+        _getIt<_i512.DomainEventBus>(),
       );
 
   @override
