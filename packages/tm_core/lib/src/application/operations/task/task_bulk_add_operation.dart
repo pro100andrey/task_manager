@@ -1,0 +1,177 @@
+import '../../../domain/entities/task.dart';
+import '../../../domain/enums/task_completion_policy.dart';
+import '../../../domain/enums/task_context_state.dart';
+import '../../../domain/enums/task_last_action_type.dart';
+import '../../../domain/enums/task_status.dart';
+import '../../../domain/events/domain_event.dart';
+import '../../../domain/result.dart';
+import '../../../domain/value_objects/project/project_id.dart';
+import '../../../domain/value_objects/task/task_description.dart';
+import '../../../domain/value_objects/task/task_id.dart';
+import '../../../domain/value_objects/task/task_title.dart';
+import '../../ports/domain_event_bus.dart';
+import '../../ports/project_repository.dart';
+import '../../ports/task_repository.dart';
+import '../operation.dart';
+import '../operation_context.dart';
+import '../operation_policy.dart';
+import 'commands/task_bulk_add_command.dart';
+import 'failures/task_bulk_add_failure.dart';
+
+class TaskBulkAddResult {
+  const TaskBulkAddResult({
+    required this.tasks,
+    required this.count,
+  });
+
+  final List<Task> tasks;
+  final int count;
+}
+
+typedef _Operation =
+    Operation<TaskBulkAddCommand, TaskBulkAddResult, TaskBulkAddFailure>;
+
+class TaskBulkAddOperation extends _Operation {
+  TaskBulkAddOperation(
+    super.pipeline,
+    this._taskRepository,
+    this._projectRepository,
+    this._bus,
+  );
+
+  final TaskRepository _taskRepository;
+  final ProjectRepository _projectRepository;
+  final DomainEventBus _bus;
+
+  static const maxBulkSize = 100;
+
+  @override
+  String get operationName => 'TaskBulkAddOperation';
+
+  @override
+  Map<String, dynamic> traceAttributes(TaskBulkAddCommand command) => {
+    'projectId': command.projectId,
+    'tasksCount': command.tasks.length,
+  };
+
+  @override
+  OperationPolicySet<TaskBulkAddCommand, TaskBulkAddFailure>
+  preconditionPolicies(
+    TaskBulkAddCommand command,
+    OperationContext context,
+  ) => const OperationPolicySet([]);
+
+  @override
+  Future<Result<TaskBulkAddResult, TaskBulkAddFailure>> run(
+    TaskBulkAddCommand command,
+  ) async {
+    // Validate bulk size
+    if (command.tasks.isEmpty) {
+      return const Failure(
+        TaskBulkAddValidationError('bulk_add requires at least one task'),
+      );
+    }
+
+    if (command.tasks.length > maxBulkSize) {
+      return Failure(
+        TaskBulkAddTooManyTasks(command.tasks.length, maxBulkSize),
+      );
+    }
+
+    // Validate project exists
+    late final ProjectId projectId;
+    try {
+      projectId = ProjectId(command.projectId);
+    } on FormatException {
+      return Failure(TaskBulkAddProjectNotFound(command.projectId));
+    }
+    final project = await _projectRepository.getById(projectId);
+    if (project == null) {
+      return Failure(TaskBulkAddProjectNotFound(command.projectId));
+    }
+
+    // Validate all parent references
+    for (final spec in command.tasks) {
+      if (spec.parentId != null) {
+        try {
+          final pid = TaskId(spec.parentId!);
+          final parent = await _taskRepository.getById(pid);
+          if (parent == null) {
+            return Failure(TaskBulkAddParentNotFound(spec.parentId!));
+          }
+          // Ensure parent is in same project
+          if (parent.projectId != projectId) {
+            return Failure(TaskBulkAddParentNotFound(spec.parentId!));
+          }
+        } on FormatException {
+          return Failure(TaskBulkAddParentNotFound(spec.parentId!));
+        }
+      }
+    }
+
+    // Create tasks
+    final createdTasks = <Task>[];
+    final now = DateTime.now().toUtc();
+
+    for (final spec in command.tasks) {
+      TaskId? parentId;
+      if (spec.parentId != null) {
+        try {
+          parentId = TaskId(spec.parentId!);
+        } on FormatException {
+          return Failure(TaskBulkAddParentNotFound(spec.parentId!));
+        }
+      }
+
+      final title = TaskTitle(spec.title.trim());
+      final description = spec.description != null
+          ? TaskDescription(spec.description!.trim())
+          : null;
+
+      final contextState = spec.contextState != null
+          ? TaskContextState.values
+                    .where((e) => e.name == spec.contextState!.toLowerCase())
+                    .firstOrNull ??
+                TaskContextState.active
+          : TaskContextState.active;
+
+      final completionPolicy = spec.completionPolicy != null
+          ? TaskCompletionPolicy.values
+                    .where((e) => e.name == spec.completionPolicy!)
+                    .firstOrNull ??
+                TaskCompletionPolicy.allChildren
+          : TaskCompletionPolicy.allChildren;
+
+      final task = Task(
+        id: TaskId.generate(),
+        projectId: projectId,
+        title: title,
+        status: TaskStatus.pending,
+        contextState: contextState,
+        completionPolicy: completionPolicy,
+        businessValue: spec.businessValue,
+        urgencyScore: spec.urgencyScore,
+        lastActionType: TaskLastActionType.execution,
+        lastProgressAt: now,
+        createdAt: now,
+        updatedAt: now,
+        tags: const [],
+        metadata: const {},
+        planVersion: 0,
+        parentId: parentId,
+        description: description,
+      );
+
+      final saved = await _taskRepository.save(task);
+      createdTasks.add(saved);
+      await _bus.publish(TaskCreatedEvent(taskId: saved.id));
+    }
+
+    return Success(
+      TaskBulkAddResult(
+        tasks: createdTasks,
+        count: createdTasks.length,
+      ),
+    );
+  }
+}

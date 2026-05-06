@@ -12,6 +12,7 @@ import '../../application/operations/project/project_switch_operation.dart';
 import '../../application/operations/project/project_update_operation.dart';
 import '../../application/operations/reflection/task_reflect_operation.dart';
 import '../../application/operations/task/task_breakdown_operation.dart';
+import '../../application/operations/task/task_bulk_add_operation.dart';
 import '../../application/operations/task/task_cancel_operation.dart';
 import '../../application/operations/task/task_create_operation.dart';
 import '../../application/operations/task/task_delete_operation.dart';
@@ -61,6 +62,9 @@ abstract class ApplicationModule {
 
   @lazySingleton
   TaskBreakdownOperation get taskBreakdownOperation;
+
+  @lazySingleton
+  TaskBulkAddOperation get taskBulkAddOperation;
 
   @lazySingleton
   TaskStartOperation get taskStartOperation;

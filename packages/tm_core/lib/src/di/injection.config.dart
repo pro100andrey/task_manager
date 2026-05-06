@@ -45,6 +45,7 @@ import '../application/operations/project/project_update_operation.dart'
 import '../application/operations/reflection/task_reflect_operation.dart'
     as _i459;
 import '../application/operations/task/task_breakdown_operation.dart' as _i489;
+import '../application/operations/task/task_bulk_add_operation.dart' as _i901;
 import '../application/operations/task/task_cancel_operation.dart' as _i781;
 import '../application/operations/task/task_create_operation.dart' as _i703;
 import '../application/operations/task/task_delete_operation.dart' as _i96;
@@ -160,6 +161,9 @@ _i174.GetIt $initTmCore(
   );
   gh.lazySingleton<_i703.TaskCreateOperation>(
     () => applicationModule.taskCreateOperation,
+  );
+  gh.lazySingleton<_i901.TaskBulkAddOperation>(
+    () => applicationModule.taskBulkAddOperation,
   );
   gh.lazySingleton<_i74.TaskStartOperation>(
     () => applicationModule.taskStartOperation,
@@ -334,6 +338,15 @@ class _$ApplicationModule extends _i705.ApplicationModule {
   @override
   _i703.TaskCreateOperation get taskCreateOperation =>
       _i703.TaskCreateOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i512.DomainEventBus>(),
+      );
+
+  @override
+  _i901.TaskBulkAddOperation get taskBulkAddOperation =>
+      _i901.TaskBulkAddOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i102.ProjectRepository>(),
