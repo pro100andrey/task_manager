@@ -2,7 +2,46 @@
 
 Документ отслеживает статус реализации функций и тестового покрытия относительно [speс.md](speс.md).
 
-Легенда: ✅ готово · ⏳ в работе · ❌ не реализовано · 🧪 есть тест · ⚠️ тест нужен
+Легенда: ✅ готово · ⏳ в работе · ❌ не реализовано · 🧪 есть тест · ⚠️ тест нужен · 🐛 баг
+
+---
+
+## 0. Критические замечания
+
+### 0.1 Баги
+
+| # | Файл | Описание | Severity |
+|---|---|---|---|
+| B1 | `task_bulk_add_operation.dart` | `TaskTitle(spec.title.trim())` может бросить исключение на пустом title — не обёрнут в try-catch, выбросит необработанное исключение вместо `TaskBulkAddValidationError` | HIGH |
+| B2 | `task_bulk_add_operation.dart` | Невалидный `contextState` / `completionPolicy` строка — тихий fallback на дефолт вместо validation error. Вызывающий получает Success с неожиданными значениями | MEDIUM |
+| B3 | `task_bulk_add_failure.dart` | `TaskBulkAddTaskCreationFailed(int taskIndex, String message)` определён в freezed union но **никогда не используется** — мёртвый код | LOW |
+
+### 0.2 Отсутствующие в plan.md сущности
+
+| Что | Спека | Статус |
+|---|---|---|
+| `TaskHistory` (Audit Trail) | §3.9 | ❌ **полностью отсутствует** — нет entity, port, adapter, ни одной записи при изменениях |
+| `source` enum в операциях | §3.8, §3.9 | ⚠️ команды (напр. `TaskReflectCommand`) принимают `source` как raw String, не enum |
+
+### 0.3 Архитектурные наблюдения
+
+| Тема | Описание |
+|---|---|
+| **Дублирование валидации** | `task_replan._addTask()` дублирует логику `TaskCreateOperation.run()` через нетипизированный `Map<String,dynamic>`. Любое изменение в правилах создания задачи нужно синхронизировать в двух местах |
+| **task_breakdown vs task_bulk_add** | Оба создают дочерние задачи, но семантика разная: breakdown обновляет `last_action_type` родителя и создаёт strong links между сиблингами; bulk_add — просто батч-создание без связей. Это разумно, но нигде не задокументировано в коде |
+| **Атомарность через pipeline** | `task_bulk_add` и `task_replan` полагаются на `TransactionBehavior` в pipeline для rollback. Сами операции не управляют транзакцией — это правильно, но неочевидно |
+| **String vs enum в командах** | `TaskReflectCommand`, `TaskBulkAddTaskSpec`, `TaskReplanCommand` используют raw strings для enum-полей. `TaskUpdateCommand` — типизирован правильно. Непоследовательно |
+| **getSoftContext** | Упомянут в §5.7 и §11.4 как обязательный для active front и task_show, но не реализован нигде. Блокирует MCP |
+
+### 0.4 Целесообразность / Приоритет пересмотра
+
+| Что | Текущая оценка | Рекомендация |
+|---|---|---|
+| `task_bulk_plan` (Markdown DSL) | Нужен только для backward compat с v2.0 | Низкий приоритет: сначала запросы |
+| `TaskHistory` | Заложен в схему БД, нужен для audit trail | Средний: добавить entity+port сейчас, адаптер — с SQLite |
+| `getSoftContext` | Блокирует `task_show`, `ActiveFrontItem.softContext` | **Высокий**: одна чистая функция, нет I/O |
+| String→enum в командах | Технический долг | Низкий: можно оставить для API-слоя, главное — validate |
+| `calculateStaleness` как pub function | §14.1 требует тестируемой чистой функции | Низкий: inline в query — нормально, просто вынести |
 
 ---
 
@@ -34,8 +73,8 @@
 | `task_set_context` | §11.9 | ✅ `task_set_context_operation.dart` | 🧪 `task_editing_operations_test.dart` |
 | `task_move` | §11.10 | ✅ `task_move_operation.dart` | 🧪 `task_editing_operations_test.dart` |
 | `task_breakdown` | §11.3 | ✅ `task_breakdown_operation.dart` | 🧪 `task_breakdown_operation_test.dart` |
-| `task_bulk_add` | §11.3, §8.4 | ✅ `task_bulk_add_operation.dart` | 🧪 `task_bulk_add_operation_test.dart` |
-| `task_bulk_plan` | §11.3, §8.4 | ❌ не реализовано | ⚠️ нужен тест |
+| `task_bulk_add` | §11.3, §8.4 | ✅ `task_bulk_add_operation.dart` | 🧪 `task_bulk_add_operation_test.dart` | 🐛 B1,B2,B3 |
+| `task_bulk_plan` | §11.3, §8.4 | ❌ не реализовано | ⚠️ нужен тест | |
 | `task_replan` | §11.12 | ✅ `task_replan_operation.dart` | 🧪 `task_replan_operation_test.dart` |
 | `task_reflect` | §11.11 | ✅ `task_reflect_operation.dart` | 🧪 `reflection_operations_test.dart` |
 
@@ -87,8 +126,8 @@
 | `detectCycle(adjacency)` | §5.6 | ✅ `task_graph.dart` | 🧪 `task_graph_test.dart` |
 | `findReadyTasks(tasks, links)` | §5.6 | ✅ `task_graph.dart` | 🧪 `task_graph_test.dart` |
 | `getSoftContext(taskId, links, tasks)` | §5.7 | ❌ не реализовано | ⚠️ нужен тест |
-| `calculateStaleness(task, now)` | §5.3 | ❌ отдельной функции нет (inline в query) | ⚠️ нужен тест |
-| `calculateUnblockScore(...)` | §14.1 | ❌ отдельной функции нет (inline в query) | ⚠️ нужен тест |
+| `calculateStaleness(task, now)` | §5.3, §14.1 | ❌ публичной функции нет (логика inline в `get_active_front`) | ⚠️ нужен unit тест |
+| `calculateUnblockScore(...)` | §14.1 | ❌ публичной функции нет (inline в query) | ⚠️ нужен unit тест |
 | `kgAutoBridge(...)` | §5.8 | ✅ `knowledge_domain_services.dart` | 🧪 `kg_task_link_operations_test.dart` |
 
 ---
@@ -102,37 +141,54 @@
 | `front[].depth` | §11.4 | ✅ |
 | `front[].staleness` | §11.4 | ✅ |
 | `front[].unblockScore` | §11.4 | ✅ |
-| `front[].softContext` | §11.4 | ❌ отсутствует в `ActiveFrontItem` |
+| `front[].softContext` | §11.4 | ❌ отсутствует в `ActiveFrontItem` — зависит от `getSoftContext` |
 | `waitingChildren` | §11.4 | ✅ |
 | `blockedByStrong` | §11.4 | ✅ |
 | `stalledTasks` | §11.4 | ✅ |
 
+> **Замечание**: `stalledTasks` берётся только из задач `front`, а не из всех задач проекта. Задача в `backlog` со staleness > 1 попадёт в `stalledTasks` только при `includeStalled=true`. Соответствует ли это спеке §11.4 — неоднозначно.
+
 ---
 
-## 5. Приоритизация реализации
+## 5. Отсутствующие сущности (не упомянуты в предыдущем плане)
 
-### Высокий приоритет (нужны для MCP-сервера)
+| Что | Спека | Описание |
+|---|---|---|
+| `TaskHistory` entity | §3.9 | Audit trail. Нет entity, нет port, нет adapter, нет записей нигде |
+| `TaskHistory` port | §3.9 | `TaskHistoryRepository` — отсутствует |
+| `TaskHistory` mem adapter | §3.9 | Для тестов и in-memory mode |
 
-1. `task_list` query — базовый листинг задач
-2. `task_show` query — детали + softContext + ep + staleness
-3. `task_resolve` query — UUID / alias → Task
-4. `link_list` query — список связей
-5. `getSoftContext(...)` — доменная функция (нужна для task_show и front)
-6. `softContext` в `ActiveFrontItem`
+---
+
+## 6. Приоритизация реализации
+
+### Высокий приоритет (блокируют MCP)
+
+1. **[B1] Исправить** `task_bulk_add`: поймать исключение при `TaskTitle(...)`, вернуть `TaskBulkAddValidationError`
+2. **[B2] Исправить** `task_bulk_add`: невалидные `contextState`/`completionPolicy` → validation error, не silent fallback
+3. `getSoftContext(taskId, links, tasks)` — чистая функция в `task_domain_services.dart`
+4. `softContext` поле в `ActiveFrontItem` + расчёт в `GetActiveFrontQuery`
+5. `task_list` query — список задач с фильтрами
+6. `task_show` query — детали + softContext + ep + staleness + knowledgeEntities
+7. `task_resolve` query — UUID/alias → Task (§7)
+8. `link_list` query — список связей
 
 ### Средний приоритет
 
-7. `task_bulk_plan` operation — Markdown DSL batch
-8. `task_graph` query — ASCII граф
+9. `TaskHistory` entity + port (без адаптера пока — заглушка)
+10. `calculateStaleness(task, now)` и `calculateUnblockScore` как публичные функции в domain services
+11. `task_graph` query
+12. **[B3] Удалить** `TaskBulkAddTaskCreationFailed` или использовать его (при B1 fix)
 
 ### Низкий приоритет
 
-9. Выделить `calculateStaleness` и `calculateUnblockScore` в чистые функции (§14.1)
-10. Тесты для `project_list`, `project_current`, `reflection_list` queries
+13. `task_bulk_plan` operation — Markdown DSL (backward compat v2.0)
+14. Тесты для `project_list`, `project_current`, `reflection_list` queries
+15. Унификация string→enum в командах (`TaskReflectCommand`, `TaskBulkAddTaskSpec`)
 
 ---
 
-## 6. Тестовые сценарии из §14.2 — покрытие
+## 7. Тестовые сценарии из §14.2 — покрытие
 
 | Сценарий | Статус |
 |---|---|
@@ -162,3 +218,6 @@
 | kg_auto_bridge: повторный вызов → нет дубликата | 🧪 `kg_task_link_operations_test.dart` |
 | Staleness без `estimated_effort` → 0.0 | ⚠️ нужен тест |
 | Staleness с просроченным `last_progress_at` → > 1.0 | ⚠️ нужен тест |
+| `task_move` в собственного потомка → ошибка цикла | 🧪 (проверить: `_isDescendant` guard есть) |
+| `task_bulk_add` пустой title → validation error (не exception) | ⚠️ нужен тест (связан с B1) |
+| `task_bulk_add` задачи с общим parentId создаются без sibling links | ⚠️ нужен тест (в отличие от breakdown) |
