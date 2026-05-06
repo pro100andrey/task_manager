@@ -13,6 +13,8 @@ import '../adapters/repositories/mem_task_links_repository_impl.dart';
 import '../adapters/repositories/mem_tasks_repository_impl.dart';
 import '../adapters/tracing/logging_tracing_port_impl.dart';
 import '../adapters/tracing/tracing_logging_config.dart';
+import '../adapters/transaction/in_memory_snapshot_store.dart';
+import '../adapters/transaction/in_memory_transaction_port_impl.dart';
 import '../adapters/transaction/no_op_transaction_port_impl.dart';
 import '../application/operations/operation_pipeline.dart';
 import '../application/ports/domain_event_bus.dart';
@@ -45,8 +47,25 @@ abstract class CoreModule {
   @LazySingleton(as: TaskLinkRepository)
   MemTaskLinkRepositoryImpl get taskLinkRepository;
 
-  @LazySingleton(as: TransactionPort)
+  @lazySingleton
   NoOpTransactionPortImpl get noOpTransactionPort;
+
+  @LazySingleton(as: TransactionPort)
+  InMemoryTransactionPortImpl transactionPort(
+    ProjectRepository projectsRepository,
+    TaskRepository tasksRepository,
+    TaskLinkRepository taskLinkRepository,
+    KnowledgeRepository knowledgeRepository,
+    TaskKnowledgeRefRepository taskKnowledgeRefRepository,
+    ReflectionRepository reflectionRepository,
+  ) => InMemoryTransactionPortImpl([
+    projectsRepository as InMemorySnapshotStore,
+    tasksRepository as InMemorySnapshotStore,
+    taskLinkRepository as InMemorySnapshotStore,
+    knowledgeRepository as InMemorySnapshotStore,
+    taskKnowledgeRefRepository as InMemorySnapshotStore,
+    reflectionRepository as InMemorySnapshotStore,
+  ]);
 
   @LazySingleton(as: DomainEventBus)
   OrderedDomainEventBusImpl get domainEventBus;

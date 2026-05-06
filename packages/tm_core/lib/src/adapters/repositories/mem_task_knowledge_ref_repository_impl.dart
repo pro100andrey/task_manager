@@ -3,8 +3,10 @@ import '../../domain/entities/task_knowledge_ref.dart';
 import '../../domain/enums/knowledge_ref_type.dart';
 import '../../domain/value_objects/knowledge/knowledge_entity_id.dart';
 import '../../domain/value_objects/task/task_id.dart';
+import '../transaction/in_memory_snapshot_store.dart';
 
-class MemTaskKnowledgeRefRepositoryImpl implements TaskKnowledgeRefRepository {
+class MemTaskKnowledgeRefRepositoryImpl
+    implements TaskKnowledgeRefRepository, InMemorySnapshotStore {
   final _refs = <String, TaskKnowledgeRef>{};
 
   String _key(
@@ -49,5 +51,16 @@ class MemTaskKnowledgeRefRepositoryImpl implements TaskKnowledgeRefRepository {
     for (final t in KnowledgeRefType.values) {
       _refs.remove(_key(taskId, entityId, t));
     }
+  }
+
+  @override
+  Object createSnapshot() => Map<String, TaskKnowledgeRef>.from(_refs);
+
+  @override
+  void restoreSnapshot(Object snapshot) {
+    final typed = snapshot as Map<String, TaskKnowledgeRef>;
+    _refs
+      ..clear()
+      ..addAll(typed);
   }
 }

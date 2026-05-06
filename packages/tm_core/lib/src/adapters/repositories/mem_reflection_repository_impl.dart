@@ -3,8 +3,10 @@ import '../../domain/entities/reflection.dart';
 import '../../domain/value_objects/project/project_id.dart';
 import '../../domain/value_objects/reflection/reflection_id.dart';
 import '../../domain/value_objects/task/task_id.dart';
+import '../transaction/in_memory_snapshot_store.dart';
 
-class MemReflectionRepositoryImpl implements ReflectionRepository {
+class MemReflectionRepositoryImpl
+    implements ReflectionRepository, InMemorySnapshotStore {
   final _reflectionsById = <String, Reflection>{};
 
   @override
@@ -27,5 +29,16 @@ class MemReflectionRepositoryImpl implements ReflectionRepository {
   Future<Reflection> save(Reflection reflection) async {
     _reflectionsById[reflection.id.raw] = reflection;
     return reflection;
+  }
+
+  @override
+  Object createSnapshot() => Map<String, Reflection>.from(_reflectionsById);
+
+  @override
+  void restoreSnapshot(Object snapshot) {
+    final typed = snapshot as Map<String, Reflection>;
+    _reflectionsById
+      ..clear()
+      ..addAll(typed);
   }
 }

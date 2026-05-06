@@ -19,6 +19,7 @@ import '../../application/operations/task/task_fail_operation.dart';
 import '../../application/operations/task/task_hold_operation.dart';
 import '../../application/operations/task/task_move_operation.dart';
 import '../../application/operations/task/task_rename_alias_operation.dart';
+import '../../application/operations/task/task_replan_operation.dart';
 import '../../application/operations/task/task_set_context_operation.dart';
 import '../../application/operations/task/task_start_operation.dart';
 import '../../application/operations/task/task_update_operation.dart';
@@ -86,6 +87,9 @@ abstract class ApplicationModule {
 
   @lazySingleton
   TaskRenameAliasOperation get taskRenameAliasOperation;
+
+  @lazySingleton
+  TaskReplanOperation get taskReplanOperation;
 
   // TaskLink Operations
   @lazySingleton

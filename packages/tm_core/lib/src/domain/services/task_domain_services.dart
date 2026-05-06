@@ -1,5 +1,6 @@
 import '../entities/task.dart';
 import '../enums/task_completion_policy.dart';
+import '../enums/task_last_action_type.dart';
 import '../exceptions/task_exceptions.dart';
 
 /// Normalizes a raw alias string according to §6 of the spec.
@@ -45,5 +46,40 @@ bool isCompletable(Task task, List<Task> allTasks) {
       completedChildren.length == children.length,
     TaskCompletionPolicy.anyChild => completedChildren.isNotEmpty,
     TaskCompletionPolicy.manual => true,
+  };
+}
+
+List<TaskLastActionType> taskActionHistory(Task task) {
+  final raw = task.metadata['actionHistory'];
+  if (raw is List) {
+    final parsed = raw
+        .whereType<String>()
+        .map(
+          (value) => TaskLastActionType.values
+              .where((action) => action.value == value)
+              .firstOrNull,
+        )
+        .nonNulls
+        .toList();
+    if (parsed.isNotEmpty) {
+      return parsed;
+    }
+  }
+
+  return [task.lastActionType];
+}
+
+Map<String, dynamic> appendTaskActionHistory(
+  Task task,
+  TaskLastActionType action,
+) {
+  final history = [...taskActionHistory(task), action];
+  final trimmed = history.length > 3
+      ? history.sublist(history.length - 3)
+      : history;
+
+  return {
+    ...task.metadata,
+    'actionHistory': trimmed.map((value) => value.value).toList(),
   };
 }

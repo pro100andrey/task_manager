@@ -1,7 +1,9 @@
 import '../../../domain/entities/task.dart';
+import '../../../domain/enums/task_last_action_type.dart';
 import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
+import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
@@ -60,6 +62,8 @@ class TaskStartOperation extends _Operation {
     final now = DateTime.now().toUtc();
     final updated = task.copyWith(
       status: TaskStatus.inProgress,
+      lastActionType: TaskLastActionType.execution,
+      metadata: appendTaskActionHistory(task, TaskLastActionType.execution),
       statusReason: command.reason,
       updatedAt: now,
     );

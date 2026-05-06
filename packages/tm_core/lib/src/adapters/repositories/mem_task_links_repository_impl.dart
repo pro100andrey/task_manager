@@ -2,8 +2,10 @@ import '../../application/ports/task_link_repository.dart';
 import '../../domain/entities/task_link.dart';
 import '../../domain/enums/link_type.dart';
 import '../../domain/value_objects/task/task_id.dart';
+import '../transaction/in_memory_snapshot_store.dart';
 
-class MemTaskLinkRepositoryImpl implements TaskLinkRepository {
+class MemTaskLinkRepositoryImpl
+    implements TaskLinkRepository, InMemorySnapshotStore {
   // Composite key: '${from}:${to}:${type}'
   final _links = <String, TaskLink>{};
 
@@ -47,5 +49,16 @@ class MemTaskLinkRepositoryImpl implements TaskLinkRepository {
         _links.remove(_key(from, to, lt));
       }
     }
+  }
+
+  @override
+  Object createSnapshot() => Map<String, TaskLink>.from(_links);
+
+  @override
+  void restoreSnapshot(Object snapshot) {
+    final typed = snapshot as Map<String, TaskLink>;
+    _links
+      ..clear()
+      ..addAll(typed);
   }
 }

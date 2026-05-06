@@ -14,6 +14,7 @@ import '../../../domain/events/domain_event.dart';
 import '../../../domain/exceptions/reflection_exceptions.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/reflection_domain_services.dart';
+import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/reflection/reflection_id.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../../domain/value_objects/task/task_title.dart';
@@ -137,6 +138,10 @@ class TaskReflectOperation extends _Operation {
     if (task != null) {
       final updatedTask = task.copyWith(
         lastActionType: TaskLastActionType.reflection,
+        metadata: appendTaskActionHistory(
+          task,
+          TaskLastActionType.reflection,
+        ),
         updatedAt: now,
       );
       task = await _taskRepository.save(updatedTask);

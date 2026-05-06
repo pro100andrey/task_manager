@@ -5,8 +5,12 @@ import '../../domain/entities/project.dart';
 import '../../domain/exceptions/project_exceptions.dart';
 import '../../domain/value_objects/project/project_id.dart';
 import '../../domain/value_objects/project/project_ref.dart';
+import '../transaction/in_memory_snapshot_store.dart';
 
-final class MemProjectsRepositoryImpl implements ProjectRepository {
+typedef _Snapshot = ({Map<ProjectId, Project> storage, ProjectId? currentId});
+
+final class MemProjectsRepositoryImpl
+    implements ProjectRepository, InMemorySnapshotStore {
   final _storage = <ProjectId, Project>{};
   ProjectId? _currentProjectId;
 
@@ -66,5 +70,20 @@ final class MemProjectsRepositoryImpl implements ProjectRepository {
     if (_currentProjectId == id) {
       _currentProjectId = null;
     }
+  }
+
+  @override
+  Object createSnapshot() => (
+    storage: Map<ProjectId, Project>.from(_storage),
+    currentId: _currentProjectId,
+  );
+
+  @override
+  void restoreSnapshot(Object snapshot) {
+    final typed = snapshot as _Snapshot;
+    _storage
+      ..clear()
+      ..addAll(typed.storage);
+    _currentProjectId = typed.currentId;
   }
 }

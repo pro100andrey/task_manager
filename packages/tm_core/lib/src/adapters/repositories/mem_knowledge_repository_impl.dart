@@ -3,8 +3,10 @@ import '../../domain/entities/knowledge_entity.dart';
 import '../../domain/enums/knowledge_entity_type.dart';
 import '../../domain/value_objects/knowledge/knowledge_entity_id.dart';
 import '../../domain/value_objects/project/project_id.dart';
+import '../transaction/in_memory_snapshot_store.dart';
 
-class MemKnowledgeRepositoryImpl implements KnowledgeRepository {
+class MemKnowledgeRepositoryImpl
+    implements KnowledgeRepository, InMemorySnapshotStore {
   final _entitiesById = <String, KnowledgeEntity>{};
 
   @override
@@ -42,5 +44,16 @@ class MemKnowledgeRepositoryImpl implements KnowledgeRepository {
   @override
   Future<void> delete(KnowledgeEntityId id) async {
     _entitiesById.remove(id.raw);
+  }
+
+  @override
+  Object createSnapshot() => Map<String, KnowledgeEntity>.from(_entitiesById);
+
+  @override
+  void restoreSnapshot(Object snapshot) {
+    final typed = snapshot as Map<String, KnowledgeEntity>;
+    _entitiesById
+      ..clear()
+      ..addAll(typed);
   }
 }
