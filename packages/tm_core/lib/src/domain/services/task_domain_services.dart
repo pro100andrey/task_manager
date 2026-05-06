@@ -3,6 +3,21 @@ import '../enums/task_completion_policy.dart';
 import '../enums/task_last_action_type.dart';
 import '../exceptions/task_exceptions.dart';
 
+const _actionHistoryKey = 'actionHistory';
+const _pnrWindowsKey = 'pnrWindows';
+
+class TaskPnrWindow {
+  const TaskPnrWindow({required this.created, required this.completed});
+
+  final int created;
+  final int completed;
+
+  Map<String, dynamic> toJson() => {
+    'created': created,
+    'completed': completed,
+  };
+}
+
 /// Normalizes a raw alias string according to §6 of the spec.
 ///
 /// Rules applied in order:
@@ -50,7 +65,7 @@ bool isCompletable(Task task, List<Task> allTasks) {
 }
 
 List<TaskLastActionType> taskActionHistory(Task task) {
-  final raw = task.metadata['actionHistory'];
+  final raw = task.metadata[_actionHistoryKey];
   if (raw is List) {
     final parsed = raw
         .whereType<String>()
@@ -69,6 +84,26 @@ List<TaskLastActionType> taskActionHistory(Task task) {
   return [task.lastActionType];
 }
 
+List<TaskPnrWindow> taskPnrWindows(Task task) {
+  final raw = task.metadata[_pnrWindowsKey];
+  if (raw is! List) {
+    return const [];
+  }
+
+  return raw
+      .whereType<Map>()
+      .map((entry) {
+        final created = entry['created'];
+        final completed = entry['completed'];
+        if (created is int && completed is int) {
+          return TaskPnrWindow(created: created, completed: completed);
+        }
+        return null;
+      })
+      .nonNulls
+      .toList();
+}
+
 Map<String, dynamic> appendTaskActionHistory(
   Task task,
   TaskLastActionType action,
@@ -80,6 +115,46 @@ Map<String, dynamic> appendTaskActionHistory(
 
   return {
     ...task.metadata,
-    'actionHistory': trimmed.map((value) => value.value).toList(),
+    _actionHistoryKey: trimmed.map((value) => value.value).toList(),
+  };
+}
+
+Map<String, dynamic> appendTaskPnrWindow(
+  Task task, {
+  required int created,
+  int completed = 0,
+}) {
+  final windows = [
+    ...taskPnrWindows(task),
+    TaskPnrWindow(created: created, completed: completed),
+  ];
+  final trimmed = windows.length > 10
+      ? windows.sublist(windows.length - 10)
+      : windows;
+
+  return {
+    ...task.metadata,
+    _pnrWindowsKey: trimmed.map((window) => window.toJson()).toList(),
+  };
+}
+
+Map<String, dynamic> incrementTaskPnrCompleted(Task task, {int delta = 1}) {
+  final windows = taskPnrWindows(task);
+  if (windows.isEmpty) {
+    return task.metadata;
+  }
+
+  final updated = [...windows];
+  final last = updated.removeLast();
+  updated.add(
+    TaskPnrWindow(
+      created: last.created,
+      completed: last.completed + delta,
+    ),
+  );
+
+  return {
+    ...task.metadata,
+    _pnrWindowsKey: updated.map((window) => window.toJson()).toList(),
   };
 }

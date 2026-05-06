@@ -92,10 +92,19 @@ class TaskReplanOperation extends _Operation {
     }
 
     try {
+      final windows = taskPnrWindows(task);
+      final deltaCreated = windows.fold<int>(
+        0,
+        (sum, window) => sum + window.created,
+      );
+      final deltaCompleted = windows.fold<int>(
+        0,
+        (sum, window) => sum + window.completed,
+      );
       checkPNR(
         PnrHistorySnapshot(
-          deltaCompleted: 1,
-          deltaCreated: 0,
+          deltaCompleted: deltaCompleted,
+          deltaCreated: deltaCreated,
           recentActions: taskActionHistory(task).reversed.toList(),
         ),
       );
@@ -116,10 +125,18 @@ class TaskReplanOperation extends _Operation {
     }
 
     final now = DateTime.now().toUtc();
+    final createdCount = applied
+        .where((change) => change.action == 'add_task')
+        .length;
     final updatedTask = task.copyWith(
       planVersion: task.planVersion + 1,
       lastActionType: TaskLastActionType.planning,
-      metadata: appendTaskActionHistory(task, TaskLastActionType.planning),
+      metadata: appendTaskPnrWindow(
+        task.copyWith(
+          metadata: appendTaskActionHistory(task, TaskLastActionType.planning),
+        ),
+        created: createdCount,
+      ),
       updatedAt: now,
     );
     final savedTask = await _taskRepository.save(updatedTask);

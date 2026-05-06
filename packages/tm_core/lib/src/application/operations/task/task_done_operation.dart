@@ -53,21 +53,39 @@ class TaskDoneOperation extends _Operation {
       );
     }
 
-    final siblings = await _repository.getByProjectId(task.projectId);
-    if (!isCompletable(task, siblings)) {
+    final projectTasks = await _repository.getByProjectId(task.projectId);
+    if (!isCompletable(task, projectTasks)) {
       return Failure(TaskDoneNotCompletable(command.taskId));
     }
 
     final now = DateTime.now().toUtc();
+    final tasksById = {for (final item in projectTasks) item.id.raw: item};
+    final lineage = <Task>[];
+    Task? current = task;
+    while (current != null) {
+      lineage.add(current);
+      current = current.parentId != null
+          ? tasksById[current.parentId!.raw]
+          : null;
+    }
+
     final updated = task.copyWith(
       status: TaskStatus.completed,
       statusReason: command.reason,
       lastProgressAt: now,
       completedAt: now,
+      metadata: incrementTaskPnrCompleted(task),
       updatedAt: now,
     );
 
     final saved = await _repository.save(updated);
+    for (final ancestor in lineage.skip(1)) {
+      final updatedAncestor = ancestor.copyWith(
+        metadata: incrementTaskPnrCompleted(ancestor),
+        updatedAt: now,
+      );
+      await _repository.save(updatedAncestor);
+    }
     await _bus.publish(TaskCompletedEvent(taskId: saved.id));
 
     return Success(saved);

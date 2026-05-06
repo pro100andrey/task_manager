@@ -65,6 +65,19 @@ void main() {
     return (result as Success<Task, dynamic>).value;
   }
 
+  Future<void> resetActionHistoryToExecution(Task task) async {
+    await taskRepo.save(
+      task.copyWith(
+        lastActionType: TaskLastActionType.execution,
+        metadata: {
+          ...task.metadata,
+          'actionHistory': [TaskLastActionType.execution.value],
+        },
+        updatedAt: DateTime.now().toUtc(),
+      ),
+    );
+  }
+
   test(
     'applies replan changes atomically and increments planVersion',
     () async {
@@ -246,4 +259,93 @@ void main() {
 
     expect(allowed.isSuccess, isTrue);
   });
+
+  test(
+    'blocks replan when created/completed ratio falls below threshold',
+    () async {
+      final root = await createTask('Root');
+
+      for (var index = 0; index < 6; index++) {
+        final result = await taskReplan.execute(
+          TaskReplanCommand(
+            taskId: root.id.raw,
+            changes: [
+              ReplanChange(
+                action: 'add_task',
+                params: {'title': 'Added $index'},
+              ),
+            ],
+          ),
+        );
+        expect(result.isSuccess, isTrue);
+
+        final savedRoot = await taskRepo.getById(root.id);
+        await resetActionHistoryToExecution(savedRoot!);
+      }
+
+      final blocked = await taskReplan.execute(
+        TaskReplanCommand(
+          taskId: root.id.raw,
+          changes: const [
+            ReplanChange(action: 'add_task', params: {'title': 'Blocked'}),
+          ],
+        ),
+      );
+
+      expect(blocked.isFailure, isTrue);
+      expect(
+        (blocked as Failure<TaskReplanResult, TaskReplanFailure>).error,
+        isA<TaskReplanStallDetected>(),
+      );
+    },
+  );
+
+  test(
+    'allows replan when completion ratio recovers above threshold',
+    () async {
+      final root = await createTask('Root');
+
+      for (var index = 0; index < 6; index++) {
+        final result = await taskReplan.execute(
+          TaskReplanCommand(
+            taskId: root.id.raw,
+            changes: [
+              ReplanChange(
+                action: 'add_task',
+                params: {'title': 'Added $index'},
+              ),
+            ],
+          ),
+        );
+        expect(result.isSuccess, isTrue);
+
+        final savedRoot = await taskRepo.getById(root.id);
+        await resetActionHistoryToExecution(savedRoot!);
+      }
+
+      final projectTasks = await taskRepo.getByProjectId(project.id);
+      final child = projectTasks.firstWhere((task) => task.parentId == root.id);
+      await taskStart.execute(TaskStartCommand(taskId: child.id.raw));
+      final done = await TaskDoneOperation(pipeline, taskRepo, bus).execute(
+        TaskDoneCommand(taskId: child.id.raw),
+      );
+      expect(done.isSuccess, isTrue);
+
+      final savedRoot = await taskRepo.getById(root.id);
+      final windows = taskPnrWindows(savedRoot!);
+      expect(windows.fold<int>(0, (sum, window) => sum + window.completed), 1);
+      await resetActionHistoryToExecution(savedRoot);
+
+      final allowed = await taskReplan.execute(
+        TaskReplanCommand(
+          taskId: root.id.raw,
+          changes: const [
+            ReplanChange(action: 'add_task', params: {'title': 'Allowed'}),
+          ],
+        ),
+      );
+
+      expect(allowed.isSuccess, isTrue);
+    },
+  );
 }
