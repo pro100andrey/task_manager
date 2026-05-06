@@ -1,6 +1,7 @@
 ///
 library;
 
+export 'knowledge/knowledge_entity_id.dart';
 export 'project/project_description.dart';
 export 'project/project_id.dart';
 export 'project/project_name.dart';
