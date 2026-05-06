@@ -168,6 +168,31 @@ void main() {
       expect(depths[child.id.raw], equals(1));
       expect(depths[grand.id.raw], equals(2));
     });
+
+    test(
+      'stalled task sorts above non-stalled when EP is equal',
+      () async {
+        // Both tasks have same BV/US so equal EP.
+        // One has estimatedEffort set and old lastProgressAt → stalled.
+        final fresh = await createTask('Fresh');
+        final stale = await createTask('Stale');
+
+        // Directly save stale task with old lastProgressAt via repo.
+        final old = stale.copyWith(
+          estimatedEffort: 1,
+          lastProgressAt: DateTime.now().toUtc().subtract(
+            const Duration(days: 100),
+          ),
+        );
+        await taskRepo.save(old);
+
+        final result = await query.execute(params());
+
+        // stale should appear before fresh
+        final ids = result.front.map((i) => i.task.id).toList();
+        expect(ids.indexOf(stale.id), lessThan(ids.indexOf(fresh.id)));
+      },
+    );
   });
 
   // ── Strong-link blocking ───────────────────────────────────────────────────

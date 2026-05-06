@@ -481,6 +481,30 @@ void main() {
         isA<TaskDeleteNotFound>(),
       );
     });
+
+    test('deleting parent also deletes child tasks', () async {
+      final parentResult = await taskCreate.execute(
+        TaskCreateCommand(
+          projectId: project.id.value,
+          title: 'Parent',
+        ),
+      );
+      final parent = (parentResult as Success<Task, dynamic>).value;
+
+      final childResult = await taskCreate.execute(
+        TaskCreateCommand(
+          projectId: project.id.value,
+          title: 'Child',
+          parentId: parent.id.raw,
+        ),
+      );
+      final child = (childResult as Success<Task, dynamic>).value;
+
+      await taskDelete.execute(TaskDeleteCommand(taskId: parent.id.value));
+
+      expect(await taskRepo.getById(parent.id), isNull);
+      expect(await taskRepo.getById(child.id), isNull);
+    });
   });
 
   // ────────────────────────────── Lifecycle: hold → resume ───────────────────

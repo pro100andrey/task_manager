@@ -105,12 +105,12 @@
 | `task_resolve` | §7, §11.3 | ✅ `get_task_by_ref_query.dart` | 🧪 `task_queries_test.dart` |
 | `link_list` | §11.8 | ✅ `link_list_query.dart` | 🧪 `task_queries_test.dart` |
 | `task_graph` | §8.2 | ✅ `task_graph_query.dart` | 🧪 `task_queries_test.dart` |
-| `project_list` | §11.3 | ✅ `get_all_projects_query.dart` | ⚠️ нужен тест |
-| `project_current` | §11.3 | ✅ `get_current_project_query.dart` | ⚠️ нужен тест |
+| `project_list` | §11.3 | ✅ `get_all_projects_query.dart` | 🧪 `project_queries_test.dart` |
+| `project_current` | §11.3 | ✅ `get_current_project_query.dart` | 🧪 `project_queries_test.dart` |
 | `kg_entity_list` | §11.14 | ✅ `get_knowledge_entities_query.dart` | 🧪 `get_knowledge_entity_query_test.dart` |
 | `kg_entity_show` | §11.15 | ✅ `get_knowledge_entity_query.dart` | 🧪 `get_knowledge_entity_query_test.dart` |
 | `kg_task_entities` | §11.18 | ✅ `get_task_knowledge_entities_query.dart` | 🧪 `get_task_knowledge_entities_query_test.dart` |
-| `reflection_list` | §11.19 | ✅ `reflection_list_query.dart` | ⚠️ нужен тест |
+| `reflection_list` | §11.19 | ✅ `reflection_list_query.dart` | 🧪 `project_queries_test.dart` |
 
 ---
 
@@ -183,7 +183,7 @@
 ### Низкий приоритет
 
 13. `task_bulk_plan` operation — Markdown DSL (backward compat v2.0)
-14. Тесты для `project_list`, `project_current`, `reflection_list` queries
+14. ~~Тесты для `project_list`, `project_current`, `reflection_list` queries~~ ✅ **DONE** (`project_queries_test.dart`, 13 тестов)
 15. Унификация string→enum в командах (`TaskReflectCommand`, `TaskBulkAddTaskSpec`)
 
 ---
@@ -197,18 +197,18 @@
 | Трёхуровневая иерархия, EP убывает | 🧪 `active_front_query_test.dart` |
 | Задача в backlog не в Active Front | 🧪 `active_front_query_test.dart` |
 | Задача с незавершёнными strong-deps не в Active Front | 🧪 `active_front_query_test.dart` |
-| Stalled задача поднимается выше нестalled при равном EP | ⚠️ нужен тест |
+| Stalled задача поднимается выше нестalled при равном EP | 🧪 `active_front_query_test.dart` |
 | `all_children`: родитель не completable до всех детей | 🧪 `task_domain_services_test.dart` |
 | `any_child`: completable после первого ребёнка | 🧪 `task_domain_services_test.dart` |
 | `manual`: всегда completable | 🧪 `task_domain_services_test.dart` |
 | `task_move` корректно меняет parent_id | 🧪 `task_editing_operations_test.dart` |
-| Удаление родителя каскадно удаляет детей | ⚠️ нужен тест |
+| Удаление родителя каскадно удаляет детей | 🧪 `task_operations_test.dart` |
 | Добавление цикла → CycleException | 🧪 `task_graph_test.dart` |
 | Topological sort на DAG детерминирован | 🧪 `task_graph_test.dart` |
 | `findReadyTasks` — только задачи с завершёнными deps | 🧪 `task_graph_test.dart` |
 | Soft link не блокирует выполнение | 🧪 `task_link_operations_test.dart` |
-| Цикл в soft links не ошибка | ⚠️ нужен тест |
-| Soft link виден в `getSoftContext` | ❌ функция не реализована |
+| Цикл в soft links не ошибка | 🧪 `task_link_operations_test.dart` |
+| Soft link виден в `getSoftContext` | 🧪 `task_domain_services_test.dart` |
 | PNR: ΔCreated ≤ 5 → guardrail не срабатывает | 🧪 `task_domain_services_test.dart` |
 | PNR: ΔCompleted/ΔCreated < 0.15 при ΔCreated > 5 → StallDetected | 🧪 `task_domain_services_test.dart` |
 | PNR: 3 consecutive planning → StallDetected | 🧪 `task_domain_services_test.dart` |
@@ -216,8 +216,8 @@
 | После replan: `plan_version` инкрементирован | 🧪 `task_replan_operation_test.dart` |
 | kg_auto_bridge: produces + consumes → soft link | 🧪 `kg_task_link_operations_test.dart` |
 | kg_auto_bridge: повторный вызов → нет дубликата | 🧪 `kg_task_link_operations_test.dart` |
-| Staleness без `estimated_effort` → 0.0 | ⚠️ нужен тест |
-| Staleness с просроченным `last_progress_at` → > 1.0 | ⚠️ нужен тест |
+| Staleness без `estimated_effort` → 0.0 | 🧪 `task_domain_services_test.dart` |
+| Staleness с просроченным `last_progress_at` → > 1.0 | 🧪 `task_domain_services_test.dart` |
 | `task_move` в собственного потомка → ошибка цикла | 🧪 (проверить: `_isDescendant` guard есть) |
-| `task_bulk_add` пустой title → validation error (не exception) | ⚠️ нужен тест (связан с B1) |
-| `task_bulk_add` задачи с общим parentId создаются без sibling links | ⚠️ нужен тест (в отличие от breakdown) |
+| `task_bulk_add` пустой title → validation error (не exception) | 🧪 `task_bulk_add_operation_test.dart` |
+| `task_bulk_add` задачи с общим parentId создаются без sibling links | 🧪 `task_bulk_add_operation_test.dart` |

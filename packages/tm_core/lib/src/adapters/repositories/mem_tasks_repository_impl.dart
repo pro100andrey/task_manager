@@ -27,6 +27,14 @@ class MemTasksRepositoryImpl implements TaskRepository, InMemorySnapshotStore {
     if (!_tasks.containsKey(id.raw)) {
       throw TaskNotFoundException(id.raw);
     }
+    // Simulate ON DELETE CASCADE: remove all descendants first.
+    final children = _tasks.values
+        .where((t) => t.parentId == id)
+        .map((t) => t.id)
+        .toList();
+    for (final childId in children) {
+      await delete(childId);
+    }
     _tasks.remove(id.raw);
   }
 

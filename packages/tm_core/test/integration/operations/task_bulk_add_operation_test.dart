@@ -225,4 +225,59 @@ void main() {
     expect(failure, isA<TaskBulkAddTaskCreationFailed>());
     expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 0);
   });
+
+  test('rejects task with empty title', () async {
+    final result = await taskBulkAdd.execute(
+      TaskBulkAddCommand(
+        projectId: project.id.value,
+        tasks: const [TaskBulkAddTaskSpec(title: '')],
+      ),
+    );
+
+    expect(result.isFailure, isTrue);
+    final failure =
+        (result as Failure<TaskBulkAddResult, TaskBulkAddFailure>).error;
+    expect(failure, isA<TaskBulkAddTaskCreationFailed>());
+    expect((failure as TaskBulkAddTaskCreationFailed).taskIndex, 0);
+  });
+
+  test(
+    'tasks sharing a parentId are siblings without automatic sibling links',
+    () async {
+      final parentResult = await taskCreate.execute(
+        TaskCreateCommand(
+          projectId: project.id.value,
+          title: 'Parent',
+        ),
+      );
+      final parent = (parentResult as Success<Task, dynamic>).value;
+
+      final result = await taskBulkAdd.execute(
+        TaskBulkAddCommand(
+          projectId: project.id.value,
+          tasks: [
+            TaskBulkAddTaskSpec(title: 'Sibling A', parentId: parent.id.raw),
+            TaskBulkAddTaskSpec(title: 'Sibling B', parentId: parent.id.raw),
+          ],
+        ),
+      );
+
+      expect(result.isSuccess, isTrue);
+      final created =
+          (result as Success<TaskBulkAddResult, TaskBulkAddFailure>).value;
+      expect(created.tasks, hasLength(2));
+
+      final sibA = created.tasks.first;
+      final sibB = created.tasks.last;
+
+      // No links should exist directly between the two siblings.
+      final links = await taskLinkRepo.getAllByProjectLinks([sibA.id, sibB.id]);
+      final siblingLinks = links.where(
+        (l) =>
+            (l.fromTaskId == sibA.id && l.toTaskId == sibB.id) ||
+            (l.fromTaskId == sibB.id && l.toTaskId == sibA.id),
+      );
+      expect(siblingLinks, isEmpty);
+    },
+  );
 }
