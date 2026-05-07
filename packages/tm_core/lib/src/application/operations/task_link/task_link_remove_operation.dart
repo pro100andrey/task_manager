@@ -56,20 +56,34 @@ class TaskLinkRemoveOperation extends _Operation {
     }
 
     if (linkType == null) {
-      // Check any link exists between the two tasks
+      // Remove all link types between the two tasks
       final links = await _linkRepository.getByTaskId(command.fromTaskId);
-      final hasPair = links.any(
-        (l) =>
-            l.fromTaskId == command.fromTaskId &&
-            l.toTaskId == command.toTaskId,
-      );
+      final pairLinks = links
+          .where(
+            (l) =>
+                l.fromTaskId == command.fromTaskId &&
+                l.toTaskId == command.toTaskId,
+          )
+          .toList();
 
-      if (!hasPair) {
+      if (pairLinks.isEmpty) {
         return Failure(
           TaskLinkRemoveNotFound(
             fromTaskId: command.fromTaskId,
             toTaskId: command.toTaskId,
             linkType: command.linkType,
+          ),
+        );
+      }
+
+      await _linkRepository.delete(command.fromTaskId, command.toTaskId, null);
+
+      for (final link in pairLinks) {
+        await _bus.publish(
+          DomainEvent.taskLinkRemoved(
+            fromTaskId: command.fromTaskId,
+            toTaskId: command.toTaskId,
+            linkType: link.linkType,
           ),
         );
       }
@@ -91,21 +105,21 @@ class TaskLinkRemoveOperation extends _Operation {
       }
 
       linkType = existing.linkType;
+
+      await _linkRepository.delete(
+        command.fromTaskId,
+        command.toTaskId,
+        linkType,
+      );
+
+      await _bus.publish(
+        DomainEvent.taskLinkRemoved(
+          fromTaskId: command.fromTaskId,
+          toTaskId: command.toTaskId,
+          linkType: linkType,
+        ),
+      );
     }
-
-    await _linkRepository.delete(
-      command.fromTaskId,
-      command.toTaskId,
-      linkType,
-    );
-
-    await _bus.publish(
-      DomainEvent.taskLinkRemoved(
-        fromTaskId: command.fromTaskId,
-        toTaskId: command.toTaskId,
-        linkType: linkType!,
-      ),
-    );
 
     return const Success(null);
   }
