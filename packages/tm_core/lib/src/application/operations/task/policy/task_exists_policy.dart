@@ -16,16 +16,21 @@ class TaskExistsPolicy<C extends Command, F> extends PreconditionPolicy<C, F> {
   @override
   Future<Iterable<F>> check(C command, OperationContext context) async {
     final rawId = _taskIdSelector(command);
+
+    
+
     late final TaskId taskId;
     try {
       taskId = rawId;
     } on FormatException {
       return [_notFound(rawId)];
     }
+
     final existing = await _repository.getById(taskId);
     if (existing == null) {
       return [_notFound(rawId)];
     }
+
     return const [];
   }
 }

@@ -75,7 +75,7 @@ class TaskReplanOperation extends _Operation {
     TaskReplanCommand command,
     OperationContext context,
   ) => OperationPolicySet([
-    TaskExistsPolicy<TaskReplanCommand, TaskReplanFailure>(
+    TaskExistsPolicy(
       _taskRepository,
       (cmd) => cmd.taskId,
       TaskReplanNotFound.new,
@@ -155,19 +155,14 @@ class TaskReplanOperation extends _Operation {
     Task task,
     ReplanChange change,
   ) => switch (change.action) {
-    'add_task' => _addTask(task, change.params),
-    'remove_task' => _removeTask(change.params),
-    'add_link' => _addLink(task, change.params),
-    'remove_link' => _removeLink(change.params),
-    'update_task' => _updateTask(change.params),
-    'set_context' => _setContext(change.params),
-    'set_priority' => _setPriority(change.params),
-    'set_policy' => _setPolicy(change.params),
-    _ => Future.value(
-      Failure(
-        TaskReplanValidationError('Unknown replan action: ${change.action}'),
-      ),
-    ),
+    .addTask => _addTask(task, change.params),
+    .removeTask => _removeTask(change.params),
+    .addLink => _addLink(task, change.params),
+    .removeLink => _removeLink(change.params),
+    .updateTask => _updateTask(change.params),
+    .setContext => _setContext(change.params),
+    .setPriority => _setPriority(change.params),
+    .setPolicy => _setPolicy(change.params),
   };
 
   Future<Result<TaskReplanAppliedChange, TaskReplanFailure>> _addTask(

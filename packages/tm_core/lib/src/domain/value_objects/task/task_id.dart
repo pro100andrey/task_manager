@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../../tools/uuid.dart';
 
 /// A value object representing a task's unique identifier.
-extension type const TaskId(String value)  {
+extension type const TaskId(String value) {
   /// Factory constructor to generate a new TaskId with a unique UUID (v7).
   factory TaskId.generate() {
     // Generate a new UUID(v7) for the task.

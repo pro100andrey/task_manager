@@ -25,7 +25,7 @@ class TaskRenameAliasOperation extends _Operation {
   @override
   Map<String, dynamic> traceAttributes(TaskRenameAliasCommand command) => {
     'taskId': command.taskId,
-    'alias': command.alias?.normalized,
+    'alias': command.alias?.value,
   };
 
   @override
@@ -63,6 +63,12 @@ class TaskRenameAliasOperation extends _Operation {
         DomainEvent.taskAliasRenamed(taskId: saved.id),
       );
       return Success(saved);
+    }
+
+    // Validate new alias
+
+    if (command.alias!.firstError case final reason?) {
+      return Failure(TaskRenameAliasInvalidAlias(reason));
     }
 
     // Uniqueness check within project

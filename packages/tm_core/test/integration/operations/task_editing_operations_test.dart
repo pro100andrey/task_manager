@@ -399,8 +399,8 @@ void main() {
 
       expect(result.isSuccess, isTrue);
       final task = result.value!;
+      expect(task.alias?.value, 'my-feature');
       expect(task.alias, 'my-feature');
-      expect(task.alias?.normalized, 'my-feature');
     });
 
     test('normalizes alias to lower-kebab-case', () async {

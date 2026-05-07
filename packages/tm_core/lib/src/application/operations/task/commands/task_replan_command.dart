@@ -1,10 +1,21 @@
 import '../../../../../tm_core.dart';
 import '../../command.dart';
 
+enum ReplanAction {
+  addTask,
+  removeTask,
+  addLink,
+  removeLink,
+  updateTask,
+  setContext,
+  setPriority,
+  setPolicy,
+}
+
 class ReplanChange {
   const ReplanChange({required this.action, required this.params});
 
-  final String action;
+  final ReplanAction action;
   final Map<String, dynamic> params;
 }
 

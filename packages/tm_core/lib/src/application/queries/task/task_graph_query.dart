@@ -73,15 +73,8 @@ class TaskGraphQuery {
       return null;
     }
 
-    // Optional link-type filter validation
-    LinkType? typeFilter;
-    if (params.linkType != null) {
-      typeFilter = LinkType.values
-          .where((e) => e== params.linkType)
-          .firstOrNull;
-      if (typeFilter == null) {
-        return null;
-      }
+    if (params.linkType == LinkType.unknown) {
+      return null;
     }
 
     // Resolve optional root before loading all tasks
@@ -169,7 +162,8 @@ class TaskGraphQuery {
       if (!includedIds.contains(link.toTaskId)) {
         return false;
       }
-      if (typeFilter != null && link.linkType != typeFilter) {
+
+      if (params.linkType != null && link.linkType != params.linkType) {
         return false;
       }
       return true;

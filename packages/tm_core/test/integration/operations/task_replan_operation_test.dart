@@ -89,15 +89,15 @@ void main() {
           taskId: root.id,
           changes: [
             ReplanChange(
-              action: 'update_task',
+              action: .updateTask,
               params: {'taskId': child.id, 'title': 'Child updated'},
             ),
             ReplanChange(
-              action: 'set_context',
+              action: .setContext,
               params: {'taskId': child.id, 'contextState': 'backlog'},
             ),
             const ReplanChange(
-              action: 'add_task',
+              action: .addTask,
               params: {'title': 'New subtask'},
             ),
           ],
@@ -130,11 +130,11 @@ void main() {
         taskId: root.id,
         changes: [
           ReplanChange(
-            action: 'update_task',
+            action: .updateTask,
             params: {'taskId': child.id, 'title': 'Changed before fail'},
           ),
           const ReplanChange(
-            action: 'set_context',
+            action: .addTask,
             params: {'taskId': 'bad-id', 'contextState': 'backlog'},
           ),
         ],
@@ -163,7 +163,7 @@ void main() {
         taskId: root.id,
         changes: [
           ReplanChange(
-            action: 'add_link',
+            action: .addLink,
             params: {
               'fromTaskId': a.id,
               'toTaskId': b.id,
@@ -179,7 +179,7 @@ void main() {
         taskId: root.id,
         changes: [
           ReplanChange(
-            action: 'add_link',
+            action: .addLink,
             params: {
               'fromTaskId': b.id,
               'toTaskId': a.id,
@@ -207,7 +207,7 @@ void main() {
       TaskReplanCommand(
         taskId: root.id,
         changes: const [
-          ReplanChange(action: 'add_task', params: {'title': 'A'}),
+          ReplanChange(action: .addTask, params: {'title': 'A'}),
         ],
       ),
     );
@@ -219,7 +219,7 @@ void main() {
       TaskReplanCommand(
         taskId: root.id,
         changes: const [
-          ReplanChange(action: 'add_task', params: {'title': 'B'}),
+          ReplanChange(action: .addTask, params: {'title': 'B'}),
         ],
       ),
     );
@@ -241,7 +241,7 @@ void main() {
       TaskReplanCommand(
         taskId: root.id,
         changes: const [
-          ReplanChange(action: 'add_task', params: {'title': 'A'}),
+          ReplanChange(action: .addTask, params: {'title': 'A'}),
         ],
       ),
     );
@@ -252,7 +252,7 @@ void main() {
       TaskReplanCommand(
         taskId: root.id,
         changes: const [
-          ReplanChange(action: 'add_task', params: {'title': 'B'}),
+          ReplanChange(action: .addTask, params: {'title': 'B'}),
         ],
       ),
     );
@@ -271,7 +271,7 @@ void main() {
             taskId: root.id,
             changes: [
               ReplanChange(
-                action: 'add_task',
+                action: .addTask,
                 params: {'title': 'Added $index'},
               ),
             ],
@@ -287,7 +287,7 @@ void main() {
         TaskReplanCommand(
           taskId: root.id,
           changes: const [
-            ReplanChange(action: 'add_task', params: {'title': 'Blocked'}),
+            ReplanChange(action: .addTask, params: {'title': 'Blocked'}),
           ],
         ),
       );
@@ -311,7 +311,7 @@ void main() {
             taskId: root.id,
             changes: [
               ReplanChange(
-                action: 'add_task',
+                action: .addTask,
                 params: {'title': 'Added $index'},
               ),
             ],
@@ -340,7 +340,7 @@ void main() {
         TaskReplanCommand(
           taskId: root.id,
           changes: const [
-            ReplanChange(action: 'add_task', params: {'title': 'Allowed'}),
+            ReplanChange(action: .addTask, params: {'title': 'Allowed'}),
           ],
         ),
       );

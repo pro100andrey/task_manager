@@ -91,7 +91,7 @@ class TaskReflectOperation extends _Operation {
     if (command.taskId != null) {
       late final TaskId taskId;
       try {
-        taskId =command.taskId!;
+        taskId = command.taskId!;
       } on FormatException {
         return Failure(TaskReflectTaskNotFound(command.taskId!));
       }
