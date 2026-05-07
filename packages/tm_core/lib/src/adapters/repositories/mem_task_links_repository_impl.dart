@@ -10,7 +10,7 @@ class MemTaskLinkRepositoryImpl
   final _links = <String, TaskLink>{};
 
   static String _key(TaskId from, TaskId to, LinkType type) =>
-      '${from.raw}:${to.raw}:${type.value}';
+      '$from:$to:${type.value}';
 
   @override
   Future<List<TaskLink>> getByTaskId(TaskId taskId) async => _links.values
@@ -21,10 +21,10 @@ class MemTaskLinkRepositoryImpl
   Future<List<TaskLink>> getAllByProjectLinks(
     List<TaskId> projectTaskIds,
   ) async {
-    final ids = projectTaskIds.map((t) => t.raw).toSet();
+    final ids = projectTaskIds.map((t) => t).toSet();
     return _links.values
         .where(
-          (l) => ids.contains(l.fromTaskId.raw) && ids.contains(l.toTaskId.raw),
+          (l) => ids.contains(l.fromTaskId) && ids.contains(l.toTaskId),
         )
         .toList();
   }

@@ -48,7 +48,7 @@ TaskLink _makeLink({
   LinkType type = LinkType.strong,
   String? label,
 }) => TaskLink(
-  id: 'link-${from.raw}-${to.raw}',
+  id: 'link-$from-$to',
   fromTaskId: from,
   toTaskId: to,
   linkType: type,
@@ -198,7 +198,7 @@ void main() {
         _makeLink(from: a, to: b),
         _makeLink(from: a, to: c),
       ];
-      expect(calculateUnblockScore(a.raw, links, {}), 2);
+      expect(calculateUnblockScore(a, links, {}), 2);
     });
 
     test('excludes completed tasks', () {
@@ -209,7 +209,7 @@ void main() {
         _makeLink(from: a, to: b),
         _makeLink(from: a, to: c),
       ];
-      expect(calculateUnblockScore(a.raw, links, {b.raw}), 1);
+      expect(calculateUnblockScore(a, links, {b}), 1);
     });
 
     test('ignores soft links', () {
@@ -218,12 +218,12 @@ void main() {
       final links = [
         _makeLink(from: a, to: b, type: LinkType.soft),
       ];
-      expect(calculateUnblockScore(a.raw, links, {}), 0);
+      expect(calculateUnblockScore(a, links, {}), 0);
     });
 
     test('returns 0 when no links exist', () {
       final a = TaskId.generate();
-      expect(calculateUnblockScore(a.raw, [], {}), 0);
+      expect(calculateUnblockScore(a, [], {}), 0);
     });
   });
 
@@ -238,9 +238,9 @@ void main() {
       taskB = _makeTask();
       taskC = _makeTask();
       taskMap = {
-        taskA.id.raw: taskA,
-        taskB.id.raw: taskB,
-        taskC.id.raw: taskC,
+        taskA.id: taskA,
+        taskB.id: taskB,
+        taskC.id: taskC,
       };
     });
 
@@ -248,7 +248,7 @@ void main() {
       final links = [
         _makeLink(from: taskB.id, to: taskA.id, type: LinkType.soft),
       ];
-      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      final ctx = getSoftContext(taskA.id, links, taskMap);
       expect(ctx.informs, [taskB]);
       expect(ctx.informedBy, isEmpty);
     });
@@ -257,7 +257,7 @@ void main() {
       final links = [
         _makeLink(from: taskA.id, to: taskB.id, type: LinkType.soft),
       ];
-      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      final ctx = getSoftContext(taskA.id, links, taskMap);
       expect(ctx.informedBy, [taskB]);
       expect(ctx.informs, isEmpty);
     });
@@ -277,7 +277,7 @@ void main() {
           label: 'related',
         ),
       ];
-      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      final ctx = getSoftContext(taskA.id, links, taskMap);
       expect(ctx.related, containsAll([taskB, taskC]));
       expect(ctx.informs, isEmpty);
       expect(ctx.informedBy, isEmpty);
@@ -285,14 +285,14 @@ void main() {
 
     test('strong links are ignored', () {
       final links = [_makeLink(from: taskB.id, to: taskA.id)];
-      final ctx = getSoftContext(taskA.id.raw, links, taskMap);
+      final ctx = getSoftContext(taskA.id, links, taskMap);
       expect(ctx.informs, isEmpty);
       expect(ctx.informedBy, isEmpty);
       expect(ctx.related, isEmpty);
     });
 
     test('returns empty context when no links', () {
-      final ctx = getSoftContext(taskA.id.raw, [], taskMap);
+      final ctx = getSoftContext(taskA.id, [], taskMap);
       expect(ctx.informs, isEmpty);
       expect(ctx.informedBy, isEmpty);
       expect(ctx.related, isEmpty);

@@ -19,7 +19,7 @@ void main() {
     test('rejects invalid uuid', () {
       expect(
         const ProjectId('not-a-uuid').formatError,
-        contains('Invalid UUID format for ProjectId: not-a-uuid'),
+        contains('Invalid UUID(v7) format for ProjectId: not-a-uuid'),
       );
     });
 
@@ -102,12 +102,18 @@ void main() {
     });
 
     test('rejects invalid uuid', () {
-      expect(() => TaskId('bad'), throwsFormatException);
+      expect(
+        const TaskId('bad').formatError,
+        contains('Invalid UUID(v7) format for TaskId: bad'),
+      );
     });
 
     test('rejects valid uuid that is not v7', () {
       final v4 = const Uuid().v4();
-      expect(() => TaskId(v4), throwsFormatException);
+      expect(
+        TaskId(v4).formatError,
+        contains('Invalid UUID(v7) format for TaskId: $v4'),
+      );
     });
   });
 

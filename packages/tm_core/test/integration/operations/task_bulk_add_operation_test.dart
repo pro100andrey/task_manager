@@ -53,7 +53,7 @@ void main() {
     () async {
       final result = await taskBulkAdd.execute(
         TaskBulkAddCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           tasks: const [
             TaskBulkAddTaskSpec(title: 'Backend setup'),
             TaskBulkAddTaskSpec(title: 'Frontend setup'),
@@ -79,7 +79,7 @@ void main() {
     // First create a parent task
     final parentResult = await taskCreate.execute(
       TaskCreateCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         title: 'Backend',
       ),
     );
@@ -90,15 +90,15 @@ void main() {
     // Now bulk add with valid parent
     final bulkResult = await taskBulkAdd.execute(
       TaskBulkAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         tasks: [
           TaskBulkAddTaskSpec(
             title: 'API Development',
-            parentId: parentTask.id.raw,
+            parentId: parentTask.id,
           ),
           TaskBulkAddTaskSpec(
             title: 'Database Ops',
-            parentId: parentTask.id.raw,
+            parentId: parentTask.id,
           ),
         ],
       ),
@@ -123,7 +123,7 @@ void main() {
       );
 
       final result = await taskBulkAdd.execute(
-        TaskBulkAddCommand(projectId: project.id.value, tasks: tasks),
+        TaskBulkAddCommand(projectId: project.id, tasks: tasks),
       );
 
       expect(result.isFailure, isTrue);
@@ -135,7 +135,7 @@ void main() {
     () async {
       final result = await taskBulkAdd.execute(
         const TaskBulkAddCommand(
-          projectId: 'invalid-project-id',
+          projectId: .new('invalid-project-id'),
           tasks: [
             TaskBulkAddTaskSpec(title: 'Some Task'),
           ],
@@ -151,7 +151,7 @@ void main() {
     () async {
       final result = await taskBulkAdd.execute(
         TaskBulkAddCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           tasks: const [
             TaskBulkAddTaskSpec(
               title: 'Custom values',
@@ -173,7 +173,7 @@ void main() {
   test('rejects task with empty title', () async {
     final result = await taskBulkAdd.execute(
       TaskBulkAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         tasks: const [
           TaskBulkAddTaskSpec(title: 'Valid'),
           TaskBulkAddTaskSpec(title: '   '),
@@ -191,7 +191,7 @@ void main() {
   test('applies explicit contextState from spec', () async {
     final result = await taskBulkAdd.execute(
       TaskBulkAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         tasks: const [
           TaskBulkAddTaskSpec(title: 'Ok'),
           TaskBulkAddTaskSpec(
@@ -211,7 +211,7 @@ void main() {
   test('applies explicit completionPolicy from spec', () async {
     final result = await taskBulkAdd.execute(
       TaskBulkAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         tasks: const [
           TaskBulkAddTaskSpec(
             title: 'Custom policy',
@@ -230,7 +230,7 @@ void main() {
   test('rejects task with empty title', () async {
     final result = await taskBulkAdd.execute(
       TaskBulkAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         tasks: const [TaskBulkAddTaskSpec(title: '')],
       ),
     );
@@ -247,7 +247,7 @@ void main() {
     () async {
       final parentResult = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'Parent',
         ),
       );
@@ -255,10 +255,10 @@ void main() {
 
       final result = await taskBulkAdd.execute(
         TaskBulkAddCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           tasks: [
-            TaskBulkAddTaskSpec(title: 'Sibling A', parentId: parent.id.raw),
-            TaskBulkAddTaskSpec(title: 'Sibling B', parentId: parent.id.raw),
+            TaskBulkAddTaskSpec(title: 'Sibling A', parentId: parent.id),
+            TaskBulkAddTaskSpec(title: 'Sibling B', parentId: parent.id),
           ],
         ),
       );

@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class KgTaskLinkCommand extends Command {
@@ -7,7 +8,7 @@ class KgTaskLinkCommand extends Command {
     required this.refType,
   });
 
-  final String taskId;
-  final String entityId;
+  final TaskId taskId;
+  final KnowledgeEntityId entityId;
   final String refType;
 }

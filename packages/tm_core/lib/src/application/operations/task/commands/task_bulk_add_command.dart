@@ -1,5 +1,4 @@
-import '../../../../domain/enums/task_completion_policy.dart';
-import '../../../../domain/enums/task_context_state.dart';
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskBulkAddTaskSpec {
@@ -28,6 +27,6 @@ class TaskBulkAddCommand extends Command {
     required this.tasks,
   });
 
-  final String projectId;
+  final ProjectId projectId;
   final List<TaskBulkAddTaskSpec> tasks;
 }

@@ -106,10 +106,10 @@ class TaskMoveOperation extends _Operation {
       if (current == ancestor) {
         return true;
       }
-      if (visited.contains(current.raw)) {
+      if (visited.contains(current)) {
         return false; // cycle safety
       }
-      visited.add(current.raw);
+      visited.add(current);
       final t = await _repository.getById(current);
       if (t?.parentId == null) {
         return false;

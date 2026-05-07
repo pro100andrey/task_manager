@@ -8,7 +8,7 @@ Map<String, List<String>> buildStrongAdjacency(List<TaskLink> links) {
   final adj = <String, List<String>>{};
   for (final link in links) {
     if (link.linkType.isStrong) {
-      adj.putIfAbsent(link.fromTaskId.raw, () => []).add(link.toTaskId.raw);
+      adj.putIfAbsent(link.fromTaskId, () => []).add(link.toTaskId);
     }
   }
   return adj;

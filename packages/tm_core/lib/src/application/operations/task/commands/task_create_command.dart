@@ -1,5 +1,4 @@
-import '../../../../domain/enums/task_completion_policy.dart';
-import '../../../../domain/enums/task_context_state.dart';
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskCreateCommand extends Command {
@@ -20,10 +19,10 @@ class TaskCreateCommand extends Command {
     this.assignedTo,
   });
 
-  final String projectId;
+  final ProjectId projectId;
   final String title;
   final String? description;
-  final String? parentId;
+  final TaskId? parentId;
   final String? alias;
   final List<String> tags;
   final Map<String, dynamic> metadata;

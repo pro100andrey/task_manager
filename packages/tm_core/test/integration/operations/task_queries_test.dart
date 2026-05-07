@@ -71,14 +71,14 @@ void main() {
     String title, {
     int bv = 50,
     int us = 50,
-    String? parentId,
-    TaskContextState contextState = TaskContextState.active,
+    TaskId? parentId,
+    TaskContextState contextState = .active,
     double? estimatedEffort,
     DateTime? lastProgressAt,
   }) async {
     final r = await taskCreate.execute(
       TaskCreateCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         title: title,
         businessValue: bv,
         urgencyScore: us,
@@ -97,8 +97,8 @@ void main() {
       final task = await createTask('My Task');
       final found = await taskResolve.execute(
         GetTaskByRefParams(
-          projectId: project.id.value,
-          ref: task.id.raw,
+          projectId: project.id,
+          ref: task.id,
         ),
       );
       expect(found, isNotNull);
@@ -109,13 +109,13 @@ void main() {
       final task = await createTask('My Task');
       await renameAlias.execute(
         TaskRenameAliasCommand(
-          taskId: task.id.raw,
+          taskId: task.id,
           alias: 'my-task',
         ),
       );
       final found = await taskResolve.execute(
         GetTaskByRefParams(
-          projectId: project.id.value,
+          projectId: project.id,
           ref: 'my-task',
         ),
       );
@@ -127,13 +127,13 @@ void main() {
       final task = await createTask('My Task');
       await renameAlias.execute(
         TaskRenameAliasCommand(
-          taskId: task.id.raw,
+          taskId: task.id,
           alias: 'my-task',
         ),
       );
       final found = await taskResolve.execute(
         GetTaskByRefParams(
-          projectId: project.id.value,
+          projectId: project.id,
           ref: 'MY TASK',
         ),
       );
@@ -145,8 +145,8 @@ void main() {
       final unknown = TaskId.generate();
       final found = await taskResolve.execute(
         GetTaskByRefParams(
-          projectId: project.id.value,
-          ref: unknown.raw,
+          projectId: project.id,
+          ref: unknown,
         ),
       );
       expect(found, isNull);
@@ -155,7 +155,7 @@ void main() {
     test('returns null for unknown alias', () async {
       final found = await taskResolve.execute(
         GetTaskByRefParams(
-          projectId: project.id.value,
+          projectId: project.id,
           ref: 'no-such-task',
         ),
       );
@@ -165,7 +165,7 @@ void main() {
     test('returns null for invalid project ID', () async {
       final found = await taskResolve.execute(
         const GetTaskByRefParams(
-          projectId: 'not-a-uuid',
+          projectId: .new('not-a-uuid'),
           ref: 'anything',
         ),
       );
@@ -180,7 +180,7 @@ void main() {
       await createTask('A');
       await createTask('B');
       final tasks = await taskList.execute(
-        TaskListParams(projectId: project.id.value),
+        TaskListParams(projectId: project.id),
       );
       expect(tasks, hasLength(2));
     });
@@ -190,7 +190,7 @@ void main() {
       await createTask('Backlog', contextState: TaskContextState.backlog);
       final tasks = await taskList.execute(
         TaskListParams(
-          projectId: project.id.value,
+          projectId: project.id,
           contextState: 'backlog',
         ),
       );
@@ -200,13 +200,13 @@ void main() {
 
     test('filters by parentId', () async {
       final parent = await createTask('Parent');
-      await createTask('Child A', parentId: parent.id.raw);
-      await createTask('Child B', parentId: parent.id.raw);
+      await createTask('Child A', parentId: parent.id);
+      await createTask('Child B', parentId: parent.id);
       await createTask('Root');
       final tasks = await taskList.execute(
         TaskListParams(
-          projectId: project.id.value,
-          parentId: parent.id.raw,
+          projectId: project.id,
+          parentId: parent.id,
         ),
       );
       expect(tasks, hasLength(2));
@@ -230,7 +230,7 @@ void main() {
       await taskRepo.save(old);
 
       final tasks = await taskList.execute(
-        TaskListParams(projectId: project.id.value, stalled: true),
+        TaskListParams(projectId: project.id, stalled: true),
       );
       expect(tasks, hasLength(1));
       expect(tasks.first.id, stalledTask.id);
@@ -240,7 +240,7 @@ void main() {
       await createTask('A');
       final tasks = await taskList.execute(
         TaskListParams(
-          projectId: project.id.value,
+          projectId: project.id,
           contextState: 'invalid_context',
         ),
       );
@@ -249,7 +249,7 @@ void main() {
 
     test('returns empty list for unknown project', () async {
       final tasks = await taskList.execute(
-        const TaskListParams(projectId: 'not-a-uuid'),
+        const TaskListParams(projectId: .new('not-a-uuid')),
       );
       expect(tasks, isEmpty);
     });
@@ -264,21 +264,21 @@ void main() {
       final c = await createTask('C');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: c.id.raw,
-          toTaskId: a.id.raw,
+          fromTaskId: c.id,
+          toTaskId: a.id,
           linkType: 'soft',
         ),
       );
 
       final items = await linkList.execute(
-        LinkListParams(taskId: a.id.raw),
+        LinkListParams(taskId: a.id),
       );
       expect(items, hasLength(2));
     });
@@ -289,21 +289,21 @@ void main() {
       final c = await createTask('C');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: c.id.raw,
-          toTaskId: a.id.raw,
+          fromTaskId: c.id,
+          toTaskId: a.id,
           linkType: 'strong',
         ),
       );
 
       final items = await linkList.execute(
-        LinkListParams(taskId: a.id.raw, direction: 'from'),
+        LinkListParams(taskId: a.id, direction: 'from'),
       );
       expect(items, hasLength(1));
       expect(items.first.task.id, b.id);
@@ -315,21 +315,21 @@ void main() {
       final c = await createTask('C');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: c.id.raw,
-          toTaskId: a.id.raw,
+          fromTaskId: c.id,
+          toTaskId: a.id,
           linkType: 'strong',
         ),
       );
 
       final items = await linkList.execute(
-        LinkListParams(taskId: a.id.raw, direction: 'to'),
+        LinkListParams(taskId: a.id, direction: 'to'),
       );
       expect(items, hasLength(1));
       expect(items.first.task.id, c.id);
@@ -341,21 +341,21 @@ void main() {
       final c = await createTask('C');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: c.id.raw,
+          fromTaskId: a.id,
+          toTaskId: c.id,
           linkType: 'soft',
         ),
       );
 
       final items = await linkList.execute(
-        LinkListParams(taskId: a.id.raw, linkType: 'soft'),
+        LinkListParams(taskId: a.id, linkType: 'soft'),
       );
       expect(items, hasLength(1));
       expect(items.first.task.id, c.id);
@@ -371,7 +371,7 @@ void main() {
     test('returns empty list for invalid direction', () async {
       final a = await createTask('A');
       final items = await linkList.execute(
-        LinkListParams(taskId: a.id.raw, direction: 'sideways'),
+        LinkListParams(taskId: a.id, direction: 'sideways'),
       );
       expect(items, isEmpty);
     });
@@ -384,8 +384,8 @@ void main() {
       final task = await createTask('Show Me', bv: 80, us: 60);
       final result = await taskShow.execute(
         TaskShowParams(
-          projectId: project.id.value,
-          ref: task.id.raw,
+          projectId: project.id,
+          ref: task.id,
         ),
       );
       expect(result, isNotNull);
@@ -400,13 +400,13 @@ void main() {
         'Child',
         bv: 90,
         us: 90,
-        parentId: parent.id.raw,
+        parentId: parent.id,
       );
 
       final result = await taskShow.execute(
         TaskShowParams(
-          projectId: project.id.value,
-          ref: child.id.raw,
+          projectId: project.id,
+          ref: child.id,
         ),
       );
       expect(result, isNotNull);
@@ -419,8 +419,8 @@ void main() {
     test('returns null for unknown task ref', () async {
       final result = await taskShow.execute(
         TaskShowParams(
-          projectId: project.id.value,
-          ref: TaskId.generate().raw,
+          projectId: project.id,
+          ref: TaskId.generate(),
         ),
       );
       expect(result, isNull);
@@ -429,7 +429,7 @@ void main() {
     test('returns null for invalid project ID', () async {
       final result = await taskShow.execute(
         const TaskShowParams(
-          projectId: 'not-a-uuid',
+          projectId: .new('not-a-uuid'),
           ref: 'anything',
         ),
       );
@@ -441,16 +441,16 @@ void main() {
       final b = await createTask('B');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: b.id.raw,
-          toTaskId: a.id.raw,
+          fromTaskId: b.id,
+          toTaskId: a.id,
           linkType: 'soft',
         ),
       );
 
       final result = await taskShow.execute(
         TaskShowParams(
-          projectId: project.id.value,
-          ref: a.id.raw,
+          projectId: project.id,
+          ref: a.id,
         ),
       );
       expect(result, isNotNull);
@@ -461,13 +461,13 @@ void main() {
       final task = await createTask('Show By Alias');
       await renameAlias.execute(
         TaskRenameAliasCommand(
-          taskId: task.id.raw,
+          taskId: task.id,
           alias: 'show-by-alias',
         ),
       );
       final result = await taskShow.execute(
         TaskShowParams(
-          projectId: project.id.value,
+          projectId: project.id,
           ref: 'show-by-alias',
         ),
       );
@@ -487,10 +487,10 @@ void main() {
 
     test('returns all project tasks as nodes with ep and depth', () async {
       final a = await createTask('A', bv: 80, us: 60);
-      final b = await createTask('B', bv: 40, us: 40, parentId: a.id.raw);
+      final b = await createTask('B', bv: 40, us: 40, parentId: a.id);
 
       final result = await taskGraph.execute(
-        TaskGraphParams(projectId: project.id.value),
+        TaskGraphParams(projectId: project.id),
       );
 
       expect(result, isNotNull);
@@ -511,14 +511,14 @@ void main() {
       final b = await createTask('B');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
 
       final result = await taskGraph.execute(
-        TaskGraphParams(projectId: project.id.value),
+        TaskGraphParams(projectId: project.id),
       );
 
       expect(result, isNotNull);
@@ -529,13 +529,13 @@ void main() {
 
     test('rootRef scopes graph to subtree', () async {
       final root = await createTask('Root');
-      final child = await createTask('Child', parentId: root.id.raw);
+      final child = await createTask('Child', parentId: root.id);
       await createTask('Other Root');
 
       final result = await taskGraph.execute(
         TaskGraphParams(
-          projectId: project.id.value,
-          rootRef: root.id.raw,
+          projectId: project.id,
+          rootRef: root.id,
         ),
       );
 
@@ -548,12 +548,12 @@ void main() {
 
     test('depth param limits hierarchy depth', () async {
       final root = await createTask('Root');
-      final child = await createTask('Child', parentId: root.id.raw);
-      await createTask('Grandchild', parentId: child.id.raw);
+      final child = await createTask('Child', parentId: root.id);
+      await createTask('Grandchild', parentId: child.id);
 
       final result = await taskGraph.execute(
         TaskGraphParams(
-          projectId: project.id.value,
+          projectId: project.id,
           depth: 1,
         ),
       );
@@ -571,22 +571,22 @@ void main() {
       final c = await createTask('C');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: c.id.raw,
+          fromTaskId: a.id,
+          toTaskId: c.id,
           linkType: 'soft',
         ),
       );
 
       final result = await taskGraph.execute(
         TaskGraphParams(
-          projectId: project.id.value,
+          projectId: project.id,
           linkType: 'strong',
         ),
       );
@@ -598,7 +598,7 @@ void main() {
 
     test('returns null for invalid project ID', () async {
       final result = await taskGraph.execute(
-        const TaskGraphParams(projectId: 'not-a-uuid'),
+        const TaskGraphParams(projectId: .new('not-a-uuid')),
       );
       expect(result, isNull);
     });
@@ -606,8 +606,8 @@ void main() {
     test('returns null for unknown rootRef', () async {
       final result = await taskGraph.execute(
         TaskGraphParams(
-          projectId: project.id.value,
-          rootRef: TaskId.generate().raw,
+          projectId: project.id,
+          rootRef: TaskId.generate(),
         ),
       );
       expect(result, isNull);
@@ -617,7 +617,7 @@ void main() {
       await createTask('A');
       final result = await taskGraph.execute(
         TaskGraphParams(
-          projectId: project.id.value,
+          projectId: project.id,
           linkType: 'unknown',
         ),
       );
@@ -626,7 +626,7 @@ void main() {
 
     test('empty project returns empty graph', () async {
       final result = await taskGraph.execute(
-        TaskGraphParams(projectId: project.id.value),
+        TaskGraphParams(projectId: project.id),
       );
       expect(result, isNotNull);
       expect(result!.nodes, isEmpty);

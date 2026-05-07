@@ -60,7 +60,7 @@ void main() {
 
   Future<Task> createTask(String title) async {
     final result = await taskCreate.execute(
-      TaskCreateCommand(projectId: project.id.value, title: title),
+      TaskCreateCommand(projectId: project.id, title: title),
     );
     return (result as Success<Task, dynamic>).value;
   }
@@ -70,7 +70,7 @@ void main() {
 
     final result = await taskReflect.execute(
       TaskReflectCommand(
-        taskId: task.id.raw,
+        taskId: task.id,
         content: 'Observed recurring timeout.',
       ),
     );
@@ -92,7 +92,7 @@ void main() {
 
     await taskReflect.execute(
       TaskReflectCommand(
-        taskId: task.id.raw,
+        taskId: task.id,
         content: 'First reflection',
         reflectionBudget: 1,
       ),
@@ -100,7 +100,7 @@ void main() {
 
     final second = await taskReflect.execute(
       TaskReflectCommand(
-        taskId: task.id.raw,
+        taskId: task.id,
         content: 'Second reflection',
         reflectionBudget: 1,
       ),
@@ -120,7 +120,7 @@ void main() {
 
       final result = await taskReflect.execute(
         TaskReflectCommand(
-          taskId: task.id.raw,
+          taskId: task.id,
           content: 'Need to revise approach.',
           reflectionType: ReflectionType.replanTrigger,
           triggerReplan: true,
@@ -158,7 +158,7 @@ void main() {
 
     await taskReflect.execute(
       TaskReflectCommand(
-        taskId: task.id.raw,
+        taskId: task.id,
         content: 'Old blocker',
         reflectionType: ReflectionType.blocker,
       ),
@@ -168,7 +168,7 @@ void main() {
 
     await taskReflect.execute(
       TaskReflectCommand(
-        taskId: task.id.raw,
+        taskId: task.id,
         content: 'Fresh insight',
         reflectionType: ReflectionType.insight,
       ),
@@ -181,7 +181,7 @@ void main() {
 
     final list = await reflectionList.execute(
       ReflectionListParams(
-        taskId: task.id.raw,
+        taskId: task.id,
         reflectionType: 'insight',
         since: afterFirst,
       ),

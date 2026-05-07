@@ -5,7 +5,6 @@ import '../../../domain/events/domain_event.dart';
 import '../../../domain/exceptions/task_exceptions.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../../domain/value_objects/task/task_alias.dart';
 import '../../../domain/value_objects/task/task_description.dart';
 import '../../../domain/value_objects/task/task_id.dart';
@@ -54,13 +53,12 @@ class TaskCreateOperation extends _Operation {
     TaskCreateCommand command,
   ) async {
     // Validate projectId and ensure project exists
-    late final ProjectId projectId;
-    try {
-      projectId = ProjectId(command.projectId);
-    } on FormatException {
+
+    if (command.projectId.formatError case final _?) {
       return Failure(TaskCreateProjectNotFound(command.projectId));
     }
-    final project = await _projectRepository.getById(projectId);
+
+    final project = await _projectRepository.getById(command.projectId);
     if (project == null) {
       return Failure(TaskCreateProjectNotFound(command.projectId));
     }
@@ -69,12 +67,11 @@ class TaskCreateOperation extends _Operation {
     TaskId? parentId;
     if (command.parentId != null) {
       try {
-        final pid = TaskId(command.parentId!);
-        final parent = await _taskRepository.getById(pid);
+        final parent = await _taskRepository.getById(command.parentId!);
         if (parent == null) {
           return Failure(TaskCreateParentNotFound(command.parentId!));
         }
-        parentId = pid;
+        parentId = command.parentId;
       } on FormatException {
         return Failure(TaskCreateParentNotFound(command.parentId!));
       }
@@ -92,7 +89,10 @@ class TaskCreateOperation extends _Operation {
       }
 
       // Check alias uniqueness
-      final existing = await _taskRepository.getByAlias(projectId, alias);
+      final existing = await _taskRepository.getByAlias(
+        command.projectId,
+        alias,
+      );
       if (existing != null) {
         return Failure(TaskCreateAliasAlreadyExists(normalizedAlias));
       }
@@ -106,7 +106,7 @@ class TaskCreateOperation extends _Operation {
     final now = DateTime.now().toUtc();
     final task = Task(
       id: TaskId.generate(),
-      projectId: projectId,
+      projectId: command.projectId,
       title: title,
       status: TaskStatus.pending,
       contextState: command.contextState,

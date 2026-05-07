@@ -13,7 +13,7 @@ class GetTaskByRefParams {
   });
 
   /// Raw project ID string.
-  final String projectId;
+  final ProjectId projectId;
 
   /// UUID v7 or alias string (§7).
   final String ref;
@@ -31,14 +31,12 @@ class GetTaskByRefQuery {
   final TaskRepository _taskRepository;
 
   Future<Task?> execute(GetTaskByRefParams params) async {
-    late final ProjectId projectId;
-    try {
-      projectId = ProjectId(params.projectId);
-    } on FormatException {
+    if (params.projectId.formatError case final _?) {
       return null;
     }
 
     // Try UUID first
+
     try {
       final id = TaskId(params.ref);
       return await _taskRepository.getById(id);
@@ -50,7 +48,7 @@ class GetTaskByRefQuery {
     try {
       final normalized = normalizeAlias(params.ref);
       final alias = TaskAlias(normalized);
-      return await _taskRepository.getByAlias(projectId, alias);
+      return await _taskRepository.getByAlias(params.projectId, alias);
     } on InvalidAliasException {
       return null;
     }

@@ -16,7 +16,7 @@ class TaskGraphParams {
   });
 
   /// Raw project ID string.
-  final String projectId;
+  final ProjectId projectId;
 
   /// Optional root task reference (UUID v7 or alias). Null = whole project.
   final String? rootRef;
@@ -67,8 +67,8 @@ class TaskGraphQuery {
 
   Future<TaskGraphResult?> execute(TaskGraphParams params) async {
     // Validate project ID
-    final projectId = ProjectId(params.projectId);
-    if (projectId.formatError != null) {
+
+    if (params.projectId.formatError case final _?) {
       return null;
     }
 
@@ -99,17 +99,17 @@ class TaskGraphQuery {
     }
 
     // Load all project tasks
-    final allTasks = await _taskRepository.getByProjectId(projectId);
+    final allTasks = await _taskRepository.getByProjectId(params.projectId);
     if (allTasks.isEmpty) {
       return const TaskGraphResult(nodes: [], edges: []);
     }
 
     // Build task map and children map for BFS/DFS
-    final taskMap = <String, Task>{for (final t in allTasks) t.id.raw: t};
+    final taskMap = <String, Task>{for (final t in allTasks) t.id: t};
     final children = <String, List<Task>>{};
     for (final task in allTasks) {
       if (task.parentId != null) {
-        children.putIfAbsent(task.parentId!.raw, () => []).add(task);
+        children.putIfAbsent(task.parentId!, () => []).add(task);
       }
     }
 
@@ -139,10 +139,10 @@ class TaskGraphQuery {
     while (queue.isNotEmpty) {
       final (task, parentEp, d) = queue.removeAt(0);
 
-      if (includedIds.contains(task.id.raw)) {
+      if (includedIds.contains(task.id)) {
         continue;
       }
-      includedIds.add(task.id.raw);
+      includedIds.add(task.id);
 
       final own = ownEp(task);
       final ep = parentEp == null ? own : (own < parentEp ? own : parentEp);
@@ -150,7 +150,7 @@ class TaskGraphQuery {
 
       // Recurse into children if depth allows
       if (params.depth == null || d < params.depth!) {
-        for (final child in (children[task.id.raw] ?? [])) {
+        for (final child in (children[task.id] ?? [])) {
           queue.add((child, ep, d + 1));
         }
       }
@@ -162,10 +162,10 @@ class TaskGraphQuery {
 
     // Filter links: both ends must be in scope; apply optional link-type filter
     final edges = allLinks.where((link) {
-      if (!includedIds.contains(link.fromTaskId.raw)) {
+      if (!includedIds.contains(link.fromTaskId)) {
         return false;
       }
-      if (!includedIds.contains(link.toTaskId.raw)) {
+      if (!includedIds.contains(link.toTaskId)) {
         return false;
       }
       if (typeFilter != null && link.linkType != typeFilter) {
@@ -184,7 +184,7 @@ class TaskGraphQuery {
     final chain = <Task>[task];
     var current = task;
     while (current.parentId != null) {
-      final parent = taskMap[current.parentId!.raw];
+      final parent = taskMap[current.parentId!];
       if (parent == null) {
         break;
       }

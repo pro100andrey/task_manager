@@ -58,12 +58,12 @@ void main() {
     String title, {
     int bv = 50,
     int us = 50,
-    String? parentId,
+    TaskId? parentId,
     TaskCompletionPolicy completionPolicy = TaskCompletionPolicy.manual,
   }) async {
     final r = await taskCreate.execute(
       TaskCreateCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         title: title,
         businessValue: bv,
         urgencyScore: us,
@@ -79,7 +79,7 @@ void main() {
     int limit = 10,
     bool includeStalled = false,
   }) => GetActiveFrontParams(
-    projectId: project.id.value,
+    projectId: project.id,
     contextFilter: contextFilter,
     limit: limit,
     includeStalled: includeStalled,
@@ -106,7 +106,7 @@ void main() {
 
     test('in_progress task does not appear in front', () async {
       final t = await createTask('Task A');
-      await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: t.id));
       final result = await query.execute(params());
 
       expect(result.front, isEmpty);
@@ -114,8 +114,8 @@ void main() {
 
     test('completed task does not appear in front', () async {
       final t = await createTask('Task A');
-      await taskStart.execute(TaskStartCommand(taskId: t.id.raw));
-      await taskDone.execute(TaskDoneCommand(taskId: t.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: t.id));
+      await taskDone.execute(TaskDoneCommand(taskId: t.id));
       final result = await query.execute(params());
 
       expect(result.front, isEmpty);
@@ -145,7 +145,7 @@ void main() {
       // Parent: BV=40, own_ep=40*0.85+50*0.15=41.5
       final parent = await createTask('Parent', bv: 40);
       // Child: BV=90 own_ep=90*0.85+50*0.15=84.0 → capped to 41.5
-      await createTask('Child', bv: 90, parentId: parent.id.raw);
+      await createTask('Child', bv: 90, parentId: parent.id);
 
       final result = await query.execute(params());
       // Both are pending; child should have ep <= parent ep
@@ -158,15 +158,15 @@ void main() {
 
     test('depth is computed correctly for nested tasks', () async {
       final root = await createTask('Root');
-      final child = await createTask('Child', parentId: root.id.raw);
-      final grand = await createTask('Grand', parentId: child.id.raw);
+      final child = await createTask('Child', parentId: root.id);
+      final grand = await createTask('Grand', parentId: child.id);
 
       final result = await query.execute(params());
-      final depths = {for (final i in result.front) i.task.id.raw: i.depth};
+      final depths = {for (final i in result.front) i.task.id: i.depth};
 
-      expect(depths[root.id.raw], equals(0));
-      expect(depths[child.id.raw], equals(1));
-      expect(depths[grand.id.raw], equals(2));
+      expect(depths[root.id], equals(0));
+      expect(depths[child.id], equals(1));
+      expect(depths[grand.id], equals(2));
     });
 
     test(
@@ -204,8 +204,8 @@ void main() {
       final b = await createTask('B');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
@@ -222,15 +222,15 @@ void main() {
       final b = await createTask('B');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
 
       // Complete A
-      await taskStart.execute(TaskStartCommand(taskId: a.id.raw));
-      await taskDone.execute(TaskDoneCommand(taskId: a.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: a.id));
+      await taskDone.execute(TaskDoneCommand(taskId: a.id));
 
       final result = await query.execute(params());
       expect(result.front.map((i) => i.task.id), contains(b.id));
@@ -242,14 +242,14 @@ void main() {
       final b = await createTask('B');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
 
-      await taskStart.execute(TaskStartCommand(taskId: a.id.raw));
-      await taskFail.execute(TaskFailCommand(taskId: a.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: a.id));
+      await taskFail.execute(TaskFailCommand(taskId: a.id));
 
       final result = await query.execute(params());
       expect(result.front.map((i) => i.task.id), isNot(contains(b.id)));
@@ -261,13 +261,13 @@ void main() {
       final b = await createTask('B');
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
 
-      await taskCancel.execute(TaskCancelCommand(taskId: a.id.raw));
+      await taskCancel.execute(TaskCancelCommand(taskId: a.id));
 
       final result = await query.execute(params());
       expect(result.front.map((i) => i.task.id), isNot(contains(b.id)));
@@ -281,15 +281,15 @@ void main() {
       // A is a prerequisite of both B and C
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: c.id.raw,
+          fromTaskId: a.id,
+          toTaskId: c.id,
           linkType: 'strong',
         ),
       );
@@ -308,15 +308,15 @@ void main() {
 
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: b.id.raw,
+          fromTaskId: a.id,
+          toTaskId: b.id,
           linkType: 'strong',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: a.id.raw,
-          toTaskId: d.id.raw,
+          fromTaskId: a.id,
+          toTaskId: d.id,
           linkType: 'strong',
         ),
       );
@@ -336,13 +336,13 @@ void main() {
       () async {
         final parent = await taskCreate.execute(
           TaskCreateCommand(
-            projectId: project.id.value,
+            projectId: project.id,
             title: 'Parent',
           ),
         );
         final parentTask = (parent as Success<Task, dynamic>).value;
-        await createTask('Child 1', parentId: parentTask.id.raw);
-        await createTask('Child 2', parentId: parentTask.id.raw);
+        await createTask('Child 1', parentId: parentTask.id);
+        await createTask('Child 2', parentId: parentTask.id);
 
         final result = await query.execute(params());
 
@@ -362,17 +362,17 @@ void main() {
       () async {
         final parent = await taskCreate.execute(
           TaskCreateCommand(
-            projectId: project.id.value,
+            projectId: project.id,
             title: 'Parent',
           ),
         );
         final parentTask = (parent as Success<Task, dynamic>).value;
-        final c1 = await createTask('Child 1', parentId: parentTask.id.raw);
-        await createTask('Child 2', parentId: parentTask.id.raw);
+        final c1 = await createTask('Child 1', parentId: parentTask.id);
+        await createTask('Child 2', parentId: parentTask.id);
 
         // Complete one child
-        await taskStart.execute(TaskStartCommand(taskId: c1.id.raw));
-        await taskDone.execute(TaskDoneCommand(taskId: c1.id.raw));
+        await taskStart.execute(TaskStartCommand(taskId: c1.id));
+        await taskDone.execute(TaskDoneCommand(taskId: c1.id));
 
         final result = await query.execute(params());
         final waiting = result.waitingChildren.firstWhere(
@@ -409,7 +409,7 @@ void main() {
 
   test('invalid projectId returns empty result', () async {
     final result = await query.execute(
-      const GetActiveFrontParams(projectId: 'not-a-uuid'),
+      const GetActiveFrontParams(projectId: .new('not-a-uuid')),
     );
     expect(result.front, isEmpty);
   });

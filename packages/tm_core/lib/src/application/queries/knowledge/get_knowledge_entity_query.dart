@@ -29,26 +29,23 @@ class GetKnowledgeEntityQuery {
   final TaskKnowledgeRefRepository _taskKnowledgeRefRepository;
   final TaskRepository _taskRepository;
 
-  Future<KnowledgeEntityDetails?> execute(String entityId) async {
-    late final KnowledgeEntityId id;
-    try {
-      id = KnowledgeEntityId(entityId);
-    } on FormatException {
+  Future<KnowledgeEntityDetails?> execute(KnowledgeEntityId entityId) async {
+    if (entityId.formatError case final _?) {
       return null;
     }
 
-    final entity = await _knowledgeRepository.getById(id);
+    final entity = await _knowledgeRepository.getById(entityId);
     if (entity == null) {
       return null;
     }
 
-    final refs = await _taskKnowledgeRefRepository.getByEntityId(id);
+    final refs = await _taskKnowledgeRefRepository.getByEntityId(entityId);
     final projectTasks = await _taskRepository.getByProjectId(entity.projectId);
-    final taskById = {for (final t in projectTasks) t.id.raw: t};
+    final taskById = {for (final t in projectTasks) t.id: t};
 
     final tasks = <Task>[];
     for (final ref in refs) {
-      final task = taskById[ref.taskId.raw];
+      final task = taskById[ref.taskId];
       if (task != null) {
         tasks.add(task);
       }

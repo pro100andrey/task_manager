@@ -1,7 +1,4 @@
-import '../../../domain/entities/task.dart';
-import '../../../domain/enums/task_completion_policy.dart';
-import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/task/task_id.dart';
+import '../../../../tm_core.dart';
 
 class ActiveFrontItem {
   const ActiveFrontItem({
@@ -91,7 +88,7 @@ class GetActiveFrontParams {
     this.includeStalled = false,
   });
 
-  final String projectId;
+  final ProjectId projectId;
 
   /// 'active' → contextState in {active, in_review}
   /// 'all'    → contextState in {active, in_review, backlog}

@@ -10,7 +10,7 @@ class GetKnowledgeEntitiesParams {
     this.search,
   });
 
-  final String projectId;
+  final ProjectId projectId;
   final String? entityType;
   final String? search;
 }
@@ -23,8 +23,7 @@ class GetKnowledgeEntitiesQuery {
   Future<List<KnowledgeEntity>> execute(
     GetKnowledgeEntitiesParams params,
   ) async {
-    final projectId = ProjectId(params.projectId);
-    if (projectId.formatError != null) {
+    if (params.projectId.formatError != null) {
       return const [];
     }
 
@@ -34,9 +33,9 @@ class GetKnowledgeEntitiesQuery {
       if (type == null) {
         return const [];
       }
-      list = await _knowledgeRepository.getByType(projectId, type);
+      list = await _knowledgeRepository.getByType(params.projectId, type);
     } else {
-      list = await _knowledgeRepository.getByProjectId(projectId);
+      list = await _knowledgeRepository.getByProjectId(params.projectId);
     }
 
     final search = params.search?.trim().toLowerCase();

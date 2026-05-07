@@ -16,7 +16,7 @@ class TaskShowParams {
   });
 
   /// Raw project ID string.
-  final String projectId;
+  final ProjectId projectId;
 
   /// Task reference: UUID v7 or alias (§7).
   final String ref;
@@ -80,25 +80,22 @@ class TaskShowQuery {
     // Compute staleness
     final staleness = calculateStaleness(task, DateTime.now().toUtc());
 
-    // Soft context: need all project links + task map
-    late final ProjectId projectId;
-    try {
-      projectId = ProjectId(params.projectId);
-    } on FormatException {
+    if (params.projectId.formatError case final _?) {
       return null;
     }
-    final allTasks = await _taskRepository.getByProjectId(projectId);
-    final taskIds = allTasks.map((t) => TaskId(t.id.raw)).toList();
+
+    final allTasks = await _taskRepository.getByProjectId(params.projectId);
+    final taskIds = allTasks.map((t) => TaskId(t.id)).toList();
     final links = await _linkRepository.getAllByProjectLinks(taskIds);
-    final taskMap = <String, Task>{for (final t in allTasks) t.id.raw: t};
-    final softContext = getSoftContext(task.id.raw, links, taskMap);
+    final taskMap = <String, Task>{for (final t in allTasks) t.id: t};
+    final softContext = getSoftContext(task.id, links, taskMap);
 
     // Knowledge entities
     final knowledgeQuery = GetTaskKnowledgeEntitiesQuery(
       _knowledgeRefRepository,
       _knowledgeRepository,
     );
-    final knowledgeEntities = await knowledgeQuery.execute(task.id.raw);
+    final knowledgeEntities = await knowledgeQuery.execute(task.id);
 
     return TaskShowResult(
       task: task,

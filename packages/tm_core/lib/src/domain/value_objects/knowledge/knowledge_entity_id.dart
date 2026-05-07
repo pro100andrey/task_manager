@@ -1,24 +1,19 @@
 import 'package:uuid/uuid.dart';
-import 'package:uuid/validation.dart';
+
+import '../../../tools/uuid.dart';
 
 /// UUIDv7 identifier for Knowledge entities.
-extension type const KnowledgeEntityId._(String value) implements String {
-  factory KnowledgeEntityId(String value) {
-    if (!UuidValidation.isValidUUID(fromString: value) || !_isUuidV7(value)) {
-      throw FormatException(
-        'Invalid UUID format for KnowledgeEntityId: $value',
-      );
-    }
-
-    return KnowledgeEntityId._(value);
-  }
-
+extension type const KnowledgeEntityId(String value) implements String {
   factory KnowledgeEntityId.generate() {
     final newUuid = const Uuid().v7();
     return KnowledgeEntityId(newUuid);
   }
 
-  String get raw => value;
+  String? get formatError {
+    if (!isValidUUIDv7(value)) {
+      return 'Invalid UUID(v7) format for KnowledgeEntityId: $value';
+    }
 
-  static bool _isUuidV7(String value) => value.length >= 15 && value[14] == '7';
+    return null;
+  }
 }

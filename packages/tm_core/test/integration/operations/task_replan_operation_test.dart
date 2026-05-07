@@ -54,10 +54,10 @@ void main() {
 
   tearDown(() => bus.dispose());
 
-  Future<Task> createTask(String title, {String? parentId}) async {
+  Future<Task> createTask(String title, {TaskId? parentId}) async {
     final result = await taskCreate.execute(
       TaskCreateCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         title: title,
         parentId: parentId,
       ),
@@ -82,19 +82,19 @@ void main() {
     'applies replan changes atomically and increments planVersion',
     () async {
       final root = await createTask('Root');
-      final child = await createTask('Child', parentId: root.id.raw);
+      final child = await createTask('Child', parentId: root.id);
 
       final result = await taskReplan.execute(
         TaskReplanCommand(
-          taskId: root.id.raw,
+          taskId: root.id,
           changes: [
             ReplanChange(
               action: 'update_task',
-              params: {'taskId': child.id.raw, 'title': 'Child updated'},
+              params: {'taskId': child.id, 'title': 'Child updated'},
             ),
             ReplanChange(
               action: 'set_context',
-              params: {'taskId': child.id.raw, 'contextState': 'backlog'},
+              params: {'taskId': child.id, 'contextState': 'backlog'},
             ),
             const ReplanChange(
               action: 'add_task',
@@ -123,15 +123,15 @@ void main() {
 
   test('rolls back all changes when one replan step fails', () async {
     final root = await createTask('Root');
-    final child = await createTask('Child', parentId: root.id.raw);
+    final child = await createTask('Child', parentId: root.id);
 
     final result = await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: [
           ReplanChange(
             action: 'update_task',
-            params: {'taskId': child.id.raw, 'title': 'Changed before fail'},
+            params: {'taskId': child.id, 'title': 'Changed before fail'},
           ),
           const ReplanChange(
             action: 'set_context',
@@ -160,13 +160,13 @@ void main() {
 
     await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: [
           ReplanChange(
             action: 'add_link',
             params: {
-              'fromTaskId': a.id.raw,
-              'toTaskId': b.id.raw,
+              'fromTaskId': a.id,
+              'toTaskId': b.id,
               'linkType': 'strong',
             },
           ),
@@ -176,13 +176,13 @@ void main() {
 
     final cycleResult = await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: [
           ReplanChange(
             action: 'add_link',
             params: {
-              'fromTaskId': b.id.raw,
-              'toTaskId': a.id.raw,
+              'fromTaskId': b.id,
+              'toTaskId': a.id,
               'linkType': 'strong',
             },
           ),
@@ -201,23 +201,23 @@ void main() {
     final root = await createTask('Root');
 
     await taskReflect.execute(
-      TaskReflectCommand(taskId: root.id.raw, content: 'First reflection'),
+      TaskReflectCommand(taskId: root.id, content: 'First reflection'),
     );
     await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: const [
           ReplanChange(action: 'add_task', params: {'title': 'A'}),
         ],
       ),
     );
     await taskReflect.execute(
-      TaskReflectCommand(taskId: root.id.raw, content: 'Second reflection'),
+      TaskReflectCommand(taskId: root.id, content: 'Second reflection'),
     );
 
     final blocked = await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: const [
           ReplanChange(action: 'add_task', params: {'title': 'B'}),
         ],
@@ -235,22 +235,22 @@ void main() {
     final root = await createTask('Root');
 
     await taskReflect.execute(
-      TaskReflectCommand(taskId: root.id.raw, content: 'First reflection'),
+      TaskReflectCommand(taskId: root.id, content: 'First reflection'),
     );
     await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: const [
           ReplanChange(action: 'add_task', params: {'title': 'A'}),
         ],
       ),
     );
 
-    await taskStart.execute(TaskStartCommand(taskId: root.id.raw));
+    await taskStart.execute(TaskStartCommand(taskId: root.id));
 
     final allowed = await taskReplan.execute(
       TaskReplanCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         changes: const [
           ReplanChange(action: 'add_task', params: {'title': 'B'}),
         ],
@@ -268,7 +268,7 @@ void main() {
       for (var index = 0; index < 6; index++) {
         final result = await taskReplan.execute(
           TaskReplanCommand(
-            taskId: root.id.raw,
+            taskId: root.id,
             changes: [
               ReplanChange(
                 action: 'add_task',
@@ -285,7 +285,7 @@ void main() {
 
       final blocked = await taskReplan.execute(
         TaskReplanCommand(
-          taskId: root.id.raw,
+          taskId: root.id,
           changes: const [
             ReplanChange(action: 'add_task', params: {'title': 'Blocked'}),
           ],
@@ -308,7 +308,7 @@ void main() {
       for (var index = 0; index < 6; index++) {
         final result = await taskReplan.execute(
           TaskReplanCommand(
-            taskId: root.id.raw,
+            taskId: root.id,
             changes: [
               ReplanChange(
                 action: 'add_task',
@@ -325,9 +325,9 @@ void main() {
 
       final projectTasks = await taskRepo.getByProjectId(project.id);
       final child = projectTasks.firstWhere((task) => task.parentId == root.id);
-      await taskStart.execute(TaskStartCommand(taskId: child.id.raw));
+      await taskStart.execute(TaskStartCommand(taskId: child.id));
       final done = await TaskDoneOperation(pipeline, taskRepo, bus).execute(
-        TaskDoneCommand(taskId: child.id.raw),
+        TaskDoneCommand(taskId: child.id),
       );
       expect(done.isSuccess, isTrue);
 
@@ -338,7 +338,7 @@ void main() {
 
       final allowed = await taskReplan.execute(
         TaskReplanCommand(
-          taskId: root.id.raw,
+          taskId: root.id,
           changes: const [
             ReplanChange(action: 'add_task', params: {'title': 'Allowed'}),
           ],

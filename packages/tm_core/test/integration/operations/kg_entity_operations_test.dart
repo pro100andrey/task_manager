@@ -45,7 +45,7 @@ void main() {
   test('adds entity successfully', () async {
     final result = await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: 'Auth Decision',
         entityType: 'decision',
         content: 'Use JWT.',
@@ -62,7 +62,7 @@ void main() {
   test('rejects duplicate normalized names inside project', () async {
     await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: 'Auth Decision',
         entityType: 'decision',
         content: 'first',
@@ -71,7 +71,7 @@ void main() {
 
     final second = await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: 'auth-decision',
         entityType: 'decision',
         content: 'second',
@@ -88,7 +88,7 @@ void main() {
   test('updates entity content and metadata', () async {
     final add = await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: 'Schema',
         entityType: 'fact',
         content: 'v1',
@@ -98,7 +98,7 @@ void main() {
 
     final updated = await kgEntityUpdate.execute(
       KgEntityUpdateCommand(
-        entityId: entity.id.raw,
+        entityId: entity.id,
         content: 'v2',
         metadata: const {'source': 'ops'},
       ),
@@ -114,7 +114,7 @@ void main() {
   test('lists knowledge entities with search', () async {
     await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: 'JWT Decision',
         entityType: 'decision',
         content: 'jwt selected',
@@ -122,7 +122,7 @@ void main() {
     );
     await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: 'Postgres Fact',
         entityType: 'fact',
         content: 'postgres selected',
@@ -131,7 +131,7 @@ void main() {
 
     final list = await kgEntityList.execute(
       GetKnowledgeEntitiesParams(
-        projectId: project.id.value,
+        projectId: project.id,
         search: 'jwt',
       ),
     );

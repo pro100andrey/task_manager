@@ -13,7 +13,10 @@ void main() {
     });
 
     test('rejects invalid UUID', () {
-      expect(() => ReflectionId('bad-id'), throwsFormatException);
+      expect(
+        const ReflectionId('bad-id').formatError,
+        contains('Invalid UUID(v7) format for ReflectionId: bad-id'),
+      );
     });
   });
 

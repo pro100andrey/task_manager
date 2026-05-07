@@ -11,7 +11,7 @@ class MemKnowledgeRepositoryImpl
 
   @override
   Future<KnowledgeEntity?> getById(KnowledgeEntityId id) async =>
-      _entitiesById[id.raw];
+      _entitiesById[id];
 
   @override
   Future<KnowledgeEntity?> getByName(
@@ -37,13 +37,13 @@ class MemKnowledgeRepositoryImpl
 
   @override
   Future<KnowledgeEntity> save(KnowledgeEntity entity) async {
-    _entitiesById[entity.id.raw] = entity;
+    _entitiesById[entity.id] = entity;
     return entity;
   }
 
   @override
   Future<void> delete(KnowledgeEntityId id) async {
-    _entitiesById.remove(id.raw);
+    _entitiesById.remove(id);
   }
 
   @override

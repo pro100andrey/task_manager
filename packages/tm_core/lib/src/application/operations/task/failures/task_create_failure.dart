@@ -1,3 +1,5 @@
+import '../../../../../tm_core.dart';
+
 sealed class TaskCreateFailure {
   const TaskCreateFailure();
 }
@@ -14,7 +16,7 @@ final class TaskCreateInvalidDescription extends TaskCreateFailure {
 
 final class TaskCreateProjectNotFound extends TaskCreateFailure {
   const TaskCreateProjectNotFound(this.projectId);
-  final String projectId;
+  final ProjectId projectId;
 }
 
 final class TaskCreateParentNotFound extends TaskCreateFailure {

@@ -50,7 +50,7 @@ void main() {
 
   Future<Task> createTask(String title) async {
     final result = await taskCreate.execute(
-      TaskCreateCommand(projectId: project.id.value, title: title),
+      TaskCreateCommand(projectId: project.id, title: title),
     );
     return (result as Success<Task, dynamic>).value;
   }
@@ -75,7 +75,7 @@ void main() {
 
       final success = await taskBreakdown.execute(
         TaskBreakdownCommand(
-          taskId: root.id.raw,
+          taskId: root.id,
           subtasks: const [
             TaskBreakdownSubtask(title: 'Design schema'),
             TaskBreakdownSubtask(title: 'Implement JWT'),
@@ -99,7 +99,7 @@ void main() {
 
     final result = await taskBreakdown.execute(
       TaskBreakdownCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         mode: 'sequence',
         subtasks: const [
           TaskBreakdownSubtask(title: 'Step 1'),
@@ -127,7 +127,7 @@ void main() {
 
     final result = await taskBreakdown.execute(
       TaskBreakdownCommand(
-        taskId: root.id.raw,
+        taskId: root.id,
         subtasks: const [
           TaskBreakdownSubtask(title: 'Valid'),
           TaskBreakdownSubtask(title: ''),

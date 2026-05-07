@@ -10,7 +10,7 @@ class MemTasksRepositoryImpl implements TaskRepository, InMemorySnapshotStore {
   final _tasks = <String, Task>{};
 
   @override
-  Future<Task?> getById(TaskId id) async => _tasks[id.raw];
+  Future<Task?> getById(TaskId id) async => _tasks[id];
 
   @override
   Future<List<Task>> getByProjectId(ProjectId projectId) async =>
@@ -18,14 +18,14 @@ class MemTasksRepositoryImpl implements TaskRepository, InMemorySnapshotStore {
 
   @override
   Future<Task> save(Task task) async {
-    _tasks[task.id.raw] = task;
+    _tasks[task.id] = task;
     return task;
   }
 
   @override
   Future<void> delete(TaskId id) async {
-    if (!_tasks.containsKey(id.raw)) {
-      throw TaskNotFoundException(id.raw);
+    if (!_tasks.containsKey(id)) {
+      throw TaskNotFoundException(id);
     }
     // Simulate ON DELETE CASCADE: remove all descendants first.
     final children = _tasks.values
@@ -35,7 +35,7 @@ class MemTasksRepositoryImpl implements TaskRepository, InMemorySnapshotStore {
     for (final childId in children) {
       await delete(childId);
     }
-    _tasks.remove(id.raw);
+    _tasks.remove(id);
   }
 
   @override

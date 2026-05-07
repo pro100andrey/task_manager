@@ -55,7 +55,7 @@ void main() {
   group('TaskCreateOperation', () {
     test('creates a task and returns Success', () async {
       final result = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Do something'),
+        TaskCreateCommand(projectId: project.id, title: 'Do something'),
       );
 
       expect(result.isSuccess, isTrue);
@@ -70,7 +70,7 @@ void main() {
       bus.listen<Object>(events.add);
 
       await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'A'),
+        TaskCreateCommand(projectId: project.id, title: 'A'),
       );
 
       expect(events, anyElement(isA<TaskCreatedEvent>()));
@@ -78,7 +78,7 @@ void main() {
 
     test('returns Failure for empty title', () async {
       final result = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: '  '),
+        TaskCreateCommand(projectId: project.id, title: '  '),
       );
 
       expect(result.isFailure, isTrue);
@@ -91,7 +91,7 @@ void main() {
     test('returns Failure when project not found', () async {
       final result = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: ProjectId.generate().value,
+          projectId: ProjectId.generate(),
           title: 'A',
         ),
       );
@@ -106,7 +106,7 @@ void main() {
     test('normalizes and stores alias', () async {
       final result = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'My Task',
           alias: 'My Task',
         ),
@@ -120,7 +120,7 @@ void main() {
     test('returns Failure when alias already exists', () async {
       await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'First',
           alias: 'same-alias',
         ),
@@ -128,7 +128,7 @@ void main() {
 
       final second = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'Second',
           alias: 'same-alias',
         ),
@@ -143,7 +143,7 @@ void main() {
 
     test('applies spec defaults and initial task fields', () async {
       final result = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Defaults'),
+        TaskCreateCommand(projectId: project.id, title: 'Defaults'),
       );
 
       expect(result.isSuccess, isTrue);
@@ -164,7 +164,7 @@ void main() {
 
     setUp(() async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Start me'),
+        TaskCreateCommand(projectId: project.id, title: 'Start me'),
       );
       pendingTask = (r as Success<Task, dynamic>).value;
     });
@@ -192,7 +192,7 @@ void main() {
 
     test('returns Failure for not found task', () async {
       final result = await taskStart.execute(
-        TaskStartCommand(taskId: TaskId.generate().raw),
+        TaskStartCommand(taskId: TaskId.generate()),
       );
 
       expect(result.isFailure, isTrue);
@@ -225,7 +225,7 @@ void main() {
 
     setUp(() async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Complete me'),
+        TaskCreateCommand(projectId: project.id, title: 'Complete me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
       final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.value));
@@ -254,7 +254,7 @@ void main() {
 
     test('returns Failure when not inProgress', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Pending'),
+        TaskCreateCommand(projectId: project.id, title: 'Pending'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
@@ -277,7 +277,7 @@ void main() {
 
     setUp(() async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Fail me'),
+        TaskCreateCommand(projectId: project.id, title: 'Fail me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
       final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.value));
@@ -308,7 +308,7 @@ void main() {
 
     test('returns Failure when not inProgress', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Pending'),
+        TaskCreateCommand(projectId: project.id, title: 'Pending'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
@@ -331,7 +331,7 @@ void main() {
 
     setUp(() async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Hold me'),
+        TaskCreateCommand(projectId: project.id, title: 'Hold me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
       final r2 = await taskStart.execute(TaskStartCommand(taskId: t.id.value));
@@ -359,7 +359,7 @@ void main() {
 
     test('returns Failure when not inProgress', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Pending'),
+        TaskCreateCommand(projectId: project.id, title: 'Pending'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
@@ -380,7 +380,7 @@ void main() {
   group('TaskCancelOperation', () {
     test('cancels a pending task', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Cancel me'),
+        TaskCreateCommand(projectId: project.id, title: 'Cancel me'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
@@ -395,7 +395,7 @@ void main() {
 
     test('cancels an inProgress task', () async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Cancel me'),
+        TaskCreateCommand(projectId: project.id, title: 'Cancel me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
       await taskStart.execute(TaskStartCommand(taskId: t.id.value));
@@ -412,7 +412,7 @@ void main() {
       bus.listen<Object>(events.add);
 
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'C'),
+        TaskCreateCommand(projectId: project.id, title: 'C'),
       );
       final t = (r as Success<Task, dynamic>).value;
       await taskCancel.execute(TaskCancelCommand(taskId: t.id.value));
@@ -422,7 +422,7 @@ void main() {
 
     test('returns Failure when already completed (terminal)', () async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Done'),
+        TaskCreateCommand(projectId: project.id, title: 'Done'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
       await taskStart.execute(TaskStartCommand(taskId: t.id.value));
@@ -445,7 +445,7 @@ void main() {
   group('TaskDeleteOperation', () {
     test('deletes an existing task', () async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Delete me'),
+        TaskCreateCommand(projectId: project.id, title: 'Delete me'),
       );
       final t = (r as Success<Task, dynamic>).value;
 
@@ -462,7 +462,7 @@ void main() {
       bus.listen<Object>(events.add);
 
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'D'),
+        TaskCreateCommand(projectId: project.id, title: 'D'),
       );
       final t = (r as Success<Task, dynamic>).value;
       await taskDelete.execute(TaskDeleteCommand(taskId: t.id.value));
@@ -472,7 +472,7 @@ void main() {
 
     test('returns Failure for not found task', () async {
       final result = await taskDelete.execute(
-        TaskDeleteCommand(taskId: TaskId.generate().raw),
+        TaskDeleteCommand(taskId: TaskId.generate()),
       );
 
       expect(result.isFailure, isTrue);
@@ -485,7 +485,7 @@ void main() {
     test('deleting parent also deletes child tasks', () async {
       final parentResult = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'Parent',
         ),
       );
@@ -493,9 +493,9 @@ void main() {
 
       final childResult = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'Child',
-          parentId: parent.id.raw,
+          parentId: parent.id,
         ),
       );
       final child = (childResult as Success<Task, dynamic>).value;
@@ -512,7 +512,7 @@ void main() {
   group('Task lifecycle: hold → resume', () {
     test('on-hold task can be restarted', () async {
       final r1 = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: 'Resume me'),
+        TaskCreateCommand(projectId: project.id, title: 'Resume me'),
       );
       final t = (r1 as Success<Task, dynamic>).value;
       await taskStart.execute(TaskStartCommand(taskId: t.id.value));

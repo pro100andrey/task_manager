@@ -176,7 +176,7 @@ class TaskReflectOperation extends _Operation {
         tags: const ['replan'],
         metadata: {
           'reflectionId': savedReflection.id.raw,
-          'sourceTaskId': task.id.raw,
+          'sourceTaskId': task.id,
         },
         planVersion: 0,
       );

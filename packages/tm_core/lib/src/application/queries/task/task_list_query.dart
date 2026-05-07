@@ -15,8 +15,8 @@ class TaskListParams {
     this.stalled = false,
   });
 
-  /// Raw project ID string.
-  final String projectId;
+  /// Project ID.
+  final ProjectId projectId;
 
   /// Filter by context state: 'active' | 'backlog' | 'in_review' | 'archived'.
   /// Null means all context states.
@@ -46,14 +46,11 @@ class TaskListQuery {
   final TaskRepository _taskRepository;
 
   Future<List<Task>> execute(TaskListParams params) async {
-    late final ProjectId projectId;
-    try {
-      projectId = ProjectId(params.projectId);
-    } on FormatException {
+    if (params.projectId.formatError case final _?) {
       return const [];
     }
 
-    var tasks = await _taskRepository.getByProjectId(projectId);
+    var tasks = await _taskRepository.getByProjectId(params.projectId);
 
     // Filter by contextState
     if (params.contextState != null) {

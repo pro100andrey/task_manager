@@ -5,7 +5,6 @@ import '../../../domain/enums/task_last_action_type.dart';
 import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../../domain/value_objects/task/task_description.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../../domain/value_objects/task/task_title.dart';
@@ -79,13 +78,12 @@ class TaskBulkAddOperation extends _Operation {
     }
 
     // Validate project exists
-    late final ProjectId projectId;
-    try {
-      projectId = ProjectId(command.projectId);
-    } on FormatException {
+
+    if (command.projectId.formatError case final _?) {
       return Failure(TaskBulkAddProjectNotFound(command.projectId));
     }
-    final project = await _projectRepository.getById(projectId);
+
+    final project = await _projectRepository.getById(command.projectId);
     if (project == null) {
       return Failure(TaskBulkAddProjectNotFound(command.projectId));
     }
@@ -100,7 +98,7 @@ class TaskBulkAddOperation extends _Operation {
             return Failure(TaskBulkAddParentNotFound(spec.parentId!));
           }
           // Ensure parent is in same project
-          if (parent.projectId != projectId) {
+          if (parent.projectId != command.projectId) {
             return Failure(TaskBulkAddParentNotFound(spec.parentId!));
           }
         } on FormatException {
@@ -143,7 +141,7 @@ class TaskBulkAddOperation extends _Operation {
 
       final task = Task(
         id: TaskId.generate(),
-        projectId: projectId,
+        projectId: command.projectId,
         title: title,
         status: TaskStatus.pending,
         contextState: contextState,

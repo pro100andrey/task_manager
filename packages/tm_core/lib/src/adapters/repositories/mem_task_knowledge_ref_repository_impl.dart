@@ -13,7 +13,7 @@ class MemTaskKnowledgeRefRepositoryImpl
     TaskId taskId,
     KnowledgeEntityId entityId,
     KnowledgeRefType type,
-  ) => '${taskId.raw}:${entityId.raw}:${type.value}';
+  ) => '$taskId:$entityId:${type.value}';
 
   @override
   Future<List<TaskKnowledgeRef>> getByTaskId(TaskId taskId) async =>

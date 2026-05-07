@@ -62,15 +62,16 @@ void main() {
 
   Future<Task> createTask(String title) async {
     final result = await taskCreate.execute(
-      TaskCreateCommand(projectId: project.id.value, title: title),
+      TaskCreateCommand(projectId: project.id, title: title),
     );
+
     return (result as Success<Task, dynamic>).value;
   }
 
   Future<KnowledgeEntity> createEntity(String name) async {
     final result = await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: name,
         entityType: 'fact',
         content: 'knowledge',
@@ -86,20 +87,20 @@ void main() {
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: taskA.id.raw,
-        entityId: entity.id.raw,
+        taskId: taskA.id,
+        entityId: entity.id,
         refType: 'produces',
       ),
     );
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: taskB.id.raw,
-        entityId: entity.id.raw,
+        taskId: taskB.id,
+        entityId: entity.id,
         refType: 'consumes',
       ),
     );
 
-    final details = await getKnowledgeEntityQuery.execute(entity.id.raw);
+    final details = await getKnowledgeEntityQuery.execute(entity.id);
 
     expect(details, isNotNull);
     expect(details!.entity.id, entity.id);
@@ -108,13 +109,15 @@ void main() {
   });
 
   test('returns null for invalid entity id', () async {
-    final details = await getKnowledgeEntityQuery.execute('not-a-uuid');
+    final details = await getKnowledgeEntityQuery.execute(
+      const .new('not-a-uuid'),
+    );
     expect(details, isNull);
   });
 
   test('returns null for missing entity', () async {
     final details = await getKnowledgeEntityQuery.execute(
-      KnowledgeEntityId.generate().raw,
+      KnowledgeEntityId.generate(),
     );
     expect(details, isNull);
   });
@@ -125,14 +128,14 @@ void main() {
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: task.id.raw,
-        entityId: entity.id.raw,
+        taskId: task.id,
+        entityId: entity.id,
         refType: 'produces',
       ),
     );
     await taskRepo.delete(task.id);
 
-    final details = await getKnowledgeEntityQuery.execute(entity.id.raw);
+    final details = await getKnowledgeEntityQuery.execute(entity.id);
 
     expect(details, isNotNull);
     expect(details!.refs, hasLength(1));

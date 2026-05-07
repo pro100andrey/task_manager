@@ -124,7 +124,7 @@ class KgTaskLinkOperation extends _Operation {
         await _ensureSoftLink(
           from: ref.taskId,
           to: consumer.taskId,
-          entityId: ref.entityId.raw,
+          entityId: ref.entityId,
         );
       }
       return;
@@ -136,7 +136,7 @@ class KgTaskLinkOperation extends _Operation {
         await _ensureSoftLink(
           from: producer.taskId,
           to: ref.taskId,
-          entityId: ref.entityId.raw,
+          entityId: ref.entityId,
         );
       }
     }

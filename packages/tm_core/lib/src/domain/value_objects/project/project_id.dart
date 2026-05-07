@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
-import 'package:uuid/validation.dart';
+
+import '../../../tools/uuid.dart';
 
 /// Represents a unique identifier for a Project in the Task Manager
 /// application.
@@ -13,8 +14,8 @@ extension type const ProjectId(String value) {
   }
 
   String? get formatError {
-    if (!UuidValidation.isValidUUID(fromString: value)) {
-      return 'Invalid UUID format for ProjectId: $value';
+    if (!isValidUUIDv7(value)) {
+      return 'Invalid UUID(v7) format for ProjectId: $value';
     }
 
     return null;

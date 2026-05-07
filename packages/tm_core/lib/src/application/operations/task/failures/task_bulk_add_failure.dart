@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../../tm_core.dart';
+
 part 'task_bulk_add_failure.freezed.dart';
 
 @freezed
@@ -7,7 +9,7 @@ class TaskBulkAddFailure with _$TaskBulkAddFailure {
   const factory TaskBulkAddFailure.validationError(String message) =
       TaskBulkAddValidationError;
 
-  const factory TaskBulkAddFailure.projectNotFound(String projectId) =
+  const factory TaskBulkAddFailure.projectNotFound(ProjectId projectId) =
       TaskBulkAddProjectNotFound;
 
   const factory TaskBulkAddFailure.parentNotFound(String parentId) =

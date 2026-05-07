@@ -204,8 +204,8 @@ int calculateUnblockScore(
     .where(
       (l) =>
           l.linkType.isStrong &&
-          l.fromTaskId.raw == taskId &&
-          !completedIds.contains(l.toTaskId.raw),
+          l.fromTaskId == taskId &&
+          !completedIds.contains(l.toTaskId),
     )
     .length;
 
@@ -221,15 +221,15 @@ SoftContext getSoftContext(
 
   // Tasks whose soft link points TO taskId (they inform this task)
   final informs = softLinks
-      .where((l) => l.toTaskId.raw == taskId && l.label != 'related')
-      .map((l) => taskMap[l.fromTaskId.raw])
+      .where((l) => l.toTaskId == taskId && l.label != 'related')
+      .map((l) => taskMap[l.fromTaskId])
       .nonNulls
       .toList();
 
   // Tasks that this task's soft link points TO (this task informs them)
   final informedBy = softLinks
-      .where((l) => l.fromTaskId.raw == taskId && l.label != 'related')
-      .map((l) => taskMap[l.toTaskId.raw])
+      .where((l) => l.fromTaskId == taskId && l.label != 'related')
+      .map((l) => taskMap[l.toTaskId])
       .nonNulls
       .toList();
 
@@ -238,12 +238,10 @@ SoftContext getSoftContext(
       .where(
         (l) =>
             l.label == 'related' &&
-            (l.fromTaskId.raw == taskId || l.toTaskId.raw == taskId),
+            (l.fromTaskId == taskId || l.toTaskId == taskId),
       )
       .map((l) {
-        final otherId = l.fromTaskId.raw == taskId
-            ? l.toTaskId.raw
-            : l.fromTaskId.raw;
+        final otherId = l.fromTaskId == taskId ? l.toTaskId : l.fromTaskId;
         return taskMap[otherId];
       })
       .nonNulls

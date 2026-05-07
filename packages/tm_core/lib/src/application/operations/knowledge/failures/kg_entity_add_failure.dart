@@ -1,10 +1,12 @@
+import '../../../../../tm_core.dart';
+
 sealed class KgEntityAddFailure {
   const KgEntityAddFailure();
 }
 
 final class KgEntityAddProjectNotFound extends KgEntityAddFailure {
   const KgEntityAddProjectNotFound(this.projectId);
-  final String projectId;
+  final ProjectId projectId;
 }
 
 final class KgEntityAddNameAlreadyExists extends KgEntityAddFailure {

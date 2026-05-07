@@ -19,9 +19,16 @@ void main() {
     });
 
     test('rejects non-v7 uuid', () {
+      const id = KnowledgeEntityId(
+        '123e4567-e89b-12d3-a456-426614174000',
+      );
+
       expect(
-        () => KnowledgeEntityId('123e4567-e89b-12d3-a456-426614174000'),
-        throwsFormatException,
+        id.formatError,
+        contains(
+          'Invalid UUID(v7) format for KnowledgeEntityId: '
+          '123e4567-e89b-12d3-a456-426614174000',
+        ),
       );
     });
   });

@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class KgEntityAddCommand extends Command {
@@ -9,7 +10,7 @@ class KgEntityAddCommand extends Command {
     this.metadata = const {},
   });
 
-  final String projectId;
+  final ProjectId projectId;
   final String name;
   final String entityType;
   final String content;

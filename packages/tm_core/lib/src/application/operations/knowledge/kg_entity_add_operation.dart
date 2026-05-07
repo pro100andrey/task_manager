@@ -3,7 +3,6 @@ import '../../../domain/enums/knowledge_entity_type.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/knowledge_domain_services.dart';
 import '../../../domain/value_objects/knowledge/knowledge_entity_id.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../ports/knowledge_repository.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
@@ -46,12 +45,11 @@ class KgEntityAddOperation extends _Operation {
   Future<Result<KnowledgeEntity, KgEntityAddFailure>> run(
     KgEntityAddCommand command,
   ) async {
-    final projectId = ProjectId(command.projectId);
-    if (projectId.formatError != null) {
+    if (command.projectId.formatError != null) {
       return Failure(KgEntityAddProjectNotFound(command.projectId));
     }
 
-    final project = await _projectRepository.getById(projectId);
+    final project = await _projectRepository.getById(command.projectId);
     if (project == null) {
       return Failure(KgEntityAddProjectNotFound(command.projectId));
     }
@@ -75,7 +73,7 @@ class KgEntityAddOperation extends _Operation {
     }
 
     final existing = await _knowledgeRepository.getByName(
-      projectId,
+      command.projectId,
       normalizedName,
     );
     if (existing != null) {
@@ -83,9 +81,11 @@ class KgEntityAddOperation extends _Operation {
     }
 
     final now = DateTime.now().toUtc();
+    final id = KnowledgeEntityId.generate();
+
     final entity = KnowledgeEntity(
-      id: KnowledgeEntityId.generate(),
-      projectId: projectId,
+      id: id,
+      projectId: command.projectId,
       name: command.name,
       normalizedName: normalizedName,
       entityType: entityType,

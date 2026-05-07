@@ -66,7 +66,7 @@ void main() {
 
     Future<Task> createTask(String title) async {
       final r = await taskCreate.execute(
-        TaskCreateCommand(projectId: project.id.value, title: title),
+        TaskCreateCommand(projectId: project.id, title: title),
       );
       return (r as Success<Task, dynamic>).value;
     }
@@ -80,8 +80,8 @@ void main() {
     test('adds a strong link between two tasks', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
@@ -96,8 +96,8 @@ void main() {
     test('adds a soft link between two tasks', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'soft',
         ),
       );
@@ -110,8 +110,8 @@ void main() {
     test('adds label when provided', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
           label: 'blocks',
         ),
@@ -125,8 +125,8 @@ void main() {
     test('fails when fromTaskId does not exist', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: TaskId.generate().raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: TaskId.generate(),
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
@@ -139,8 +139,8 @@ void main() {
     test('fails when toTaskId does not exist', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: TaskId.generate().raw,
+          fromTaskId: taskA.id,
+          toTaskId: TaskId.generate(),
           linkType: 'strong',
         ),
       );
@@ -153,8 +153,8 @@ void main() {
     test('fails on self-reference', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskA.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskA.id,
           linkType: 'strong',
         ),
       );
@@ -167,16 +167,16 @@ void main() {
     test('fails on duplicate link', () async {
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
 
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
@@ -189,8 +189,8 @@ void main() {
     test('fails on invalid link type', () async {
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'invalid',
         ),
       );
@@ -204,24 +204,24 @@ void main() {
       // A → B
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
       // B → C
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskB.id.raw,
-          toTaskId: taskC.id.raw,
+          fromTaskId: taskB.id,
+          toTaskId: taskC.id,
           linkType: 'strong',
         ),
       );
       // C → A — should be rejected
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskC.id.raw,
-          toTaskId: taskA.id.raw,
+          fromTaskId: taskC.id,
+          toTaskId: taskA.id,
           linkType: 'strong',
         ),
       );
@@ -234,23 +234,23 @@ void main() {
     test('allows cycle in soft links', () async {
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'soft',
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskB.id.raw,
-          toTaskId: taskC.id.raw,
+          fromTaskId: taskB.id,
+          toTaskId: taskC.id,
           linkType: 'soft',
         ),
       );
       // C → A — allowed for soft
       final result = await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskC.id.raw,
-          toTaskId: taskA.id.raw,
+          fromTaskId: taskC.id,
+          toTaskId: taskA.id,
           linkType: 'soft',
         ),
       );
@@ -264,8 +264,8 @@ void main() {
 
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
@@ -282,8 +282,8 @@ void main() {
       // Pre-create a strong link A → B
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
@@ -292,8 +292,8 @@ void main() {
     test('removes an existing link', () async {
       final result = await linkRemove.execute(
         TaskLinkRemoveCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );
@@ -309,16 +309,16 @@ void main() {
       // Add a soft link as well
       await linkAdd.execute(
         TaskLinkAddCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'soft',
         ),
       );
 
       final result = await linkRemove.execute(
         TaskLinkRemoveCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           // linkType omitted → remove all
         ),
       );
@@ -331,8 +331,8 @@ void main() {
     test('fails when link does not exist', () async {
       final result = await linkRemove.execute(
         TaskLinkRemoveCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskC.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskC.id,
           linkType: 'strong',
         ),
       );
@@ -345,8 +345,8 @@ void main() {
     test('fails on invalid link type', () async {
       final result = await linkRemove.execute(
         TaskLinkRemoveCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'bogus',
         ),
       );
@@ -362,8 +362,8 @@ void main() {
 
       await linkRemove.execute(
         TaskLinkRemoveCommand(
-          fromTaskId: taskA.id.raw,
-          toTaskId: taskB.id.raw,
+          fromTaskId: taskA.id,
+          toTaskId: taskB.id,
           linkType: 'strong',
         ),
       );

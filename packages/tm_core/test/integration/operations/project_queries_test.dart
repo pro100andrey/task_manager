@@ -212,7 +212,7 @@ void main() {
     test('filters by taskId returns only reflections for that task', () async {
       final taskResult = await taskCreate.execute(
         TaskCreateCommand(
-          projectId: project.id.value,
+          projectId: project.id,
           title: 'Task for reflection',
         ),
       );
@@ -224,7 +224,7 @@ void main() {
       await reflectionRepo.save(withoutTask);
 
       final result = await reflectionList.execute(
-        ReflectionListParams(taskId: task.id.raw),
+        ReflectionListParams(taskId: task.id),
       );
       expect(result, hasLength(1));
       expect(result.first.id, equals(withTask.id));
@@ -239,7 +239,7 @@ void main() {
 
     test('unknown taskId returns empty list', () async {
       final result = await reflectionList.execute(
-        ReflectionListParams(taskId: TaskId.generate().raw),
+        ReflectionListParams(taskId: TaskId.generate()),
       );
       expect(result, isEmpty);
     });

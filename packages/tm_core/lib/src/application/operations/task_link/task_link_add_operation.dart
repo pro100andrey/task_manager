@@ -111,14 +111,14 @@ class TaskLinkAddOperation extends _Operation {
       final projectTasks = await _taskRepository.getByProjectId(
         fromTask.projectId,
       );
-      final projectTaskIds = projectTasks.map((t) => TaskId(t.id.raw)).toList();
+      final projectTaskIds = projectTasks.map((t) => TaskId(t.id)).toList();
       final allLinks = await _linkRepository.getAllByProjectLinks(
         projectTaskIds,
       );
 
       final adj = buildStrongAdjacency(allLinks);
       try {
-        detectCycle(adj, extraFrom: fromId.raw, extraTo: toId.raw);
+        detectCycle(adj, extraFrom: fromId, extraTo: toId);
       } on CycleException catch (e) {
         return Failure(TaskLinkAddCycleDetected(e.path));
       }

@@ -59,14 +59,12 @@ class TaskDoneOperation extends _Operation {
     }
 
     final now = DateTime.now().toUtc();
-    final tasksById = {for (final item in projectTasks) item.id.raw: item};
+    final tasksById = {for (final item in projectTasks) item.id: item};
     final lineage = <Task>[];
     Task? current = task;
     while (current != null) {
       lineage.add(current);
-      current = current.parentId != null
-          ? tasksById[current.parentId!.raw]
-          : null;
+      current = current.parentId != null ? tasksById[current.parentId!] : null;
     }
 
     final updated = task.copyWith(

@@ -256,7 +256,7 @@ class TaskReplanOperation extends _Operation {
     await _taskRepository.delete(taskId);
     await _bus.publish(DomainEvent.taskDeleted(taskId: taskId));
     return Success(
-      TaskReplanAppliedChange(action: 'remove_task', result: taskId.raw),
+      TaskReplanAppliedChange(action: 'remove_task', result: taskId),
     );
   }
 
@@ -311,8 +311,8 @@ class TaskReplanOperation extends _Operation {
       try {
         detectCycle(
           buildStrongAdjacency(allLinks),
-          extraFrom: fromId.raw,
-          extraTo: toId.raw,
+          extraFrom: fromId,
+          extraTo: toId,
         );
       } on CycleException catch (error) {
         return Failure(TaskReplanCycleDetected(error.path));

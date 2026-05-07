@@ -58,7 +58,7 @@ void main() {
 
   Future<Task> createTask(String title) async {
     final r = await taskCreate.execute(
-      TaskCreateCommand(projectId: project.id.value, title: title),
+      TaskCreateCommand(projectId: project.id, title: title),
     );
     return (r as Success<Task, dynamic>).value;
   }
@@ -66,7 +66,7 @@ void main() {
   Future<KnowledgeEntity> createEntity(String name) async {
     final r = await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: name,
         entityType: 'fact',
         content: 'knowledge',
@@ -81,8 +81,8 @@ void main() {
 
     final result = await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: task.id.raw,
-        entityId: entity.id.raw,
+        taskId: task.id,
+        entityId: entity.id,
         refType: 'produces',
       ),
     );
@@ -101,15 +101,15 @@ void main() {
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: producer.id.raw,
-        entityId: entity.id.raw,
+        taskId: producer.id,
+        entityId: entity.id,
         refType: 'produces',
       ),
     );
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: consumer.id.raw,
-        entityId: entity.id.raw,
+        taskId: consumer.id,
+        entityId: entity.id,
         refType: 'consumes',
       ),
     );
@@ -130,23 +130,23 @@ void main() {
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: producer.id.raw,
-        entityId: entity.id.raw,
+        taskId: producer.id,
+        entityId: entity.id,
         refType: 'produces',
       ),
     );
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: consumer.id.raw,
-        entityId: entity.id.raw,
+        taskId: consumer.id,
+        entityId: entity.id,
         refType: 'consumes',
       ),
     );
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: consumer.id.raw,
-        entityId: entity.id.raw,
+        taskId: consumer.id,
+        entityId: entity.id,
         refType: 'consumes',
       ),
     );

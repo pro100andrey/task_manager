@@ -17,9 +17,10 @@ class TaskKnowledgeEntitiesResult {
   List<KnowledgeEntity> byType(KnowledgeRefType type) {
     final ids = refs
         .where((r) => r.refType == type)
-        .map((r) => r.entityId.raw)
+        .map((r) => r.entityId)
         .toSet();
-    return entities.where((e) => ids.contains(e.id.raw)).toList();
+
+    return entities.where((e) => ids.contains(e.id)).toList(growable: false);
   }
 }
 

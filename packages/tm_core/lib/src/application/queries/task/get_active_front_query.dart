@@ -3,7 +3,6 @@ import '../../../domain/enums/task_completion_policy.dart';
 import '../../../domain/enums/task_context_state.dart';
 import '../../../domain/enums/task_status.dart';
 import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/project/project_id.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/task_link_repository.dart';
 import '../../ports/task_repository.dart';
@@ -16,10 +15,7 @@ class GetActiveFrontQuery {
   final TaskLinkRepository _linkRepo;
 
   Future<ActiveFrontResult> execute(GetActiveFrontParams params) async {
-    late final ProjectId projectId;
-    try {
-      projectId = ProjectId(params.projectId);
-    } on FormatException {
+    if (params.projectId.formatError case final _?) {
       return const ActiveFrontResult(
         front: [],
         waitingChildren: [],
@@ -28,7 +24,7 @@ class GetActiveFrontQuery {
       );
     }
 
-    final tasks = await _taskRepo.getByProjectId(projectId);
+    final tasks = await _taskRepo.getByProjectId(params.projectId);
     if (tasks.isEmpty) {
       return const ActiveFrontResult(
         front: [],
@@ -38,21 +34,21 @@ class GetActiveFrontQuery {
       );
     }
 
-    final taskIds = tasks.map((t) => TaskId(t.id.raw)).toList();
+    final taskIds = tasks.map((t) => TaskId(t.id)).toList();
     final links = await _linkRepo.getAllByProjectLinks(taskIds);
 
     // Maps used throughout
-    final taskMap = <String, Task>{for (final t in tasks) t.id.raw: t};
+    final taskMap = <String, Task>{for (final t in tasks) t.id: t};
     final completedIds = <String>{
       for (final t in tasks)
-        if (t.status.isCompleted) t.id.raw,
+        if (t.status.isCompleted) t.id,
     };
 
     // Build children map: parentId → [children]
     final childrenMap = <String, List<Task>>{};
     for (final t in tasks) {
       if (t.parentId != null) {
-        childrenMap.putIfAbsent(t.parentId!.raw, () => []).add(t);
+        childrenMap.putIfAbsent(t.parentId!, () => []).add(t);
       }
     }
 
@@ -64,8 +60,8 @@ class GetActiveFrontQuery {
       if (!link.linkType.isStrong) {
         continue;
       }
-      final prereq = link.fromTaskId.raw;
-      final dependent = link.toTaskId.raw;
+      final prereq = link.fromTaskId;
+      final dependent = link.toTaskId;
       prerequisites.putIfAbsent(dependent, () => {}).add(prereq);
     }
 
@@ -86,7 +82,7 @@ class GetActiveFrontQuery {
       }
 
       // Strong-predecessor check
-      final unmetPrereqs = (prerequisites[task.id.raw] ?? {})
+      final unmetPrereqs = (prerequisites[task.id] ?? {})
           .where((id) => !completedIds.contains(id))
           .map(TaskId.new)
           .toList();
@@ -112,7 +108,7 @@ class GetActiveFrontQuery {
       }
 
       // Waiting-children check
-      final children = childrenMap[task.id.raw] ?? [];
+      final children = childrenMap[task.id] ?? [];
       if (children.isNotEmpty &&
           task.completionPolicy != TaskCompletionPolicy.manual) {
         final remaining = _remainingChildren(children, task.completionPolicy);
@@ -128,14 +124,14 @@ class GetActiveFrontQuery {
         }
       }
 
-      final ep = epMap[task.id.raw] ?? _ownEp(task);
-      final depth = depthMap[task.id.raw] ?? 0;
+      final ep = epMap[task.id] ?? _ownEp(task);
+      final depth = depthMap[task.id] ?? 0;
       final unblockScore = calculateUnblockScore(
-        task.id.raw,
+        task.id,
         links,
         completedIds,
       );
-      final softContext = getSoftContext(task.id.raw, links, taskMap);
+      final softContext = getSoftContext(task.id, links, taskMap);
 
       front.add(
         ActiveFrontItem(
@@ -206,14 +202,14 @@ class GetActiveFrontQuery {
         ep[id] = own;
         return own;
       }
-      final parentEp = computeEp(task.parentId!.raw);
+      final parentEp = computeEp(task.parentId!);
       final capped = own < parentEp ? own : parentEp;
       ep[id] = capped;
       return capped;
     }
 
     for (final t in tasks) {
-      computeEp(t.id.raw);
+      computeEp(t.id);
     }
     return ep;
   }
@@ -236,14 +232,14 @@ class GetActiveFrontQuery {
         return 0;
       }
 
-      final d = 1 + computeDepth(task.parentId!.raw);
+      final d = 1 + computeDepth(task.parentId!);
       depths[id] = d;
 
       return d;
     }
 
     for (final t in tasks) {
-      computeDepth(t.id.raw);
+      computeDepth(t.id);
     }
     return depths;
   }

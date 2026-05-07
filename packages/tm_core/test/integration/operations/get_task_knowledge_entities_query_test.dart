@@ -63,7 +63,7 @@ void main() {
 
   Future<Task> createTask(String title) async {
     final result = await taskCreate.execute(
-      TaskCreateCommand(projectId: project.id.value, title: title),
+      TaskCreateCommand(projectId: project.id, title: title),
     );
     return (result as Success<Task, dynamic>).value;
   }
@@ -71,7 +71,7 @@ void main() {
   Future<KnowledgeEntity> createEntity(String name, String type) async {
     final result = await kgEntityAdd.execute(
       KgEntityAddCommand(
-        projectId: project.id.value,
+        projectId: project.id,
         name: name,
         entityType: type,
         content: 'knowledge',
@@ -87,20 +87,20 @@ void main() {
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: task.id.raw,
-        entityId: schema.id.raw,
+        taskId: task.id,
+        entityId: schema.id,
         refType: 'consumes',
       ),
     );
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: task.id.raw,
-        entityId: jwtDecision.id.raw,
+        taskId: task.id,
+        entityId: jwtDecision.id,
         refType: 'updates',
       ),
     );
 
-    final result = await getTaskKnowledgeEntitiesQuery.execute(task.id.raw);
+    final result = await getTaskKnowledgeEntitiesQuery.execute(task.id);
 
     expect(result.refs, hasLength(2));
     expect(result.entities, hasLength(2));
@@ -119,7 +119,7 @@ void main() {
   test('returns empty result when task has no knowledge refs', () async {
     final task = await createTask('Lonely task');
 
-    final result = await getTaskKnowledgeEntitiesQuery.execute(task.id.raw);
+    final result = await getTaskKnowledgeEntitiesQuery.execute(task.id);
 
     expect(result.refs, isEmpty);
     expect(result.entities, isEmpty);
@@ -131,14 +131,14 @@ void main() {
 
     await kgTaskLink.execute(
       KgTaskLinkCommand(
-        taskId: task.id.raw,
-        entityId: entity.id.raw,
+        taskId: task.id,
+        entityId: entity.id,
         refType: 'consumes',
       ),
     );
     await knowledgeRepo.delete(entity.id);
 
-    final result = await getTaskKnowledgeEntitiesQuery.execute(task.id.raw);
+    final result = await getTaskKnowledgeEntitiesQuery.execute(task.id);
 
     expect(result.refs, hasLength(1));
     expect(result.entities, isEmpty);

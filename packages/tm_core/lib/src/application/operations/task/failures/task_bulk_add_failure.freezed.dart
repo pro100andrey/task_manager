@@ -115,7 +115,7 @@ class TaskBulkAddProjectNotFound implements TaskBulkAddFailure {
   const TaskBulkAddProjectNotFound(this.projectId);
   
 
- final  String projectId;
+ final  ProjectId projectId;
 
 /// Create a copy of TaskBulkAddFailure
 /// with the given fields replaced by the non-null parameter values.
@@ -147,7 +147,7 @@ abstract mixin class $TaskBulkAddProjectNotFoundCopyWith<$Res> implements $TaskB
   factory $TaskBulkAddProjectNotFoundCopyWith(TaskBulkAddProjectNotFound value, $Res Function(TaskBulkAddProjectNotFound) _then) = _$TaskBulkAddProjectNotFoundCopyWithImpl;
 @useResult
 $Res call({
- String projectId
+ ProjectId projectId
 });
 
 
@@ -167,7 +167,7 @@ class _$TaskBulkAddProjectNotFoundCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? projectId = null,}) {
   return _then(TaskBulkAddProjectNotFound(
 null == projectId ? _self.projectId : projectId // ignore: cast_nullable_to_non_nullable
-as String,
+as ProjectId,
   ));
 }
 
