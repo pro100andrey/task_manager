@@ -1,46 +1,21 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../enums/knowledge_entity_type.dart';
-import '../value_objects/knowledge/knowledge_entity_id.dart';
-import '../value_objects/project/project_id.dart';
+import '../value_objects/value_objects.dart';
 
-class KnowledgeEntity {
-  const KnowledgeEntity({
-    required this.id,
-    required this.projectId,
-    required this.name,
-    required this.normalizedName,
-    required this.entityType,
-    required this.content,
-    required this.metadata,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+part 'knowledge_entity.freezed.dart';
 
-  final KnowledgeEntityId id;
-  final ProjectId projectId;
-  final String name;
-  final String normalizedName;
-  final KnowledgeEntityType entityType;
-  final String content;
-  final Map<String, dynamic> metadata;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  KnowledgeEntity copyWith({
-    String? name,
-    String? normalizedName,
-    KnowledgeEntityType? entityType,
-    String? content,
-    Map<String, dynamic>? metadata,
-    DateTime? updatedAt,
-  }) => KnowledgeEntity(
-    id: id,
-    projectId: projectId,
-    name: name ?? this.name,
-    normalizedName: normalizedName ?? this.normalizedName,
-    entityType: entityType ?? this.entityType,
-    content: content ?? this.content,
-    metadata: metadata ?? this.metadata,
-    createdAt: createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
+@freezed
+abstract class KnowledgeEntity with _$KnowledgeEntity {
+  const factory KnowledgeEntity({
+    required KnowledgeEntityId id,
+    required ProjectId projectId,
+    required String name,
+    required String normalizedName,
+    required KnowledgeEntityType entityType,
+    required String content,
+    required Map<String, dynamic> metadata,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _KnowledgeEntity;
 }

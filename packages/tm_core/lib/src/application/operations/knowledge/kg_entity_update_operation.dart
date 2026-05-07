@@ -62,16 +62,26 @@ class KgEntityUpdateOperation extends _Operation {
       }
     }
 
-    final updated = current.copyWith(
-      content: command.content,
-      entityType: entityType,
-      metadata: command.clearMetadata
-          ? const <String, dynamic>{}
-          : (command.metadata ?? current.metadata),
-      updatedAt: DateTime.now().toUtc(),
-    );
+    var updated = current;
+
+    if (command.content case final content?) {
+      updated = updated.copyWith(content: content);
+    }
+
+    if (entityType case final type?) {
+      updated = updated.copyWith(entityType: type);
+    }
+
+    if (command.clearMetadata case true) {
+      updated = updated.copyWith(metadata: {});
+    } else if (command.metadata case final metadata?) {
+      updated = updated.copyWith(metadata: metadata);
+    }
+
+    updated = updated.copyWith(updatedAt: DateTime.now().toUtc());
 
     final saved = await _knowledgeRepository.save(updated);
+
     return Success(saved);
   }
 }
