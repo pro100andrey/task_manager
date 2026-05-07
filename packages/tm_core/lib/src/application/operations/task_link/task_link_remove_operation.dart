@@ -1,7 +1,6 @@
 import '../../../domain/enums/link_type.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_link_repository.dart';
 import '../operation.dart';
@@ -40,13 +39,7 @@ class TaskLinkRemoveOperation extends _Operation {
   Future<Result<void, TaskLinkRemoveFailure>> run(
     TaskLinkRemoveCommand command,
   ) async {
-    // Validate IDs
-    late final TaskId fromId;
-    late final TaskId toId;
-    try {
-      fromId = command.fromTaskId;
-      toId = command.toTaskId;
-    } on FormatException {
+    if (command.fromTaskId.formatError case _?) {
       return Failure(
         TaskLinkRemoveNotFound(
           fromTaskId: command.fromTaskId,
@@ -56,21 +49,22 @@ class TaskLinkRemoveOperation extends _Operation {
       );
     }
 
-    // Parse optional link type
-    LinkType? linkType;
-    if (command.linkType != null) {
-      linkType = LinkType.values
-          .where((lt) => lt == command.linkType)
-          .firstOrNull;
-      if (linkType == null) {
-        return Failure(TaskLinkRemoveInvalidLinkType(command.linkType!));
-      }
+    var linkType = command.linkType;
+
+    if (linkType == LinkType.unknown) {
+      return Failure(TaskLinkRemoveInvalidLinkType(linkType!));
     }
 
-    // Verify at least one link exists
-    if (linkType != null) {
-      final existing = await _linkRepository.get(fromId, toId, linkType);
-      if (existing == null) {
+    if (linkType == null) {
+      // Check any link exists between the two tasks
+      final links = await _linkRepository.getByTaskId(command.fromTaskId);
+      final hasPair = links.any(
+        (l) =>
+            l.fromTaskId == command.fromTaskId &&
+            l.toTaskId == command.toTaskId,
+      );
+
+      if (!hasPair) {
         return Failure(
           TaskLinkRemoveNotFound(
             fromTaskId: command.fromTaskId,
@@ -80,36 +74,38 @@ class TaskLinkRemoveOperation extends _Operation {
         );
       }
     } else {
-      // Check any link exists between the two tasks
-      final links = await _linkRepository.getByTaskId(fromId);
-      final hasPair = links.any(
-        (l) => l.fromTaskId == fromId && l.toTaskId == toId,
+      final existing = await _linkRepository.get(
+        command.fromTaskId,
+        command.toTaskId,
+        linkType,
       );
-      if (!hasPair) {
+
+      if (existing == null) {
         return Failure(
           TaskLinkRemoveNotFound(
             fromTaskId: command.fromTaskId,
             toTaskId: command.toTaskId,
+            linkType: command.linkType,
           ),
         );
       }
+
+      linkType = existing.linkType;
     }
 
-    await _linkRepository.delete(fromId, toId, linkType);
+    await _linkRepository.delete(
+      command.fromTaskId,
+      command.toTaskId,
+      linkType,
+    );
 
-    // Publish one event per removed link type
-    final removedTypes = linkType != null
-        ? [linkType]
-        : LinkType.values.toList();
-    for (final lt in removedTypes) {
-      await _bus.publish(
-        DomainEvent.taskLinkRemoved(
-          fromTaskId: fromId,
-          toTaskId: toId,
-          linkType: lt.value,
-        ),
-      );
-    }
+    await _bus.publish(
+      DomainEvent.taskLinkRemoved(
+        fromTaskId: command.fromTaskId,
+        toTaskId: command.toTaskId,
+        linkType: linkType!,
+      ),
+    );
 
     return const Success(null);
   }

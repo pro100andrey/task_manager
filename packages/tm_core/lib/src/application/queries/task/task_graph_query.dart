@@ -26,7 +26,7 @@ class TaskGraphParams {
   final int? depth;
 
   /// 'strong' | 'soft'. Null = all link types.
-  final String? linkType;
+  final LinkType? linkType;
 }
 
 class TaskGraphNode {
@@ -77,7 +77,7 @@ class TaskGraphQuery {
     LinkType? typeFilter;
     if (params.linkType != null) {
       typeFilter = LinkType.values
-          .where((e) => e.value == params.linkType)
+          .where((e) => e== params.linkType)
           .firstOrNull;
       if (typeFilter == null) {
         return null;

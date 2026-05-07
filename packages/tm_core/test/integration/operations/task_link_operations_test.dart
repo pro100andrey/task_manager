@@ -82,7 +82,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -98,7 +98,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'soft',
+          linkType: .soft,
         ),
       );
 
@@ -112,7 +112,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
           label: 'blocks',
         ),
       );
@@ -127,7 +127,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: TaskId.generate(),
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -141,7 +141,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: TaskId.generate(),
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -155,7 +155,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskA.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -169,7 +169,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -177,7 +177,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -191,7 +191,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'invalid',
+          linkType: LinkType.fromValue('invalid'),
         ),
       );
 
@@ -206,7 +206,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       // B → C
@@ -214,7 +214,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskB.id,
           toTaskId: taskC.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       // C → A — should be rejected
@@ -222,7 +222,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskC.id,
           toTaskId: taskA.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -236,14 +236,14 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'soft',
+          linkType: .soft,
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
           fromTaskId: taskB.id,
           toTaskId: taskC.id,
-          linkType: 'soft',
+          linkType: .soft,
         ),
       );
       // C → A — allowed for soft
@@ -251,7 +251,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskC.id,
           toTaskId: taskA.id,
-          linkType: 'soft',
+          linkType: .soft,
         ),
       );
 
@@ -266,7 +266,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -284,7 +284,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
     });
@@ -311,7 +311,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'soft',
+          linkType: .soft,
         ),
       );
 

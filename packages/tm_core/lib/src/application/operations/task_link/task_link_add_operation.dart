@@ -1,12 +1,10 @@
 import 'package:uuid/uuid.dart';
 
 import '../../../domain/entities/task_link.dart';
-import '../../../domain/enums/link_type.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/exceptions/cycle_exception.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/task_graph.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_link_repository.dart';
 import '../../ports/task_repository.dart';
@@ -53,47 +51,45 @@ class TaskLinkAddOperation extends _Operation {
     TaskLinkAddCommand command,
   ) async {
     // Validate fromTaskId
-    late final TaskId fromId;
-    try {
-      fromId = command.fromTaskId;
-    } on FormatException {
+
+    if (command.fromTaskId.formatError case final _?) {
       return Failure(TaskLinkAddFromNotFound(command.fromTaskId));
     }
 
     // Validate toTaskId
-    late final TaskId toId;
-    try {
-      toId = command.toTaskId;
-    } on FormatException {
+    if (command.toTaskId.formatError case final _?) {
       return Failure(TaskLinkAddToNotFound(command.toTaskId));
     }
 
     // Self-reference guard
-    if (fromId == toId) {
+    if (command.fromTaskId == command.toTaskId) {
       return Failure(TaskLinkAddSelfReference(command.fromTaskId));
     }
 
     // Parse link type
-    final linkType = LinkType.values
-        .where((lt) => lt.value == command.linkType)
-        .firstOrNull;
-    if (linkType == null) {
+
+    if (command.linkType == .unknown) {
       return Failure(TaskLinkAddInvalidLinkType(command.linkType));
     }
 
     // Ensure both tasks exist
-    final fromTask = await _taskRepository.getById(fromId);
+    final fromTask = await _taskRepository.getById(command.fromTaskId);
     if (fromTask == null) {
       return Failure(TaskLinkAddFromNotFound(command.fromTaskId));
     }
 
-    final toTask = await _taskRepository.getById(toId);
+    final toTask = await _taskRepository.getById(command.toTaskId);
     if (toTask == null) {
       return Failure(TaskLinkAddToNotFound(command.toTaskId));
     }
 
     // Check for duplicate
-    final existing = await _linkRepository.get(fromId, toId, linkType);
+    final existing = await _linkRepository.get(
+      command.fromTaskId,
+      command.toTaskId,
+      command.linkType,
+    );
+
     if (existing != null) {
       return Failure(
         TaskLinkAddAlreadyExists(
@@ -105,7 +101,7 @@ class TaskLinkAddOperation extends _Operation {
     }
 
     // Cycle detection for strong links
-    if (linkType.isStrong) {
+    if (command.linkType == .strong) {
       // Load all strong links for the project by fetching links of both tasks
       // and then building adjacency from the relevant task set.
       final projectTasks = await _taskRepository.getByProjectId(
@@ -118,7 +114,11 @@ class TaskLinkAddOperation extends _Operation {
 
       final adj = buildStrongAdjacency(allLinks);
       try {
-        detectCycle(adj, extraFrom: fromId, extraTo: toId);
+        detectCycle(
+          adj,
+          extraFrom: command.fromTaskId,
+          extraTo: command.toTaskId,
+        );
       } on CycleException catch (e) {
         return Failure(TaskLinkAddCycleDetected(e.path));
       }
@@ -126,10 +126,11 @@ class TaskLinkAddOperation extends _Operation {
 
     // Save the new link
     final link = TaskLink(
+      // TODO(pro100andrey): TaskLinkId
       id: const Uuid().v7(),
-      fromTaskId: fromId,
-      toTaskId: toId,
-      linkType: linkType,
+      fromTaskId: command.fromTaskId,
+      toTaskId: command.toTaskId,
+      linkType: command.linkType,
       createdAt: DateTime.now(),
       label: command.label,
     );
@@ -137,8 +138,8 @@ class TaskLinkAddOperation extends _Operation {
 
     await _bus.publish(
       DomainEvent.taskLinkAdded(
-        fromTaskId: fromId,
-        toTaskId: toId,
+        fromTaskId: command.fromTaskId,
+        toTaskId: command.toTaskId,
         linkType: command.linkType,
       ),
     );

@@ -206,7 +206,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -224,7 +224,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -244,7 +244,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -263,7 +263,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -283,14 +283,14 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: c.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -310,14 +310,14 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: d.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 

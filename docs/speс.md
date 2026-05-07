@@ -813,8 +813,8 @@ tm mcp --readonly
 | `project_switch` | Без изменений |
 
 **Алиасы для backward compatibility:**  
-`dependency_add` → `link_add(linkType: 'strong')`  
-`dependency_remove` → `link_remove(linkType: 'strong')`  
+`dependency_add` → `link_add(linkType: .strong)`  
+`dependency_remove` → `link_remove(linkType: .strong)`  
 `task_next_ready` → `get_active_front(limit: 1)` (возвращает первую задачу)
 
 ---

@@ -7,8 +7,6 @@ enum LinkType {
   const LinkType(this.value);
   final String value;
 
-  bool get isStrong => this == LinkType.strong;
-
   static LinkType fromValue(String value) => LinkType.values.firstWhere(
     (lt) => lt.value == value,
     orElse: () => LinkType.unknown,

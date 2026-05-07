@@ -205,7 +205,7 @@ class TaskBreakdownOperation extends _Operation {
           DomainEvent.taskLinkAdded(
             fromTaskId: savedLink.fromTaskId,
             toTaskId: savedLink.toTaskId,
-            linkType: savedLink.linkType.value,
+            linkType: savedLink.linkType,
           ),
         );
       }

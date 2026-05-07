@@ -1235,7 +1235,7 @@ class TaskLinkAddedEvent extends DomainEvent {
 
  final  TaskId fromTaskId;
  final  TaskId toTaskId;
- final  String linkType;
+ final  LinkType linkType;
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -1267,7 +1267,7 @@ abstract mixin class $TaskLinkAddedEventCopyWith<$Res> implements $DomainEventCo
   factory $TaskLinkAddedEventCopyWith(TaskLinkAddedEvent value, $Res Function(TaskLinkAddedEvent) _then) = _$TaskLinkAddedEventCopyWithImpl;
 @useResult
 $Res call({
- TaskId fromTaskId, TaskId toTaskId, String linkType
+ TaskId fromTaskId, TaskId toTaskId, LinkType linkType
 });
 
 
@@ -1289,7 +1289,7 @@ class _$TaskLinkAddedEventCopyWithImpl<$Res>
 fromTaskId: null == fromTaskId ? _self.fromTaskId : fromTaskId // ignore: cast_nullable_to_non_nullable
 as TaskId,toTaskId: null == toTaskId ? _self.toTaskId : toTaskId // ignore: cast_nullable_to_non_nullable
 as TaskId,linkType: null == linkType ? _self.linkType : linkType // ignore: cast_nullable_to_non_nullable
-as String,
+as LinkType,
   ));
 }
 
@@ -1305,7 +1305,7 @@ class TaskLinkRemovedEvent extends DomainEvent {
 
  final  TaskId fromTaskId;
  final  TaskId toTaskId;
- final  String linkType;
+ final  LinkType linkType;
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -1337,7 +1337,7 @@ abstract mixin class $TaskLinkRemovedEventCopyWith<$Res> implements $DomainEvent
   factory $TaskLinkRemovedEventCopyWith(TaskLinkRemovedEvent value, $Res Function(TaskLinkRemovedEvent) _then) = _$TaskLinkRemovedEventCopyWithImpl;
 @useResult
 $Res call({
- TaskId fromTaskId, TaskId toTaskId, String linkType
+ TaskId fromTaskId, TaskId toTaskId, LinkType linkType
 });
 
 
@@ -1359,7 +1359,7 @@ class _$TaskLinkRemovedEventCopyWithImpl<$Res>
 fromTaskId: null == fromTaskId ? _self.fromTaskId : fromTaskId // ignore: cast_nullable_to_non_nullable
 as TaskId,toTaskId: null == toTaskId ? _self.toTaskId : toTaskId // ignore: cast_nullable_to_non_nullable
 as TaskId,linkType: null == linkType ? _self.linkType : linkType // ignore: cast_nullable_to_non_nullable
-as String,
+as LinkType,
   ));
 }
 

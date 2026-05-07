@@ -301,7 +301,7 @@ class TaskReplanOperation extends _Operation {
       );
     }
 
-    if (linkType.isStrong) {
+    if (linkType == .strong) {
       final projectTasks = await _taskRepository.getByProjectId(
         rootTask.projectId,
       );
@@ -332,7 +332,7 @@ class TaskReplanOperation extends _Operation {
       DomainEvent.taskLinkAdded(
         fromTaskId: fromId,
         toTaskId: toId,
-        linkType: linkType.value,
+        linkType: linkType,
       ),
     );
     return Success(TaskReplanAppliedChange(action: 'add_link', result: saved));
@@ -385,7 +385,7 @@ class TaskReplanOperation extends _Operation {
       DomainEvent.taskLinkRemoved(
         fromTaskId: fromId,
         toTaskId: toId,
-        linkType: linkType?.value ?? 'any',
+        linkType: linkType!,
       ),
     );
     return Success(

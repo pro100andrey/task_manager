@@ -1,9 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../entities/project.dart';
-import '../value_objects/project/project_id.dart';
-import '../value_objects/task/task_alias.dart';
-import '../value_objects/task/task_id.dart';
+import '../../../tm_core.dart';
 
 part 'domain_event.freezed.dart';
 
@@ -89,12 +86,12 @@ sealed class DomainEvent with _$DomainEvent {
   const factory DomainEvent.taskLinkAdded({
     required TaskId fromTaskId,
     required TaskId toTaskId,
-    required String linkType,
+    required LinkType linkType,
   }) = TaskLinkAddedEvent;
 
   const factory DomainEvent.taskLinkRemoved({
     required TaskId fromTaskId,
     required TaskId toTaskId,
-    required String linkType,
+    required LinkType linkType,
   }) = TaskLinkRemovedEvent;
 }

@@ -27,7 +27,7 @@ final class TaskLinkAddAlreadyExists extends TaskLinkAddFailure {
   });
   final TaskId fromTaskId;
   final TaskId toTaskId;
-  final String linkType;
+  final LinkType linkType;
 }
 
 final class TaskLinkAddCycleDetected extends TaskLinkAddFailure {
@@ -37,5 +37,5 @@ final class TaskLinkAddCycleDetected extends TaskLinkAddFailure {
 
 final class TaskLinkAddInvalidLinkType extends TaskLinkAddFailure {
   const TaskLinkAddInvalidLinkType(this.value);
-  final String value;
+  final LinkType value;
 }

@@ -57,7 +57,7 @@ class GetActiveFrontQuery {
     // So for task B, prerequisites are all `from` values where `to = B`.
     final prerequisites = <TaskId, Set<TaskId>>{};
     for (final link in links) {
-      if (!link.linkType.isStrong) {
+      if (link.linkType != .strong) {
         continue;
       }
       final prereq = link.fromTaskId;

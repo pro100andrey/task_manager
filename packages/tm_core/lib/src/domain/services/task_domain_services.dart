@@ -195,7 +195,7 @@ int calculateUnblockScore(
 ) => links
     .where(
       (l) =>
-          l.linkType.isStrong &&
+          l.linkType == .strong &&
           l.fromTaskId == taskId &&
           !completedIds.contains(l.toTaskId),
     )
@@ -209,7 +209,7 @@ SoftContext getSoftContext(
   List<TaskLink> links,
   Map<TaskId, Task> taskMap,
 ) {
-  final softLinks = links.where((l) => !l.linkType.isStrong).toList();
+  final softLinks = links.where((l) => l.linkType == .soft).toList();
 
   // Tasks whose soft link points TO taskId (they inform this task)
   final informs = softLinks

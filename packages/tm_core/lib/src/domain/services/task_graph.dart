@@ -6,7 +6,7 @@ import '../../../tm_core.dart';
 Map<TaskId, List<TaskId>> buildStrongAdjacency(List<TaskLink> links) {
   final adj = <TaskId, List<TaskId>>{};
   for (final link in links) {
-    if (link.linkType.isStrong) {
+    if (link.linkType == .strong) {
       adj.putIfAbsent(link.fromTaskId, () => []).add(link.toTaskId);
     }
   }

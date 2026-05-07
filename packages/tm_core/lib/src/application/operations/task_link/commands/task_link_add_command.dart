@@ -11,6 +11,6 @@ class TaskLinkAddCommand extends Command {
 
   final TaskId fromTaskId;
   final TaskId toTaskId;
-  final String linkType;
+  final LinkType linkType;
   final String? label;
 }

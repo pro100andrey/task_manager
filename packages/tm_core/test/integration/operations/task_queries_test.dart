@@ -266,15 +266,11 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
-        TaskLinkAddCommand(
-          fromTaskId: c.id,
-          toTaskId: a.id,
-          linkType: 'soft',
-        ),
+        TaskLinkAddCommand(fromTaskId: c.id, toTaskId: a.id, linkType: .soft),
       );
 
       final items = await linkList.execute(
@@ -291,14 +287,14 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
           fromTaskId: c.id,
           toTaskId: a.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -317,14 +313,14 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
           fromTaskId: c.id,
           toTaskId: a.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -343,19 +339,19 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: c.id,
-          linkType: 'soft',
+          linkType: .soft,
         ),
       );
 
       final items = await linkList.execute(
-        LinkListParams(taskId: a.id, linkType: 'soft'),
+        LinkListParams(taskId: a.id, linkType: .soft),
       );
       expect(items, hasLength(1));
       expect(items.first.task.id, c.id);
@@ -440,11 +436,7 @@ void main() {
       final a = await createTask('A');
       final b = await createTask('B');
       await linkAdd.execute(
-        TaskLinkAddCommand(
-          fromTaskId: b.id,
-          toTaskId: a.id,
-          linkType: 'soft',
-        ),
+        TaskLinkAddCommand(fromTaskId: b.id, toTaskId: a.id, linkType: .soft),
       );
 
       final result = await taskShow.execute(
@@ -513,7 +505,7 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -573,21 +565,17 @@ void main() {
         TaskLinkAddCommand(
           fromTaskId: a.id,
           toTaskId: b.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
       await linkAdd.execute(
-        TaskLinkAddCommand(
-          fromTaskId: a.id,
-          toTaskId: c.id,
-          linkType: 'soft',
-        ),
+        TaskLinkAddCommand(fromTaskId: a.id, toTaskId: c.id, linkType: .soft),
       );
 
       final result = await taskGraph.execute(
         TaskGraphParams(
           projectId: project.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -618,7 +606,7 @@ void main() {
       final result = await taskGraph.execute(
         TaskGraphParams(
           projectId: project.id,
-          linkType: 'unknown',
+          linkType: LinkType.fromValue('spurious'),
         ),
       );
       expect(result, isNull);
