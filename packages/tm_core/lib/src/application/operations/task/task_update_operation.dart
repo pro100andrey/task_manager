@@ -2,7 +2,6 @@ import '../../../domain/entities/task.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
 import '../../../domain/value_objects/task/task_description.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../../domain/value_objects/task/task_title.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
@@ -39,7 +38,7 @@ class TaskUpdateOperation extends _Operation {
 
   @override
   Future<Result<Task, TaskUpdateFailure>> run(TaskUpdateCommand command) async {
-    final task = await _repository.getById(TaskId(command.taskId));
+    final task = await _repository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskUpdateNotFound(command.taskId));
     }

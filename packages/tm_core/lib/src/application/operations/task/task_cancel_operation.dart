@@ -2,7 +2,6 @@ import '../../../domain/entities/task.dart';
 import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -44,7 +43,7 @@ class TaskCancelOperation extends _Operation {
   Future<Result<Task, TaskCancelFailure>> run(
     TaskCancelCommand command,
   ) async {
-    final task = await _repository.getById(TaskId(command.taskId));
+    final task = await _repository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskCancelNotFound(command.taskId));
     }
@@ -52,8 +51,8 @@ class TaskCancelOperation extends _Operation {
     if (task.status.isTerminal) {
       return Failure(
         TaskCancelInvalidTransition(
-          from: task.status.value,
-          to: TaskStatus.cancelled.value,
+          from: task.status,
+          to: TaskStatus.cancelled,
         ),
       );
     }

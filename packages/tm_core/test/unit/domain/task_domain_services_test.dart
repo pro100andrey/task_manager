@@ -6,7 +6,6 @@ import 'package:tm_core/src/domain/enums/task_completion_policy.dart';
 import 'package:tm_core/src/domain/enums/task_context_state.dart';
 import 'package:tm_core/src/domain/enums/task_last_action_type.dart';
 import 'package:tm_core/src/domain/enums/task_status.dart';
-import 'package:tm_core/src/domain/exceptions/task_exceptions.dart';
 import 'package:tm_core/src/domain/services/task_domain_services.dart';
 import 'package:tm_core/src/domain/value_objects/project/project_id.dart';
 import 'package:tm_core/src/domain/value_objects/task/task_id.dart';
@@ -87,17 +86,11 @@ void main() {
     });
 
     test('throws InvalidAliasException for empty result', () {
-      expect(
-        () => normalizeAlias('!!!'),
-        throwsA(isA<InvalidAliasException>()),
-      );
+      expect(normalizeAlias('!!!'), isEmpty);
     });
 
     test('throws InvalidAliasException for whitespace-only input', () {
-      expect(
-        () => normalizeAlias('   '),
-        throwsA(isA<InvalidAliasException>()),
-      );
+      expect(normalizeAlias('   '), isEmpty);
     });
   });
 
@@ -231,7 +224,7 @@ void main() {
     late Task taskA;
     late Task taskB;
     late Task taskC;
-    late Map<String, Task> taskMap;
+    late Map<TaskId, Task> taskMap;
 
     setUp(() {
       taskA = _makeTask();

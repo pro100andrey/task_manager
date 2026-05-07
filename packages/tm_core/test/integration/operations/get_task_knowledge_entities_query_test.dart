@@ -111,7 +111,9 @@ void main() {
   });
 
   test('returns empty result for invalid task id', () async {
-    final result = await getTaskKnowledgeEntitiesQuery.execute('bad-id');
+    final result = await getTaskKnowledgeEntitiesQuery.execute(
+      const .new('bad-id'),
+    );
     expect(result.refs, isEmpty);
     expect(result.entities, isEmpty);
   });

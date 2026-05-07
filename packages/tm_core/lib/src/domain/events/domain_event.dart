@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../entities/project.dart';
 import '../value_objects/project/project_id.dart';
+import '../value_objects/task/task_alias.dart';
 import '../value_objects/task/task_id.dart';
 
 part 'domain_event.freezed.dart';
@@ -82,7 +83,7 @@ sealed class DomainEvent with _$DomainEvent {
 
   const factory DomainEvent.taskAliasRenamed({
     required TaskId taskId,
-    required String newAlias,
+    TaskAlias? newAlias,
   }) = TaskAliasRenamedEvent;
 
   const factory DomainEvent.taskLinkAdded({

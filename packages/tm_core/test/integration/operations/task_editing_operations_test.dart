@@ -394,31 +394,31 @@ void main() {
   group('TaskRenameAliasOperation', () {
     test('sets a new alias on a task', () async {
       final result = await taskRenameAlias.execute(
-        TaskRenameAliasCommand(taskId: taskA.id, alias: 'my-feature'),
+        TaskRenameAliasCommand(taskId: taskA.id, alias: .new('my-feature')),
       );
 
       expect(result.isSuccess, isTrue);
-      final task = (result as Success<Task, dynamic>).value;
-      expect(task.alias?.raw, 'my-feature');
-      expect(task.normalizedAlias, 'my-feature');
+      final task = result.value!;
+      expect(task.alias, 'my-feature');
+      expect(task.alias?.normalized, 'my-feature');
     });
 
     test('normalizes alias to lower-kebab-case', () async {
       final result = await taskRenameAlias.execute(
         TaskRenameAliasCommand(
           taskId: taskA.id,
-          alias: '  My Feature Task  ',
+          alias: .new('  My Feature Task  '),
         ),
       );
 
       expect(result.isSuccess, isTrue);
       final task = (result as Success<Task, dynamic>).value;
-      expect(task.normalizedAlias, 'my-feature-task');
+      expect(task.alias, 'my-feature-task');
     });
 
     test('clears alias when null is passed', () async {
       await taskRenameAlias.execute(
-        TaskRenameAliasCommand(taskId: taskA.id, alias: 'some-alias'),
+        TaskRenameAliasCommand(taskId: taskA.id, alias: .new('some-alias')),
       );
       final result = await taskRenameAlias.execute(
         TaskRenameAliasCommand(taskId: taskA.id),
@@ -427,14 +427,13 @@ void main() {
       expect(result.isSuccess, isTrue);
       final task = (result as Success<Task, dynamic>).value;
       expect(task.alias, isNull);
-      expect(task.normalizedAlias, isNull);
     });
 
     test('returns TaskRenameAliasNotFound for unknown task', () async {
       final result = await taskRenameAlias.execute(
         TaskRenameAliasCommand(
           taskId: TaskId.generate(),
-          alias: 'something',
+          alias: .new('something'),
         ),
       );
       expect(result.isFailure, isTrue);
@@ -450,7 +449,7 @@ void main() {
         final result = await taskRenameAlias.execute(
           TaskRenameAliasCommand(
             taskId: taskA.id,
-            alias: '---',
+            alias: .new('---'),
           ),
         );
         expect(result.isFailure, isTrue);
@@ -466,12 +465,12 @@ void main() {
       () async {
         // Set alias on taskB first
         await taskRenameAlias.execute(
-          TaskRenameAliasCommand(taskId: taskB.id, alias: 'shared-alias'),
+          TaskRenameAliasCommand(taskId: taskB.id, alias: .new('shared-alias')),
         );
 
         // Try same alias on taskA
         final result = await taskRenameAlias.execute(
-          TaskRenameAliasCommand(taskId: taskA.id, alias: 'shared-alias'),
+          TaskRenameAliasCommand(taskId: taskA.id, alias: .new('shared-alias')),
         );
         expect(result.isFailure, isTrue);
         final err =
@@ -483,10 +482,10 @@ void main() {
 
     test('allows re-setting same alias on the same task', () async {
       await taskRenameAlias.execute(
-        TaskRenameAliasCommand(taskId: taskA.id, alias: 'my-alias'),
+        TaskRenameAliasCommand(taskId: taskA.id, alias: .new('my-alias')),
       );
       final result = await taskRenameAlias.execute(
-        TaskRenameAliasCommand(taskId: taskA.id, alias: 'my-alias'),
+        TaskRenameAliasCommand(taskId: taskA.id, alias: .new('my-alias')),
       );
       expect(result.isSuccess, isTrue);
     });
@@ -496,7 +495,7 @@ void main() {
       bus.listen<DomainEvent>(events.add);
 
       await taskRenameAlias.execute(
-        TaskRenameAliasCommand(taskId: taskA.id, alias: 'feature-x'),
+        TaskRenameAliasCommand(taskId: taskA.id, alias: .new('feature-x')),
       );
       await Future<void>.delayed(Duration.zero);
 

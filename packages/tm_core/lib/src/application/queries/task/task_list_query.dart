@@ -23,7 +23,7 @@ class TaskListParams {
   final String? contextState;
 
   /// Filter by parent task UUID. Null means all levels.
-  final String? parentId;
+  final TaskId? parentId;
 
   /// Filter by task status string (e.g. 'pending', 'in_progress').
   /// Null means all statuses.
@@ -66,7 +66,7 @@ class TaskListQuery {
     // Filter by parentId
     if (params.parentId != null) {
       try {
-        final parentId = TaskId(params.parentId!);
+        final parentId = params.parentId!;
         tasks = tasks.where((t) => t.parentId == parentId).toList();
       } on FormatException {
         return const [];

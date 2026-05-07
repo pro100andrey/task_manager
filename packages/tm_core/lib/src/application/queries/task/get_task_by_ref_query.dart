@@ -1,9 +1,6 @@
 import '../../../domain/entities/task.dart';
-import '../../../domain/exceptions/task_exceptions.dart';
-import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/project/project_id.dart';
-import '../../../domain/value_objects/task/task_alias.dart';
-import '../../../domain/value_objects/task/task_id.dart';
+import '../../../domain/value_objects/task/task_ref.dart';
 import '../../ports/task_repository.dart';
 
 class GetTaskByRefParams {
@@ -16,7 +13,7 @@ class GetTaskByRefParams {
   final ProjectId projectId;
 
   /// UUID v7 or alias string (§7).
-  final String ref;
+  final TaskRef ref;
 }
 
 /// Resolves a task reference (UUID v7 or alias) to a [Task] per §7.
@@ -37,20 +34,11 @@ class GetTaskByRefQuery {
 
     // Try UUID first
 
-    try {
-      final id = TaskId(params.ref);
-      return await _taskRepository.getById(id);
-    } on FormatException {
-      // Not a UUIDv7 — fall through to alias lookup
-    }
-
-    // Normalize as alias and search
-    try {
-      final normalized = normalizeAlias(params.ref);
-      final alias = TaskAlias(normalized);
-      return await _taskRepository.getByAlias(params.projectId, alias);
-    } on InvalidAliasException {
-      return null;
+    switch (params.ref) {
+      case TaskIdRef(:final id):
+        return _taskRepository.getById(id);
+      case TaskAliasRef(:final alias):
+        return _taskRepository.getByAlias(params.projectId, alias);
     }
   }
 }

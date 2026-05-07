@@ -10,15 +10,15 @@ class TaskExistsPolicy<C extends Command, F> extends PreconditionPolicy<C, F> {
   final TaskRepository _repository;
   //
   // ignore: unsafe_variance
-  final String Function(C command) _taskIdSelector;
-  final F Function(String taskId) _notFound;
+  final TaskId Function(C command) _taskIdSelector;
+  final F Function(TaskId taskId) _notFound;
 
   @override
   Future<Iterable<F>> check(C command, OperationContext context) async {
     final rawId = _taskIdSelector(command);
     late final TaskId taskId;
     try {
-      taskId = TaskId(rawId);
+      taskId = rawId;
     } on FormatException {
       return [_notFound(rawId)];
     }

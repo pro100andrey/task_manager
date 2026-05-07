@@ -1,10 +1,6 @@
 import '../../../domain/entities/task.dart';
 import '../../../domain/events/domain_event.dart';
-import '../../../domain/exceptions/task_exceptions.dart';
 import '../../../domain/result.dart';
-import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/task/task_alias.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -29,7 +25,7 @@ class TaskRenameAliasOperation extends _Operation {
   @override
   Map<String, dynamic> traceAttributes(TaskRenameAliasCommand command) => {
     'taskId': command.taskId,
-    'alias': command.alias,
+    'alias': command.alias?.normalized,
   };
 
   @override
@@ -49,7 +45,7 @@ class TaskRenameAliasOperation extends _Operation {
   Future<Result<Task, TaskRenameAliasFailure>> run(
     TaskRenameAliasCommand command,
   ) async {
-    final task = await _repository.getById(TaskId(command.taskId));
+    final task = await _repository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskRenameAliasNotFound(command.taskId));
     }
@@ -60,41 +56,36 @@ class TaskRenameAliasOperation extends _Operation {
     if (command.alias == null) {
       final updated = task.copyWith(
         alias: null,
-        normalizedAlias: null,
         updatedAt: now,
       );
       final saved = await _repository.save(updated);
       await _bus.publish(
-        DomainEvent.taskAliasRenamed(taskId: saved.id, newAlias: ''),
+        DomainEvent.taskAliasRenamed(taskId: saved.id),
       );
       return Success(saved);
     }
 
-    // Normalize alias
-    String normalized;
-    try {
-      normalized = normalizeAlias(command.alias!);
-    } on InvalidAliasException catch (e) {
-      return Failure(TaskRenameAliasInvalidAlias(e.reason));
-    }
-
-    final aliasVo = TaskAlias(normalized);
-
     // Uniqueness check within project
-    final existing = await _repository.getByAlias(task.projectId, aliasVo);
+    final existing = await _repository.getByAlias(
+      task.projectId,
+      command.alias!,
+    );
     if (existing != null && existing.id != task.id) {
-      return Failure(TaskRenameAliasAlreadyExists(normalized));
+      return Failure(TaskRenameAliasAlreadyExists(command.alias!));
     }
 
     final updated = task.copyWith(
-      alias: aliasVo,
-      normalizedAlias: normalized,
+      alias: command.alias,
       updatedAt: now,
     );
+
     final saved = await _repository.save(updated);
 
     await _bus.publish(
-      DomainEvent.taskAliasRenamed(taskId: saved.id, newAlias: normalized),
+      DomainEvent.taskAliasRenamed(
+        taskId: saved.id,
+        newAlias: command.alias,
+      ),
     );
 
     return Success(saved);

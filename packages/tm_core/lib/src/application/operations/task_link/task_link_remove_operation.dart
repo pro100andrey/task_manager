@@ -44,8 +44,8 @@ class TaskLinkRemoveOperation extends _Operation {
     late final TaskId fromId;
     late final TaskId toId;
     try {
-      fromId = TaskId(command.fromTaskId);
-      toId = TaskId(command.toTaskId);
+      fromId = command.fromTaskId;
+      toId = command.toTaskId;
     } on FormatException {
       return Failure(
         TaskLinkRemoveNotFound(
@@ -60,7 +60,7 @@ class TaskLinkRemoveOperation extends _Operation {
     LinkType? linkType;
     if (command.linkType != null) {
       linkType = LinkType.values
-          .where((lt) => lt.value == command.linkType)
+          .where((lt) => lt == command.linkType)
           .firstOrNull;
       if (linkType == null) {
         return Failure(TaskLinkRemoveInvalidLinkType(command.linkType!));

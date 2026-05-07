@@ -1,10 +1,12 @@
+import '../../../../../tm_core.dart';
+
 sealed class TaskRenameAliasFailure {
   const TaskRenameAliasFailure();
 }
 
 final class TaskRenameAliasNotFound extends TaskRenameAliasFailure {
   const TaskRenameAliasNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskRenameAliasInvalidAlias extends TaskRenameAliasFailure {
@@ -14,5 +16,5 @@ final class TaskRenameAliasInvalidAlias extends TaskRenameAliasFailure {
 
 final class TaskRenameAliasAlreadyExists extends TaskRenameAliasFailure {
   const TaskRenameAliasAlreadyExists(this.alias);
-  final String alias;
+  final TaskAlias alias;
 }

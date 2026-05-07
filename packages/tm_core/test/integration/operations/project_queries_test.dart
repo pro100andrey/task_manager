@@ -232,7 +232,7 @@ void main() {
 
     test('invalid taskId returns empty list', () async {
       final result = await reflectionList.execute(
-        const ReflectionListParams(taskId: 'not-a-uuid'),
+        const ReflectionListParams(taskId: .new('not-a-uuid')),
       );
       expect(result, isEmpty);
     });

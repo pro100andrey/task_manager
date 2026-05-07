@@ -1,10 +1,12 @@
+import '../../../../domain/value_objects/task/task_id.dart';
+
 sealed class TaskDoneFailure {
   const TaskDoneFailure();
 }
 
 final class TaskDoneNotFound extends TaskDoneFailure {
   const TaskDoneNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskDoneInvalidTransition extends TaskDoneFailure {
@@ -15,5 +17,5 @@ final class TaskDoneInvalidTransition extends TaskDoneFailure {
 
 final class TaskDoneNotCompletable extends TaskDoneFailure {
   const TaskDoneNotCompletable(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }

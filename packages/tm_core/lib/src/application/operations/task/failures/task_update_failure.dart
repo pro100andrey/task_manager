@@ -1,10 +1,12 @@
+import '../../../../../tm_core.dart';
+
 sealed class TaskUpdateFailure {
   const TaskUpdateFailure();
 }
 
 final class TaskUpdateNotFound extends TaskUpdateFailure {
   const TaskUpdateNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskUpdateInvalidTitle extends TaskUpdateFailure {

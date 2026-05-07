@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskLinkAddCommand extends Command {
@@ -8,8 +9,8 @@ class TaskLinkAddCommand extends Command {
     this.label,
   });
 
-  final String fromTaskId;
-  final String toTaskId;
+  final TaskId fromTaskId;
+  final TaskId toTaskId;
   final String linkType;
   final String? label;
 }

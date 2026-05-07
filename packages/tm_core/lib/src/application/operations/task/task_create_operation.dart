@@ -2,10 +2,7 @@ import '../../../domain/entities/task.dart';
 import '../../../domain/enums/task_last_action_type.dart';
 import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
-import '../../../domain/exceptions/task_exceptions.dart';
 import '../../../domain/result.dart';
-import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/task/task_alias.dart';
 import '../../../domain/value_objects/task/task_description.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../../domain/value_objects/task/task_title.dart';
@@ -78,14 +75,10 @@ class TaskCreateOperation extends _Operation {
     }
 
     // Validate and normalize alias if provided
-    TaskAlias? alias;
-    String? normalizedAlias;
-    if (command.alias != null) {
-      try {
-        normalizedAlias = normalizeAlias(command.alias!);
-        alias = TaskAlias(normalizedAlias);
-      } on InvalidAliasException catch (e) {
-        return Failure(TaskCreateInvalidAlias(e.reason));
+
+    if (command.alias case final alias?) {
+      if (alias.firstError case final error?) {
+        return Failure(TaskCreateInvalidAlias(error));
       }
 
       // Check alias uniqueness
@@ -93,8 +86,9 @@ class TaskCreateOperation extends _Operation {
         command.projectId,
         alias,
       );
+
       if (existing != null) {
-        return Failure(TaskCreateAliasAlreadyExists(normalizedAlias));
+        return Failure(TaskCreateAliasAlreadyExists(alias));
       }
     }
 
@@ -121,8 +115,7 @@ class TaskCreateOperation extends _Operation {
       metadata: command.metadata,
       planVersion: 0,
       parentId: parentId,
-      alias: alias,
-      normalizedAlias: normalizedAlias,
+      alias: command.alias,
       description: description,
       estimatedEffort: command.estimatedEffort,
       dueDate: command.dueDate,

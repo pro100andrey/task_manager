@@ -2,6 +2,7 @@ import '../../../domain/entities/task.dart';
 import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/project/project_id.dart';
 import '../../../domain/value_objects/task/task_id.dart';
+import '../../../domain/value_objects/task/task_ref.dart';
 import '../../ports/knowledge_repository.dart';
 import '../../ports/task_knowledge_ref_repository.dart';
 import '../../ports/task_link_repository.dart';
@@ -19,7 +20,7 @@ class TaskShowParams {
   final ProjectId projectId;
 
   /// Task reference: UUID v7 or alias (§7).
-  final String ref;
+  final TaskRef ref;
 }
 
 /// Rich view of a single task per §11.3 (task_show).
@@ -85,9 +86,9 @@ class TaskShowQuery {
     }
 
     final allTasks = await _taskRepository.getByProjectId(params.projectId);
-    final taskIds = allTasks.map((t) => TaskId(t.id)).toList();
+    final taskIds = allTasks.map((t) => t.id).toList();
     final links = await _linkRepository.getAllByProjectLinks(taskIds);
-    final taskMap = <String, Task>{for (final t in allTasks) t.id: t};
+    final taskMap = <TaskId, Task>{for (final t in allTasks) t.id: t};
     final softContext = getSoftContext(task.id, links, taskMap);
 
     // Knowledge entities

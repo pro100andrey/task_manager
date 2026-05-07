@@ -1,6 +1,5 @@
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -42,7 +41,7 @@ class TaskDeleteOperation extends _Operation {
   Future<Result<void, TaskDeleteFailure>> run(
     TaskDeleteCommand command,
   ) async {
-    final id = TaskId(command.taskId);
+    final id = command.taskId;
     await _repository.delete(id);
     await _bus.publish(TaskDeletedEvent(taskId: id));
     return const Success(null);

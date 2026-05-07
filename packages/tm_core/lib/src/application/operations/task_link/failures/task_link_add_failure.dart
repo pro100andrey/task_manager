@@ -1,20 +1,22 @@
+import '../../../../../tm_core.dart';
+
 sealed class TaskLinkAddFailure {
   const TaskLinkAddFailure();
 }
 
 final class TaskLinkAddFromNotFound extends TaskLinkAddFailure {
   const TaskLinkAddFromNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskLinkAddToNotFound extends TaskLinkAddFailure {
   const TaskLinkAddToNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskLinkAddSelfReference extends TaskLinkAddFailure {
   const TaskLinkAddSelfReference(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskLinkAddAlreadyExists extends TaskLinkAddFailure {
@@ -23,14 +25,14 @@ final class TaskLinkAddAlreadyExists extends TaskLinkAddFailure {
     required this.toTaskId,
     required this.linkType,
   });
-  final String fromTaskId;
-  final String toTaskId;
+  final TaskId fromTaskId;
+  final TaskId toTaskId;
   final String linkType;
 }
 
 final class TaskLinkAddCycleDetected extends TaskLinkAddFailure {
   const TaskLinkAddCycleDetected(this.path);
-  final List<String> path;
+  final List<TaskId> path;
 }
 
 final class TaskLinkAddInvalidLinkType extends TaskLinkAddFailure {

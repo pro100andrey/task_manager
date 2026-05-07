@@ -34,18 +34,18 @@ class GetActiveFrontQuery {
       );
     }
 
-    final taskIds = tasks.map((t) => TaskId(t.id)).toList();
+    final taskIds = tasks.map((t) => t.id).toList();
     final links = await _linkRepo.getAllByProjectLinks(taskIds);
 
     // Maps used throughout
-    final taskMap = <String, Task>{for (final t in tasks) t.id: t};
-    final completedIds = <String>{
+    final taskMap = <TaskId, Task>{for (final t in tasks) t.id: t};
+    final completedIds = <TaskId>{
       for (final t in tasks)
         if (t.status.isCompleted) t.id,
     };
 
     // Build children map: parentId → [children]
-    final childrenMap = <String, List<Task>>{};
+    final childrenMap = <TaskId, List<Task>>{};
     for (final t in tasks) {
       if (t.parentId != null) {
         childrenMap.putIfAbsent(t.parentId!, () => []).add(t);
@@ -55,7 +55,7 @@ class GetActiveFrontQuery {
     // Build prerequisite map: taskId → {prerequisite IDs}
     // Convention: TaskLink(from=A, to=B) means A is a prerequisite of B.
     // So for task B, prerequisites are all `from` values where `to = B`.
-    final prerequisites = <String, Set<String>>{};
+    final prerequisites = <TaskId, Set<TaskId>>{};
     for (final link in links) {
       if (!link.linkType.isStrong) {
         continue;
@@ -84,7 +84,6 @@ class GetActiveFrontQuery {
       // Strong-predecessor check
       final unmetPrereqs = (prerequisites[task.id] ?? {})
           .where((id) => !completedIds.contains(id))
-          .map(TaskId.new)
           .toList();
 
       if (unmetPrereqs.isNotEmpty) {
@@ -183,13 +182,13 @@ class GetActiveFrontQuery {
 
   /// Computes effective priority for every task in the project, applying
   /// the Hard Cap: ep(child) = min(ep(parent), ownEp(child)).
-  static Map<String, double> _computeEffectivePriority(
+  static Map<TaskId, double> _computeEffectivePriority(
     List<Task> tasks,
-    Map<String, Task> taskMap,
+    Map<TaskId, Task> taskMap,
   ) {
-    final ep = <String, double>{};
+    final ep = <TaskId, double>{};
 
-    double computeEp(String id) {
+    double computeEp(TaskId id) {
       if (ep.containsKey(id)) {
         return ep[id]!;
       }
@@ -215,13 +214,13 @@ class GetActiveFrontQuery {
   }
 
   /// Computes depth (root = 0) for every task.
-  static Map<String, int> _computeDepths(
+  static Map<TaskId, int> _computeDepths(
     List<Task> tasks,
-    Map<String, Task> taskMap,
+    Map<TaskId, Task> taskMap,
   ) {
-    final depths = <String, int>{};
+    final depths = <TaskId, int>{};
 
-    int computeDepth(String id) {
+    int computeDepth(TaskId id) {
       if (depths.containsKey(id)) {
         return depths[id]!;
       }

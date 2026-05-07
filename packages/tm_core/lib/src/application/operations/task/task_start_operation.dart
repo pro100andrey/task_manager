@@ -4,7 +4,6 @@ import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -44,7 +43,7 @@ class TaskStartOperation extends _Operation {
 
   @override
   Future<Result<Task, TaskStartFailure>> run(TaskStartCommand command) async {
-    final task = await _repository.getById(TaskId(command.taskId));
+    final task = await _repository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskStartNotFound(command.taskId));
     }
@@ -53,8 +52,8 @@ class TaskStartOperation extends _Operation {
     if (!validFrom.contains(task.status)) {
       return Failure(
         TaskStartInvalidTransition(
-          from: task.status.value,
-          to: TaskStatus.inProgress.value,
+          from: task.status,
+          to: TaskStatus.inProgress,
         ),
       );
     }

@@ -1,11 +1,10 @@
-import '../entities/task_link.dart';
-import '../exceptions/cycle_exception.dart';
+import '../../../tm_core.dart';
 
 /// Builds an adjacency map from a list of strong links.
 ///
 /// Returns `{ fromId → [toId, ...] }`.
-Map<String, List<String>> buildStrongAdjacency(List<TaskLink> links) {
-  final adj = <String, List<String>>{};
+Map<TaskId, List<TaskId>> buildStrongAdjacency(List<TaskLink> links) {
+  final adj = <TaskId, List<TaskId>>{};
   for (final link in links) {
     if (link.linkType.isStrong) {
       adj.putIfAbsent(link.fromTaskId, () => []).add(link.toTaskId);
@@ -20,24 +19,24 @@ Map<String, List<String>> buildStrongAdjacency(List<TaskLink> links) {
 /// The [extraFrom] and [extraTo] allow testing a hypothetical new edge
 /// before it is persisted.
 void detectCycle(
-  Map<String, List<String>> adj, {
-  String? extraFrom,
-  String? extraTo,
+  Map<TaskId, List<TaskId>> adj, {
+  TaskId? extraFrom,
+  TaskId? extraTo,
 }) {
   // Build a working copy with the hypothetical edge if provided.
-  final graph = <String, List<String>>{
-    for (final e in adj.entries) e.key: List<String>.from(e.value),
+  final graph = <TaskId, List<TaskId>>{
+    for (final e in adj.entries) e.key: List<TaskId>.from(e.value),
   };
   if (extraFrom != null && extraTo != null) {
     graph.putIfAbsent(extraFrom, () => []).add(extraTo);
   }
 
   // DFS with path tracking.
-  final visited = <String>{};
-  final inStack = <String>{};
-  final path = <String>[];
+  final visited = <TaskId>{};
+  final inStack = <TaskId>{};
+  final path = <TaskId>[];
 
-  void dfs(String node) {
+  void dfs(TaskId node) {
     if (inStack.contains(node)) {
       // Found cycle — extract the cycle portion of the path.
       final start = path.indexOf(node);
@@ -72,19 +71,19 @@ void detectCycle(
 ///
 /// Throws [CycleException] if a cycle is detected (should not happen if
 /// [detectCycle] was called first, but guards against concurrent mutations).
-List<String> topologicalSort(Map<String, List<String>> adj) {
-  final allNodes = <String>{
+List<TaskId> topologicalSort(Map<TaskId, List<TaskId>> adj) {
+  final allNodes = <TaskId>{
     ...adj.keys,
     for (final vs in adj.values) ...vs,
   };
 
-  final visited = <String>{};
-  final result = <String>[];
+  final visited = <TaskId>{};
+  final result = <TaskId>[];
 
-  final inStack = <String>{};
-  final path = <String>[];
+  final inStack = <TaskId>{};
+  final path = <TaskId>[];
 
-  void visit(String node) {
+  void visit(TaskId node) {
     if (inStack.contains(node)) {
       final start = path.indexOf(node);
       throw CycleException([...path.sublist(start), node]);
@@ -117,15 +116,15 @@ List<String> topologicalSort(Map<String, List<String>> adj) {
 /// [allTaskIds]   — all task IDs in scope.
 ///
 /// Throws [CycleException] if the strong graph has a cycle.
-List<String> findReadyTasks(
-  Map<String, List<String>> strongAdj,
-  Set<String> completedIds,
-  Set<String> allTaskIds,
+List<TaskId> findReadyTasks(
+  Map<TaskId, List<TaskId>> strongAdj,
+  Set<TaskId> completedIds,
+  Set<TaskId> allTaskIds,
 ) {
   detectCycle(strongAdj);
 
   // Build reverse map: toId → [fromIds] (predecessors)
-  final predecessors = <String, Set<String>>{};
+  final predecessors = <TaskId, Set<TaskId>>{};
   for (final MapEntry(:key, :value) in strongAdj.entries) {
     for (final to in value) {
       predecessors.putIfAbsent(to, () => {}).add(key);

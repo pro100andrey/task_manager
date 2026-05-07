@@ -294,7 +294,7 @@ void main() {
         TaskLinkRemoveCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -333,7 +333,7 @@ void main() {
         TaskLinkRemoveCommand(
           fromTaskId: taskA.id,
           toTaskId: taskC.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 
@@ -347,7 +347,7 @@ void main() {
         TaskLinkRemoveCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'bogus',
+          linkType: LinkType.fromValue('bogus'),
         ),
       );
 
@@ -364,7 +364,7 @@ void main() {
         TaskLinkRemoveCommand(
           fromTaskId: taskA.id,
           toTaskId: taskB.id,
-          linkType: 'strong',
+          linkType: .strong,
         ),
       );
 

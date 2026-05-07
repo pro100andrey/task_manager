@@ -30,10 +30,10 @@ class GetTaskKnowledgeEntitiesQuery {
   final TaskKnowledgeRefRepository _refRepository;
   final KnowledgeRepository _knowledgeRepository;
 
-  Future<TaskKnowledgeEntitiesResult> execute(String taskId) async {
+  Future<TaskKnowledgeEntitiesResult> execute(TaskId taskId) async {
     late final TaskId id;
     try {
-      id = TaskId(taskId);
+      id = taskId;
     } on FormatException {
       return const TaskKnowledgeEntitiesResult(entities: [], refs: []);
     }

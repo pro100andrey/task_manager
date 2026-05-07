@@ -13,7 +13,7 @@ class TaskBulkAddTaskSpec {
   });
 
   final String title;
-  final String? parentId;
+  final TaskId? parentId;
   final TaskContextState? contextState;
   final TaskCompletionPolicy? completionPolicy;
   final int businessValue;

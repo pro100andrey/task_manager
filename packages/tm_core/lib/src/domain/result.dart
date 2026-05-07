@@ -3,6 +3,12 @@ sealed class Result<T, E> {
 
   bool get isSuccess => this is Success<T, E>;
   bool get isFailure => this is Failure<T, E>;
+
+  @override
+  String toString() => switch (this) {
+    Success(:final value) => 'Success($value)',
+    Failure(:final error) => 'Failure($error)',
+  };
 }
 
 final class Success<T, E> extends Result<T, E> {

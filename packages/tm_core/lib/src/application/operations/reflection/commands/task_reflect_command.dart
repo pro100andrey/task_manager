@@ -1,5 +1,4 @@
-import '../../../../domain/enums/reflection_source.dart';
-import '../../../../domain/enums/reflection_type.dart';
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskReflectCommand extends Command {
@@ -12,7 +11,7 @@ class TaskReflectCommand extends Command {
     this.source = ReflectionSource.mcp,
   });
 
-  final String? taskId;
+  final TaskId? taskId;
   final String content;
   final ReflectionType reflectionType;
   final int reflectionBudget;

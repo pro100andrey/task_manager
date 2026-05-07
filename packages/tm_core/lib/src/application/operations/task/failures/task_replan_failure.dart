@@ -1,3 +1,5 @@
+import '../../../../../tm_core.dart';
+
 sealed class TaskReplanFailure {
   const TaskReplanFailure(this.code, this.message);
 
@@ -6,7 +8,7 @@ sealed class TaskReplanFailure {
 }
 
 class TaskReplanNotFound extends TaskReplanFailure {
-  const TaskReplanNotFound(String taskId)
+  const TaskReplanNotFound(TaskId taskId)
     : super('TASK_NOT_FOUND', 'Task not found: $taskId');
 }
 
@@ -24,5 +26,5 @@ class TaskReplanCycleDetected extends TaskReplanFailure {
   const TaskReplanCycleDetected(this.path)
     : super('STRONG_CYCLE_DETECTED', 'Strong cycle detected: $path');
 
-  final List<String> path;
+  final List<TaskId> path;
 }

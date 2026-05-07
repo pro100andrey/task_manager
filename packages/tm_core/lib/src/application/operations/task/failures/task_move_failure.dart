@@ -1,25 +1,27 @@
+import '../../../../domain/value_objects/task/task_id.dart';
+
 sealed class TaskMoveFailure {
   const TaskMoveFailure();
 }
 
 final class TaskMoveNotFound extends TaskMoveFailure {
   const TaskMoveNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskMoveParentNotFound extends TaskMoveFailure {
   const TaskMoveParentNotFound(this.parentId);
-  final String parentId;
+  final TaskId parentId;
 }
 
 final class TaskMoveSelfParent extends TaskMoveFailure {
   const TaskMoveSelfParent(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskMoveWouldCreateCycle extends TaskMoveFailure {
   const TaskMoveWouldCreateCycle(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class TaskMoveCrossProject extends TaskMoveFailure {
@@ -27,6 +29,6 @@ final class TaskMoveCrossProject extends TaskMoveFailure {
     required this.taskId,
     required this.parentId,
   });
-  final String taskId;
-  final String parentId;
+  final TaskId taskId;
+  final TaskId parentId;
 }

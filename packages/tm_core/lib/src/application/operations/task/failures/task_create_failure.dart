@@ -21,12 +21,12 @@ final class TaskCreateProjectNotFound extends TaskCreateFailure {
 
 final class TaskCreateParentNotFound extends TaskCreateFailure {
   const TaskCreateParentNotFound(this.parentId);
-  final String parentId;
+  final TaskId parentId;
 }
 
 final class TaskCreateAliasAlreadyExists extends TaskCreateFailure {
   const TaskCreateAliasAlreadyExists(this.alias);
-  final String alias;
+  final TaskAlias alias;
 }
 
 final class TaskCreateInvalidAlias extends TaskCreateFailure {

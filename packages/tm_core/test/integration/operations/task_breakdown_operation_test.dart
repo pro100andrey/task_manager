@@ -62,7 +62,7 @@ void main() {
 
       final result = await taskBreakdown.execute(
         const TaskBreakdownCommand(
-          taskId: 'placeholder',
+          taskId: .new('placeholder'),
           subtasks: [
             TaskBreakdownSubtask(title: 'Design schema'),
             TaskBreakdownSubtask(title: 'Implement JWT'),

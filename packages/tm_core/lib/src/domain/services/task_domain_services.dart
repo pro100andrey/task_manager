@@ -1,8 +1,4 @@
-import '../entities/task.dart';
-import '../entities/task_link.dart';
-import '../enums/task_completion_policy.dart';
-import '../enums/task_last_action_type.dart';
-import '../exceptions/task_exceptions.dart';
+import '../../../tm_core.dart';
 
 const _actionHistoryKey = 'actionHistory';
 const _pnrWindowsKey = 'pnrWindows';
@@ -27,17 +23,13 @@ class TaskPnrWindow {
 /// 3. Replace spaces and '/' with '-'
 /// 4. Remove characters outside [a-z0-9_-]
 /// 5. Remove leading and trailing '-'
-/// 6. If empty after normalization → throws [InvalidAliasException]
+
 String normalizeAlias(String raw) {
   var result = raw.trim();
   result = result.toLowerCase();
   result = result.replaceAll(RegExp('[ /]'), '-');
   result = result.replaceAll(RegExp(r'[^a-z0-9_\-]'), '');
   result = result.replaceAll(RegExp(r'^-+|-+$'), '');
-
-  if (result.isEmpty) {
-    throw InvalidAliasException(raw, 'normalizes to empty string');
-  }
 
   return result;
 }
@@ -197,9 +189,9 @@ double calculateStaleness(Task task, DateTime now) {
 ///
 /// `links` — all relevant links; `completedIds` — completed task IDs.
 int calculateUnblockScore(
-  String taskId,
+  TaskId taskId,
   List<TaskLink> links,
-  Set<String> completedIds,
+  Set<TaskId> completedIds,
 ) => links
     .where(
       (l) =>
@@ -213,9 +205,9 @@ int calculateUnblockScore(
 ///
 /// Implements §5.7: soft links inform the agent which tasks share context.
 SoftContext getSoftContext(
-  String taskId,
+  TaskId taskId,
   List<TaskLink> links,
-  Map<String, Task> taskMap,
+  Map<TaskId, Task> taskMap,
 ) {
   final softLinks = links.where((l) => !l.linkType.isStrong).toList();
 

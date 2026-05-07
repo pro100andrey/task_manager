@@ -3,6 +3,7 @@ import '../../../domain/entities/task_link.dart';
 import '../../../domain/enums/link_type.dart';
 import '../../../domain/value_objects/project/project_id.dart';
 import '../../../domain/value_objects/task/task_id.dart';
+import '../../../domain/value_objects/task/task_ref.dart';
 import '../../ports/task_link_repository.dart';
 import '../../ports/task_repository.dart';
 import 'get_task_by_ref_query.dart';
@@ -19,7 +20,7 @@ class TaskGraphParams {
   final ProjectId projectId;
 
   /// Optional root task reference (UUID v7 or alias). Null = whole project.
-  final String? rootRef;
+  final TaskRef? rootRef;
 
   /// Maximum depth of the hierarchy tree to include. Null = unlimited.
   final int? depth;
@@ -105,8 +106,8 @@ class TaskGraphQuery {
     }
 
     // Build task map and children map for BFS/DFS
-    final taskMap = <String, Task>{for (final t in allTasks) t.id: t};
-    final children = <String, List<Task>>{};
+    final taskMap = <TaskId, Task>{for (final t in allTasks) t.id: t};
+    final children = <TaskId, List<Task>>{};
     for (final task in allTasks) {
       if (task.parentId != null) {
         children.putIfAbsent(task.parentId!, () => []).add(task);
@@ -115,7 +116,7 @@ class TaskGraphQuery {
 
     // Collect nodes via BFS starting from root (or project roots)
     final nodes = <TaskGraphNode>[];
-    final includedIds = <String>{};
+    final includedIds = <TaskId>{};
 
     // Compute own EP helper
     double ownEp(Task t) => t.businessValue * 0.85 + t.urgencyScore * 0.15;
@@ -157,7 +158,7 @@ class TaskGraphQuery {
     }
 
     // Load all links for the included task IDs
-    final taskIds = includedIds.map(TaskId.new).toList();
+    final taskIds = includedIds.toList();
     final allLinks = await _linkRepository.getAllByProjectLinks(taskIds);
 
     // Filter links: both ends must be in scope; apply optional link-type filter
@@ -178,7 +179,7 @@ class TaskGraphQuery {
   }
 
   /// Computes EP with Hard Cap by traversing the ancestor chain of [task].
-  Future<double> _computeEp(Task task, Map<String, Task> taskMap) async {
+  Future<double> _computeEp(Task task, Map<TaskId, Task> taskMap) async {
     double ownEp(Task t) => t.businessValue * 0.85 + t.urgencyScore * 0.15;
 
     final chain = <Task>[task];

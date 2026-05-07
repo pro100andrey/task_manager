@@ -181,7 +181,7 @@ class TaskBulkAddParentNotFound implements TaskBulkAddFailure {
   const TaskBulkAddParentNotFound(this.parentId);
   
 
- final  String parentId;
+ final  TaskId parentId;
 
 /// Create a copy of TaskBulkAddFailure
 /// with the given fields replaced by the non-null parameter values.
@@ -213,7 +213,7 @@ abstract mixin class $TaskBulkAddParentNotFoundCopyWith<$Res> implements $TaskBu
   factory $TaskBulkAddParentNotFoundCopyWith(TaskBulkAddParentNotFound value, $Res Function(TaskBulkAddParentNotFound) _then) = _$TaskBulkAddParentNotFoundCopyWithImpl;
 @useResult
 $Res call({
- String parentId
+ TaskId parentId
 });
 
 
@@ -233,7 +233,7 @@ class _$TaskBulkAddParentNotFoundCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? parentId = null,}) {
   return _then(TaskBulkAddParentNotFound(
 null == parentId ? _self.parentId : parentId // ignore: cast_nullable_to_non_nullable
-as String,
+as TaskId,
   ));
 }
 

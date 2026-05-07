@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class ReplanChange {
@@ -14,7 +15,7 @@ class TaskReplanCommand extends Command {
     this.reason,
   });
 
-  final String taskId;
+  final TaskId taskId;
   final List<ReplanChange> changes;
   final String? reason;
 }

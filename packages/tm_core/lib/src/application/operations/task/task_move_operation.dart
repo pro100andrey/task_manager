@@ -42,7 +42,7 @@ class TaskMoveOperation extends _Operation {
 
   @override
   Future<Result<Task, TaskMoveFailure>> run(TaskMoveCommand command) async {
-    final task = await _repository.getById(TaskId(command.taskId));
+    final task = await _repository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskMoveNotFound(command.taskId));
     }
@@ -53,7 +53,7 @@ class TaskMoveOperation extends _Operation {
       // Validate and resolve parent
       late final TaskId rawNewParentId;
       try {
-        rawNewParentId = TaskId(command.newParentId!);
+        rawNewParentId = command.newParentId!;
       } on FormatException {
         return Failure(TaskMoveParentNotFound(command.newParentId!));
       }
@@ -101,7 +101,7 @@ class TaskMoveOperation extends _Operation {
   Future<bool> _isDescendant(TaskId ancestor, TaskId candidate) async {
     var current = candidate;
     // Walk up the parent chain from candidate.
-    final visited = <String>{};
+    final visited = <TaskId>{};
     while (true) {
       if (current == ancestor) {
         return true;

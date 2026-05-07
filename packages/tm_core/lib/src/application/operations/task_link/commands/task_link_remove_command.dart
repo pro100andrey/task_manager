@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskLinkRemoveCommand extends Command {
@@ -7,9 +8,9 @@ class TaskLinkRemoveCommand extends Command {
     this.linkType,
   });
 
-  final String fromTaskId;
-  final String toTaskId;
+  final TaskId fromTaskId;
+  final TaskId toTaskId;
 
   /// If null, removes all link types between the two tasks.
-  final String? linkType;
+  final LinkType? linkType;
 }

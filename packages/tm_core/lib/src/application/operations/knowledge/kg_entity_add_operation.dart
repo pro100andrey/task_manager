@@ -2,7 +2,6 @@ import '../../../domain/entities/knowledge_entity.dart';
 import '../../../domain/enums/knowledge_entity_type.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/knowledge_domain_services.dart';
-import '../../../domain/value_objects/knowledge/knowledge_entity_id.dart';
 import '../../ports/knowledge_repository.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
@@ -81,10 +80,9 @@ class KgEntityAddOperation extends _Operation {
     }
 
     final now = DateTime.now().toUtc();
-    final id = KnowledgeEntityId.generate();
 
     final entity = KnowledgeEntity(
-      id: id,
+      id: .generate(),
       projectId: command.projectId,
       name: command.name,
       normalizedName: normalizedName,

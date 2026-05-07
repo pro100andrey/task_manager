@@ -2,7 +2,6 @@ import '../../../domain/entities/task.dart';
 import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../../domain/value_objects/task/task_id.dart';
 import '../../ports/domain_event_bus.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -42,7 +41,7 @@ class TaskHoldOperation extends _Operation {
 
   @override
   Future<Result<Task, TaskHoldFailure>> run(TaskHoldCommand command) async {
-    final task = await _repository.getById(TaskId(command.taskId));
+    final task = await _repository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskHoldNotFound(command.taskId));
     }
@@ -50,8 +49,8 @@ class TaskHoldOperation extends _Operation {
     if (task.status != TaskStatus.inProgress) {
       return Failure(
         TaskHoldInvalidTransition(
-          from: task.status.value,
-          to: TaskStatus.onHold.value,
+          from: task.status,
+          to: TaskStatus.onHold,
         ),
       );
     }

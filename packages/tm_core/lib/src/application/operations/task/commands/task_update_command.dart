@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskUpdateCommand extends Command {
@@ -16,7 +17,7 @@ class TaskUpdateCommand extends Command {
     this.clearDescription = false,
   });
 
-  final String taskId;
+  final TaskId taskId;
   final String? title;
   final String? description;
   final int? businessValue;

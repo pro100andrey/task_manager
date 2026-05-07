@@ -92,7 +92,7 @@ class TaskBulkAddOperation extends _Operation {
     for (final spec in command.tasks) {
       if (spec.parentId != null) {
         try {
-          final pid = TaskId(spec.parentId!);
+          final pid = spec.parentId!;
           final parent = await _taskRepository.getById(pid);
           if (parent == null) {
             return Failure(TaskBulkAddParentNotFound(spec.parentId!));
@@ -116,7 +116,7 @@ class TaskBulkAddOperation extends _Operation {
       TaskId? parentId;
       if (spec.parentId != null) {
         try {
-          parentId = TaskId(spec.parentId!);
+          parentId = spec.parentId;
         } on FormatException {
           return Failure(TaskBulkAddParentNotFound(spec.parentId!));
         }

@@ -7,5 +7,5 @@ abstract class TaskRepository {
   Future<List<Task>> getByProjectId(ProjectId projectId);
   Future<Task> save(Task task);
   Future<void> delete(TaskId id);
-  Future<Task?> getByAlias(ProjectId projectId, TaskAlias normalizedAlias);
+  Future<Task?> getByAlias(ProjectId projectId, TaskAlias alias);
 }

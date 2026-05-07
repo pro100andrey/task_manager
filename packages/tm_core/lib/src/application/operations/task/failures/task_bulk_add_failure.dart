@@ -12,7 +12,7 @@ class TaskBulkAddFailure with _$TaskBulkAddFailure {
   const factory TaskBulkAddFailure.projectNotFound(ProjectId projectId) =
       TaskBulkAddProjectNotFound;
 
-  const factory TaskBulkAddFailure.parentNotFound(String parentId) =
+  const factory TaskBulkAddFailure.parentNotFound(TaskId parentId) =
       TaskBulkAddParentNotFound;
 
   const factory TaskBulkAddFailure.taskCreationFailed(

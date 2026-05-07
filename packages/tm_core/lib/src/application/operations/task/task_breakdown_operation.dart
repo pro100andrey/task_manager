@@ -81,7 +81,7 @@ class TaskBreakdownOperation extends _Operation {
   Future<Result<TaskBreakdownResult, TaskBreakdownFailure>> run(
     TaskBreakdownCommand command,
   ) async {
-    final task = await _taskRepository.getById(TaskId(command.taskId));
+    final task = await _taskRepository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskBreakdownNotFound(command.taskId));
     }

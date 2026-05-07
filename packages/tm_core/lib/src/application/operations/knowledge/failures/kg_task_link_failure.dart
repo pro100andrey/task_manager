@@ -1,10 +1,12 @@
+import '../../../../../tm_core.dart';
+
 sealed class KgTaskLinkFailure {
   const KgTaskLinkFailure();
 }
 
 final class KgTaskLinkTaskNotFound extends KgTaskLinkFailure {
   const KgTaskLinkTaskNotFound(this.taskId);
-  final String taskId;
+  final TaskId taskId;
 }
 
 final class KgTaskLinkEntityNotFound extends KgTaskLinkFailure {
@@ -23,6 +25,6 @@ final class KgTaskLinkCrossProject extends KgTaskLinkFailure {
     required this.entityId,
   });
 
-  final String taskId;
+  final TaskId taskId;
   final String entityId;
 }

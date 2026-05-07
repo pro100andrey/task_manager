@@ -1,3 +1,5 @@
+import '../../../../../tm_core.dart';
+
 sealed class TaskReflectFailure {
   const TaskReflectFailure(this.code, this.message);
 
@@ -6,7 +8,7 @@ sealed class TaskReflectFailure {
 }
 
 class TaskReflectTaskNotFound extends TaskReflectFailure {
-  const TaskReflectTaskNotFound(String taskId)
+  const TaskReflectTaskNotFound(TaskId taskId)
     : super('TASK_NOT_FOUND', 'Task not found: $taskId');
 }
 

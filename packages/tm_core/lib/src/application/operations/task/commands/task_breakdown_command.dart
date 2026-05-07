@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskBreakdownSubtask {
@@ -21,7 +22,7 @@ class TaskBreakdownCommand extends Command {
     this.mode = 'parallel',
   });
 
-  final String taskId;
+  final TaskId taskId;
   final String mode;
   final List<TaskBreakdownSubtask> subtasks;
 }

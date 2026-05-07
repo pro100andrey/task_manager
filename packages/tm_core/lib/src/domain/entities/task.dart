@@ -32,7 +32,6 @@ abstract class Task with _$Task {
     required int planVersion,
     TaskId? parentId,
     TaskAlias? alias,
-    String? normalizedAlias,
     TaskDescription? description,
     String? statusReason,
     double? estimatedEffort,

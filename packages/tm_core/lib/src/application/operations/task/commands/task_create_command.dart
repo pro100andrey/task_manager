@@ -23,7 +23,7 @@ class TaskCreateCommand extends Command {
   final String title;
   final String? description;
   final TaskId? parentId;
-  final String? alias;
+  final TaskAlias? alias;
   final List<String> tags;
   final Map<String, dynamic> metadata;
   final int businessValue;

@@ -55,7 +55,7 @@ class TaskLinkAddOperation extends _Operation {
     // Validate fromTaskId
     late final TaskId fromId;
     try {
-      fromId = TaskId(command.fromTaskId);
+      fromId = command.fromTaskId;
     } on FormatException {
       return Failure(TaskLinkAddFromNotFound(command.fromTaskId));
     }
@@ -63,7 +63,7 @@ class TaskLinkAddOperation extends _Operation {
     // Validate toTaskId
     late final TaskId toId;
     try {
-      toId = TaskId(command.toTaskId);
+      toId = command.toTaskId;
     } on FormatException {
       return Failure(TaskLinkAddToNotFound(command.toTaskId));
     }
@@ -111,7 +111,7 @@ class TaskLinkAddOperation extends _Operation {
       final projectTasks = await _taskRepository.getByProjectId(
         fromTask.projectId,
       );
-      final projectTaskIds = projectTasks.map((t) => TaskId(t.id)).toList();
+      final projectTaskIds = projectTasks.map((t) => t.id).toList();
       final allLinks = await _linkRepository.getAllByProjectLinks(
         projectTaskIds,
       );

@@ -1162,11 +1162,11 @@ as TaskId?,
 
 
 class TaskAliasRenamedEvent extends DomainEvent {
-  const TaskAliasRenamedEvent({required this.taskId, required this.newAlias}): super._();
+  const TaskAliasRenamedEvent({required this.taskId, this.newAlias}): super._();
   
 
  final  TaskId taskId;
- final  String newAlias;
+ final  TaskAlias? newAlias;
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -1198,7 +1198,7 @@ abstract mixin class $TaskAliasRenamedEventCopyWith<$Res> implements $DomainEven
   factory $TaskAliasRenamedEventCopyWith(TaskAliasRenamedEvent value, $Res Function(TaskAliasRenamedEvent) _then) = _$TaskAliasRenamedEventCopyWithImpl;
 @useResult
 $Res call({
- TaskId taskId, String newAlias
+ TaskId taskId, TaskAlias? newAlias
 });
 
 
@@ -1215,11 +1215,11 @@ class _$TaskAliasRenamedEventCopyWithImpl<$Res>
 
 /// Create a copy of DomainEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? newAlias = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? taskId = null,Object? newAlias = freezed,}) {
   return _then(TaskAliasRenamedEvent(
 taskId: null == taskId ? _self.taskId : taskId // ignore: cast_nullable_to_non_nullable
-as TaskId,newAlias: null == newAlias ? _self.newAlias : newAlias // ignore: cast_nullable_to_non_nullable
-as String,
+as TaskId,newAlias: freezed == newAlias ? _self.newAlias : newAlias // ignore: cast_nullable_to_non_nullable
+as TaskAlias?,
   ));
 }
 

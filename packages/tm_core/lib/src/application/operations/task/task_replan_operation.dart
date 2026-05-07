@@ -86,7 +86,7 @@ class TaskReplanOperation extends _Operation {
   Future<Result<TaskReplanResult, TaskReplanFailure>> run(
     TaskReplanCommand command,
   ) async {
-    final task = await _taskRepository.getById(TaskId(command.taskId));
+    final task = await _taskRepository.getById(command.taskId);
     if (task == null) {
       return Failure(TaskReplanNotFound(command.taskId));
     }
@@ -235,7 +235,7 @@ class TaskReplanOperation extends _Operation {
     Map<String, dynamic> params,
   ) async {
     final taskIdRaw = params['taskId'];
-    if (taskIdRaw is! String) {
+    if (taskIdRaw is! TaskId) {
       return const Failure(
         TaskReplanValidationError('remove_task requires taskId'),
       );
@@ -243,14 +243,14 @@ class TaskReplanOperation extends _Operation {
 
     late final TaskId taskId;
     try {
-      taskId = TaskId(taskIdRaw);
+      taskId = taskIdRaw;
     } on FormatException {
       return Failure(TaskReplanValidationError('Invalid taskId: $taskIdRaw'));
     }
 
     final existing = await _taskRepository.getById(taskId);
     if (existing == null) {
-      return Failure(TaskReplanNotFound(taskIdRaw));
+      return Failure(TaskReplanNotFound(taskId));
     }
 
     await _taskRepository.delete(taskId);
@@ -570,16 +570,11 @@ class TaskReplanOperation extends _Operation {
     required String actionName,
   }) async {
     final taskIdRaw = params['taskId'];
-    if (taskIdRaw is! String) {
+    if (taskIdRaw is! TaskId) {
       return Failure(TaskReplanValidationError('$actionName requires taskId'));
     }
 
-    late final TaskId taskId;
-    try {
-      taskId = TaskId(taskIdRaw);
-    } on FormatException {
-      return Failure(TaskReplanValidationError('Invalid taskId: $taskIdRaw'));
-    }
+    final taskId = taskIdRaw;
 
     final task = await _taskRepository.getById(taskId);
     if (task == null) {

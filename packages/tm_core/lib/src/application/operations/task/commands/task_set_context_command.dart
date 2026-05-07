@@ -1,3 +1,4 @@
+import '../../../../../tm_core.dart';
 import '../../command.dart';
 
 class TaskSetContextCommand extends Command {
@@ -6,6 +7,6 @@ class TaskSetContextCommand extends Command {
     required this.contextState,
   });
 
-  final String taskId;
+  final TaskId taskId;
   final String contextState;
 }

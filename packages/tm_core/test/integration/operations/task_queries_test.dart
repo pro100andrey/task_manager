@@ -98,7 +98,7 @@ void main() {
       final found = await taskResolve.execute(
         GetTaskByRefParams(
           projectId: project.id,
-          ref: task.id,
+          ref: .id(task.id),
         ),
       );
       expect(found, isNotNull);
@@ -110,13 +110,13 @@ void main() {
       await renameAlias.execute(
         TaskRenameAliasCommand(
           taskId: task.id,
-          alias: 'my-task',
+          alias: .new('my-task'),
         ),
       );
       final found = await taskResolve.execute(
         GetTaskByRefParams(
           projectId: project.id,
-          ref: 'my-task',
+          ref: .alias(.new('my-task')),
         ),
       );
       expect(found, isNotNull);
@@ -128,13 +128,13 @@ void main() {
       await renameAlias.execute(
         TaskRenameAliasCommand(
           taskId: task.id,
-          alias: 'my-task',
+          alias: .new('my-task'),
         ),
       );
       final found = await taskResolve.execute(
         GetTaskByRefParams(
           projectId: project.id,
-          ref: 'MY TASK',
+          ref: .alias(.new('MY TASK')),
         ),
       );
       expect(found, isNotNull);
@@ -146,7 +146,7 @@ void main() {
       final found = await taskResolve.execute(
         GetTaskByRefParams(
           projectId: project.id,
-          ref: unknown,
+          ref: .id(unknown),
         ),
       );
       expect(found, isNull);
@@ -156,7 +156,7 @@ void main() {
       final found = await taskResolve.execute(
         GetTaskByRefParams(
           projectId: project.id,
-          ref: 'no-such-task',
+          ref: .alias(.new('no-such-task')),
         ),
       );
       expect(found, isNull);
@@ -164,9 +164,9 @@ void main() {
 
     test('returns null for invalid project ID', () async {
       final found = await taskResolve.execute(
-        const GetTaskByRefParams(
-          projectId: .new('not-a-uuid'),
-          ref: 'anything',
+        GetTaskByRefParams(
+          projectId: const .new('not-a-uuid'),
+          ref: .alias(.new('anything')),
         ),
       );
       expect(found, isNull);
@@ -363,7 +363,7 @@ void main() {
 
     test('returns empty list for invalid taskId', () async {
       final items = await linkList.execute(
-        const LinkListParams(taskId: 'not-a-uuid'),
+        const LinkListParams(taskId: .new('not-a-uuid')),
       );
       expect(items, isEmpty);
     });
@@ -385,7 +385,7 @@ void main() {
       final result = await taskShow.execute(
         TaskShowParams(
           projectId: project.id,
-          ref: task.id,
+          ref: .id(task.id),
         ),
       );
       expect(result, isNotNull);
@@ -406,7 +406,7 @@ void main() {
       final result = await taskShow.execute(
         TaskShowParams(
           projectId: project.id,
-          ref: child.id,
+          ref: .id(child.id),
         ),
       );
       expect(result, isNotNull);
@@ -420,7 +420,7 @@ void main() {
       final result = await taskShow.execute(
         TaskShowParams(
           projectId: project.id,
-          ref: TaskId.generate(),
+          ref: .id(.generate()),
         ),
       );
       expect(result, isNull);
@@ -428,9 +428,9 @@ void main() {
 
     test('returns null for invalid project ID', () async {
       final result = await taskShow.execute(
-        const TaskShowParams(
-          projectId: .new('not-a-uuid'),
-          ref: 'anything',
+        TaskShowParams(
+          projectId: const .new('not-a-uuid'),
+          ref: .alias(.new('anything')),
         ),
       );
       expect(result, isNull);
@@ -450,7 +450,7 @@ void main() {
       final result = await taskShow.execute(
         TaskShowParams(
           projectId: project.id,
-          ref: a.id,
+          ref: .id(a.id),
         ),
       );
       expect(result, isNotNull);
@@ -462,13 +462,13 @@ void main() {
       await renameAlias.execute(
         TaskRenameAliasCommand(
           taskId: task.id,
-          alias: 'show-by-alias',
+          alias: .new('show-by-alias'),
         ),
       );
       final result = await taskShow.execute(
         TaskShowParams(
           projectId: project.id,
-          ref: 'show-by-alias',
+          ref: .alias(.new('show-by-alias')),
         ),
       );
       expect(result, isNotNull);
@@ -535,7 +535,7 @@ void main() {
       final result = await taskGraph.execute(
         TaskGraphParams(
           projectId: project.id,
-          rootRef: root.id,
+          rootRef: .id(root.id),
         ),
       );
 
@@ -607,7 +607,7 @@ void main() {
       final result = await taskGraph.execute(
         TaskGraphParams(
           projectId: project.id,
-          rootRef: TaskId.generate(),
+          rootRef: .id(.generate()),
         ),
       );
       expect(result, isNull);

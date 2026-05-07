@@ -57,7 +57,7 @@ class KgTaskLinkOperation extends _Operation {
     late final TaskId taskId;
     late final KnowledgeEntityId entityId;
     try {
-      taskId = TaskId(command.taskId);
+      taskId = command.taskId;
     } on FormatException {
       return Failure(KgTaskLinkTaskNotFound(command.taskId));
     }

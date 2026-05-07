@@ -12,7 +12,7 @@ class ReflectionListParams {
     this.since,
   });
 
-  final String? taskId;
+  final TaskId? taskId;
   final String? reflectionType;
   final String? since;
 }
@@ -58,11 +58,11 @@ class ReflectionListQuery {
     return filtered;
   }
 
-  Future<List<Reflection>> _loadReflections(String? taskId) async {
+  Future<List<Reflection>> _loadReflections(TaskId? taskId) async {
     if (taskId != null) {
       late final TaskId id;
       try {
-        id = TaskId(taskId);
+        id = taskId;
       } on FormatException {
         return const [];
       }

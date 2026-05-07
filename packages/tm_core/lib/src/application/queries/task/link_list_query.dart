@@ -13,7 +13,7 @@ class LinkListParams {
   });
 
   /// Raw UUID of the task.
-  final String taskId;
+  final TaskId taskId;
 
   /// 'from' | 'to' | 'both' (default 'both').
   final String direction;
@@ -42,7 +42,7 @@ class LinkListQuery {
   Future<List<LinkListItem>> execute(LinkListParams params) async {
     late final TaskId taskId;
     try {
-      taskId = TaskId(params.taskId);
+      taskId = params.taskId;
     } on FormatException {
       return const [];
     }
