@@ -48,7 +48,7 @@ class ProjectRenameOperation extends _Operation {
   ) async {
     // Check if the project exists
     final current = await _repository.getById(command.projectId);
-    
+
     if (current == null) {
       return Failure(ProjectMutationNotFound(command.projectId));
     }
@@ -57,7 +57,7 @@ class ProjectRenameOperation extends _Operation {
     final existingByName = await _repository.getByRef(
       ProjectRef.name(command.newName),
     );
-   
+
     if (existingByName != null && existingByName.id != command.projectId) {
       return Failure(ProjectMutationNameAlreadyExists(command.newName));
     }

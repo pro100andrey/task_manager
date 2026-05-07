@@ -13,18 +13,12 @@ class TracingBehavior implements OperationBehavior {
     OperationContext ctx,
     Future<Result<S, F>> Function() next,
   ) async {
-    final result = await _tracing.trace(
-      ctx.name,
-      next,
-      attributes: ctx.attributes.isEmpty ? null : ctx.attributes,
-    );
+    final attributes = ctx.attributes.isEmpty ? null : ctx.attributes;
+    final result = await _tracing.trace(ctx.name, next, attributes: attributes);
 
     if (result case Failure<S, F>(:final error)) {
-      _tracing.logDomainFailure(
-        ctx.name,
-        error as Object,
-        attributes: ctx.attributes.isEmpty ? null : ctx.attributes,
-      );
+      final err = error as Object;
+      _tracing.logDomainFailure(ctx.name, err, attributes: attributes);
     }
 
     return result;

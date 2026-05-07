@@ -34,7 +34,9 @@ class DomainEventBusImpl implements DomainEventBus {
       onDone: onDone,
       cancelOnError: cancelOnError,
     );
+
     _subscriptions.add(subscription);
+
     return subscription;
   }
 
@@ -43,6 +45,7 @@ class DomainEventBusImpl implements DomainEventBus {
     for (final sub in _subscriptions) {
       await sub.cancel();
     }
+
     _subscriptions.clear();
     await _eventController.close();
   }
