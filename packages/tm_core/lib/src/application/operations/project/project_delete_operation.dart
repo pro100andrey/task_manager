@@ -31,11 +31,11 @@ class ProjectDeleteOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<ProjectDeleteCommand, ProjectDeleteFailure>
+  PolicySet<ProjectDeleteCommand, ProjectDeleteFailure>
   preconditionPolicies(
     ProjectDeleteCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     ProjectDeleteExistsPolicy(_repository, (cmd) => cmd.projectId.value),
   ]);
 

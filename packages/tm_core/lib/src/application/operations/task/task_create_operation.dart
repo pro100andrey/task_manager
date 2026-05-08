@@ -40,10 +40,10 @@ class TaskCreateOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskCreateCommand, TaskCreateFailure> preconditionPolicies(
+  PolicySet<TaskCreateCommand, TaskCreateFailure> preconditionPolicies(
     TaskCreateCommand command,
     OperationContext context,
-  ) => OperationPolicySet([TaskCreateInputValidPolicy()]);
+  ) => PolicySet([TaskCreateInputValidPolicy()]);
 
   @override
   Future<Result<Task, TaskCreateFailure>> run(

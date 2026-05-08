@@ -26,10 +26,10 @@ class TaskDeleteOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskDeleteCommand, TaskDeleteFailure> preconditionPolicies(
+  PolicySet<TaskDeleteCommand, TaskDeleteFailure> preconditionPolicies(
     TaskDeleteCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskDeleteCommand, TaskDeleteFailure>(
       _repository,
       (cmd) => cmd.taskId,

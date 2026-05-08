@@ -40,11 +40,10 @@ class TaskLinkAddOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskLinkAddCommand, TaskLinkAddFailure>
-  preconditionPolicies(
+  PolicySet<TaskLinkAddCommand, TaskLinkAddFailure> preconditionPolicies(
     TaskLinkAddCommand command,
     OperationContext context,
-  ) => const OperationPolicySet([]);
+  ) => const PolicySet([]);
 
   @override
   Future<Result<TaskLink, TaskLinkAddFailure>> run(

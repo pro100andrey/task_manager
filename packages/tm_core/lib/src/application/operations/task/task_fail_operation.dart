@@ -28,10 +28,10 @@ class TaskFailOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskFailCommand, TaskFailFailure> preconditionPolicies(
+  PolicySet<TaskFailCommand, TaskFailFailure> preconditionPolicies(
     TaskFailCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskFailCommand, TaskFailFailure>(
       _repository,
       (cmd) => cmd.taskId,

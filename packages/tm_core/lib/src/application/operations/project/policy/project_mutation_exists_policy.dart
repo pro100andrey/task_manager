@@ -6,7 +6,7 @@ import '../../operation_policy.dart';
 import '../failures/project_mutation_failure.dart';
 
 class ProjectMutationExistsPolicy<C extends Command>
-    extends PreconditionPolicy<C, ProjectMutationFailure> {
+    extends Policy<C, ProjectMutationFailure> {
   ProjectMutationExistsPolicy(
     this._repository,
     this._projectIdSelector,

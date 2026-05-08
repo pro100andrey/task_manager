@@ -6,7 +6,7 @@ import '../../operation_policy.dart';
 import '../failures/project_switch_failure.dart';
 
 class ProjectSwitchExistsPolicy<C extends Command>
-    extends PreconditionPolicy<C, ProjectSwitchFailure> {
+    extends Policy<C, ProjectSwitchFailure> {
   ProjectSwitchExistsPolicy(this._repository, this._projectIdSelector);
 
   final ProjectRepository _repository;

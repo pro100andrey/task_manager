@@ -45,10 +45,10 @@ class KgTaskLinkOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<KgTaskLinkCommand, KgTaskLinkFailure> preconditionPolicies(
+  PolicySet<KgTaskLinkCommand, KgTaskLinkFailure> preconditionPolicies(
     KgTaskLinkCommand command,
     OperationContext context,
-  ) => const OperationPolicySet([]);
+  ) => const PolicySet([]);
 
   @override
   Future<Result<TaskKnowledgeRef, KgTaskLinkFailure>> run(

@@ -29,11 +29,10 @@ class TaskLinkRemoveOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskLinkRemoveCommand, TaskLinkRemoveFailure>
-  preconditionPolicies(
+  PolicySet<TaskLinkRemoveCommand, TaskLinkRemoveFailure> preconditionPolicies(
     TaskLinkRemoveCommand command,
     OperationContext context,
-  ) => const OperationPolicySet([]);
+  ) => const PolicySet([]);
 
   @override
   Future<Result<void, TaskLinkRemoveFailure>> run(

@@ -30,10 +30,10 @@ class TaskStartOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskStartCommand, TaskStartFailure> preconditionPolicies(
+  PolicySet<TaskStartCommand, TaskStartFailure> preconditionPolicies(
     TaskStartCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskStartCommand, TaskStartFailure>(
       _repository,
       (cmd) => cmd.taskId,

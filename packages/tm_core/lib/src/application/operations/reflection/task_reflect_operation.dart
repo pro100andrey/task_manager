@@ -58,11 +58,11 @@ class TaskReflectOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskReflectCommand, TaskReflectFailure>
+  PolicySet<TaskReflectCommand, TaskReflectFailure>
   preconditionPolicies(
     TaskReflectCommand command,
     OperationContext context,
-  ) => const OperationPolicySet([]);
+  ) => const PolicySet([]);
 
   @override
   Future<Result<TaskReflectResult, TaskReflectFailure>> run(

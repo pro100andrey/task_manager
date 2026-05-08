@@ -34,11 +34,10 @@ class ProjectCreateOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<ProjectCreateCommand, ProjectCreateFailure>
-  preconditionPolicies(
+  PolicySet<ProjectCreateCommand, ProjectCreateFailure> preconditionPolicies(
     ProjectCreateCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     ProjectCreateInputValidPolicy(),
     ProjectCreateNameUniquePolicy(_repository),
   ]);

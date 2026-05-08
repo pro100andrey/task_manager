@@ -29,10 +29,10 @@ class TaskUpdateOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskUpdateCommand, TaskUpdateFailure> preconditionPolicies(
+  PolicySet<TaskUpdateCommand, TaskUpdateFailure> preconditionPolicies(
     TaskUpdateCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy(_repository, (cmd) => cmd.taskId, TaskUpdateNotFound.new),
   ]);
 

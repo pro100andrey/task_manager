@@ -38,11 +38,11 @@ class ProjectUpdateOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<ProjectUpdateCommand, ProjectMutationFailure>
+  PolicySet<ProjectUpdateCommand, ProjectMutationFailure>
   preconditionPolicies(
     ProjectUpdateCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     ProjectMutationExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 

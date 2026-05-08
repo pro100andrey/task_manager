@@ -30,11 +30,10 @@ class TaskSetContextOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskSetContextCommand, TaskSetContextFailure>
-  preconditionPolicies(
+  PolicySet<TaskSetContextCommand, TaskSetContextFailure> preconditionPolicies(
     TaskSetContextCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskSetContextCommand, TaskSetContextFailure>(
       _repository,
       (cmd) => cmd.taskId,

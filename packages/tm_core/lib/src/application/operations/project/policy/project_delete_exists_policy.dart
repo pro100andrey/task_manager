@@ -6,7 +6,7 @@ import '../../operation_policy.dart';
 import '../failures/project_delete_failure.dart';
 
 class ProjectDeleteExistsPolicy<C extends Command>
-    extends PreconditionPolicy<C, ProjectDeleteFailure> {
+    extends Policy<C, ProjectDeleteFailure> {
   ProjectDeleteExistsPolicy(this._repository, this._projectIdSelector);
 
   final ProjectRepository _repository;

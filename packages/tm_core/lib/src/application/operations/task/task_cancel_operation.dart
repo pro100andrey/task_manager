@@ -28,10 +28,10 @@ class TaskCancelOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskCancelCommand, TaskCancelFailure> preconditionPolicies(
+  PolicySet<TaskCancelCommand, TaskCancelFailure> preconditionPolicies(
     TaskCancelCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskCancelCommand, TaskCancelFailure>(
       _repository,
       (cmd) => cmd.taskId,

@@ -3,7 +3,7 @@ import '../../operation_policy.dart';
 import '../commands/task_create_command.dart';
 import '../failures/task_create_failure.dart';
 
-typedef _Policy = OperationPolicy<TaskCreateCommand, TaskCreateFailure>;
+typedef _Policy = Policy<TaskCreateCommand, TaskCreateFailure>;
 
 class TaskCreateInputValidPolicy extends _Policy {
   @override

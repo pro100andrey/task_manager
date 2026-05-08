@@ -29,11 +29,11 @@ class TaskRenameAliasOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskRenameAliasCommand, TaskRenameAliasFailure>
+  PolicySet<TaskRenameAliasCommand, TaskRenameAliasFailure>
   preconditionPolicies(
     TaskRenameAliasCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskRenameAliasCommand, TaskRenameAliasFailure>(
       _repository,
       (cmd) => cmd.taskId,

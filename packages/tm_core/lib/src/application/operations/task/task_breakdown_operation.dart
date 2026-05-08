@@ -65,11 +65,10 @@ class TaskBreakdownOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskBreakdownCommand, TaskBreakdownFailure>
-  preconditionPolicies(
+  PolicySet<TaskBreakdownCommand, TaskBreakdownFailure> preconditionPolicies(
     TaskBreakdownCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskBreakdownCommand, TaskBreakdownFailure>(
       _taskRepository,
       (cmd) => cmd.taskId,

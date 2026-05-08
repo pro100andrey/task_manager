@@ -54,11 +54,10 @@ class TaskBulkAddOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskBulkAddCommand, TaskBulkAddFailure>
-  preconditionPolicies(
+  PolicySet<TaskBulkAddCommand, TaskBulkAddFailure> preconditionPolicies(
     TaskBulkAddCommand command,
     OperationContext context,
-  ) => const OperationPolicySet([]);
+  ) => const PolicySet([]);
 
   @override
   Future<Result<TaskBulkAddResult, TaskBulkAddFailure>> run(

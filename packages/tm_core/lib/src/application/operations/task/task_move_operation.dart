@@ -29,10 +29,10 @@ class TaskMoveOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskMoveCommand, TaskMoveFailure> preconditionPolicies(
+  PolicySet<TaskMoveCommand, TaskMoveFailure> preconditionPolicies(
     TaskMoveCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy<TaskMoveCommand, TaskMoveFailure>(
       _repository,
       (cmd) => cmd.taskId,

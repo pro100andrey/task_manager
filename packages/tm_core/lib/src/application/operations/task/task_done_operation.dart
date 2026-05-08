@@ -29,10 +29,10 @@ class TaskDoneOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskDoneCommand, TaskDoneFailure> preconditionPolicies(
+  PolicySet<TaskDoneCommand, TaskDoneFailure> preconditionPolicies(
     TaskDoneCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy(_repository, (cmd) => cmd.taskId, TaskDoneNotFound.new),
   ]);
 

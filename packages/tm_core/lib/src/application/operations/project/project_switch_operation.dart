@@ -32,11 +32,10 @@ class ProjectSwitchOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<ProjectSwitchCommand, ProjectSwitchFailure>
-  preconditionPolicies(
+  PolicySet<ProjectSwitchCommand, ProjectSwitchFailure> preconditionPolicies(
     ProjectSwitchCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     ProjectSwitchExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 

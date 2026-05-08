@@ -5,7 +5,7 @@ import '../../operation_policy.dart';
 import '../commands/project_create_command.dart';
 import '../failures/project_create_failure.dart';
 
-typedef _Policy = OperationPolicy<ProjectCreateCommand, ProjectCreateFailure>;
+typedef _Policy = Policy<ProjectCreateCommand, ProjectCreateFailure>;
 
 class ProjectCreateNameUniquePolicy extends _Policy {
   ProjectCreateNameUniquePolicy(this._repository);

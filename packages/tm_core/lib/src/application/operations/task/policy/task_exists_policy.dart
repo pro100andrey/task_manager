@@ -4,7 +4,7 @@ import '../../command.dart';
 import '../../operation_context.dart';
 import '../../operation_policy.dart';
 
-class TaskExistsPolicy<C extends Command, F> extends PreconditionPolicy<C, F> {
+class TaskExistsPolicy<C extends Command, F> extends Policy<C, F> {
   TaskExistsPolicy(this._repository, this._taskIdSelector, this._notFound);
 
   final TaskRepository _repository;
@@ -16,8 +16,6 @@ class TaskExistsPolicy<C extends Command, F> extends PreconditionPolicy<C, F> {
   @override
   Future<Iterable<F>> check(C command, OperationContext context) async {
     final rawId = _taskIdSelector(command);
-
-    
 
     late final TaskId taskId;
     try {

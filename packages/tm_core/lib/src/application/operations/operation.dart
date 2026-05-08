@@ -48,16 +48,16 @@ abstract class Operation<C extends Command, S, F> {
     attributes: traceAttributes(command),
   );
 
-  OperationPolicySet<C, F> preconditionPolicies(
+  PolicySet<C, F> preconditionPolicies(
     C command,
     OperationContext context,
-  ) => OperationPolicySet<C, F>([]);
+  ) => const .new([]);
 
-  OperationPolicySet<C, F> invariantPolicies(
+  PolicySet<C, F> invariantPolicies(
     C command,
     OperationContext context,
     Result<S, F> result,
-  ) => OperationPolicySet<C, F>([]);
+  ) => PolicySet<C, F>([]);
 
   Future<void> collectAndPublishEvents(
     C command,

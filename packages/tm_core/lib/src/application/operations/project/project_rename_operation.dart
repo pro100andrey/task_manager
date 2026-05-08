@@ -34,11 +34,11 @@ class ProjectRenameOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<ProjectRenameCommand, ProjectMutationFailure>
+  PolicySet<ProjectRenameCommand, ProjectMutationFailure>
   preconditionPolicies(
     ProjectRenameCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     ProjectMutationExistsPolicy(_repository, (cmd) => cmd.projectId),
   ]);
 

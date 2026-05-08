@@ -71,10 +71,10 @@ class TaskReplanOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<TaskReplanCommand, TaskReplanFailure> preconditionPolicies(
+  PolicySet<TaskReplanCommand, TaskReplanFailure> preconditionPolicies(
     TaskReplanCommand command,
     OperationContext context,
-  ) => OperationPolicySet([
+  ) => PolicySet([
     TaskExistsPolicy(
       _taskRepository,
       (cmd) => cmd.taskId,

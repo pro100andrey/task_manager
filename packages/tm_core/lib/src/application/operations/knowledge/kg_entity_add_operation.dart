@@ -34,11 +34,11 @@ class KgEntityAddOperation extends _Operation {
   };
 
   @override
-  OperationPolicySet<KgEntityAddCommand, KgEntityAddFailure>
+  PolicySet<KgEntityAddCommand, KgEntityAddFailure>
   preconditionPolicies(
     KgEntityAddCommand command,
     OperationContext context,
-  ) => const OperationPolicySet([]);
+  ) => const PolicySet([]);
 
   @override
   Future<Result<KnowledgeEntity, KgEntityAddFailure>> run(
