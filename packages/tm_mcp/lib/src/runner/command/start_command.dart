@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:args/command_runner.dart';
 
+import '../../mcp/server.dart';
+
 class StartCommand extends Command<int> {
   StartCommand();
 
@@ -12,5 +14,9 @@ class StartCommand extends Command<int> {
   String get name => 'start';
 
   @override
-  FutureOr<int>? run() => 0;
+  FutureOr<int>? run() async {
+    final server = TaskManagerMcpServer();
+    await server.start(McpConfigHttp(3000));
+    return 0;
+  }
 }
