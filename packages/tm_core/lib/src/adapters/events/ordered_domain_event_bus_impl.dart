@@ -13,16 +13,16 @@ class OrderedDomainEventBusImpl implements EventBus {
   final _subscriptions = <StreamSubscription>[];
 
   @override
-  Future<void> publish(Object event) async {
+  void publish(Object event) {
     if (_eventController.isClosed) {
       return;
     }
 
     _eventQueue.addLast(event);
-    await _processQueue();
+    _processQueue();
   }
 
-  Future<void> _processQueue() async {
+  void _processQueue() {
     if (_isProcessing || _eventQueue.isEmpty) {
       return;
     }

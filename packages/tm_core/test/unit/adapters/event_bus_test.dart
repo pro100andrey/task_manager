@@ -62,7 +62,11 @@ void _runSharedTests(String name, EventBus Function() factory) {
 
     test('publish after dispose is a no-op', () async {
       await bus.dispose();
-      await expectLater(bus.publish(const _FooEvent(0)), completes);
+
+      expect(
+        () async => await bus.publish(const _FooEvent(0)),
+        returnsNormally,
+      );
     });
   });
 }

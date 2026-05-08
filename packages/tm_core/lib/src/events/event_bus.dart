@@ -10,7 +10,7 @@ abstract class EventBus {
   ///
   /// The [event] is dispatched to all subscribers listening for events
   /// of the same type via [on].
-  Future<void> publish(Object event);
+  FutureOr<void> publish(Object event);
 
   /// Returns a stream of events of type [T].
   ///

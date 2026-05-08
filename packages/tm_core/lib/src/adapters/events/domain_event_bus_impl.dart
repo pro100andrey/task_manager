@@ -8,7 +8,7 @@ class DomainEventBusImpl implements EventBus {
   final _subscriptions = <StreamSubscription>[];
 
   @override
-  Future<void> publish(Object event) async {
+  void publish(Object event)  {
     if (_eventController.isClosed) {
       return;
     }
