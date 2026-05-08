@@ -25,7 +25,9 @@ class MemKnowledgeRepositoryImpl
 
   @override
   Future<List<KnowledgeEntity>> getByProjectId(ProjectId projectId) async =>
-      _entitiesById.values.where((e) => e.projectId == projectId).toList();
+      _entitiesById.values
+          .where((e) => e.projectId == projectId)
+          .toList(growable: false);
 
   @override
   Future<List<KnowledgeEntity>> getByType(
@@ -33,11 +35,12 @@ class MemKnowledgeRepositoryImpl
     KnowledgeEntityType type,
   ) async => _entitiesById.values
       .where((e) => e.projectId == projectId && e.entityType == type)
-      .toList();
+      .toList(growable: false);
 
   @override
   Future<KnowledgeEntity> save(KnowledgeEntity entity) async {
     _entitiesById[entity.id] = entity;
+
     return entity;
   }
 
