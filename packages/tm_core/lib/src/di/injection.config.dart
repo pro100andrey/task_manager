@@ -64,7 +64,6 @@ import '../application/operations/task_link/task_link_add_operation.dart'
     as _i309;
 import '../application/operations/task_link/task_link_remove_operation.dart'
     as _i775;
-import '../application/ports/event_bus.dart' as _i512;
 import '../application/ports/knowledge_repository.dart' as _i470;
 import '../application/ports/project_repository.dart' as _i102;
 import '../application/ports/reflection_repository.dart' as _i603;
@@ -83,6 +82,7 @@ import '../application/queries/project/get_all_projects_query.dart' as _i676;
 import '../application/queries/project/get_current_project_query.dart' as _i775;
 import '../application/queries/reflection/reflection_list_query.dart' as _i723;
 import '../application/queries/task/get_active_front_query.dart' as _i846;
+import '../events/event_bus.dart' as _i557;
 import 'core_module.dart' as _i154;
 import 'modules/application_module.dart' as _i705;
 
@@ -112,6 +112,7 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i541.TaskLinkRepository>(
     () => coreModule.taskLinkRepository,
   );
+  gh.lazySingleton<_i557.EventBus>(() => coreModule.domainEventBus);
   gh.lazySingleton<_i49.GetKnowledgeEntitiesQuery>(
     () => applicationModule.getKnowledgeEntitiesQuery,
   );
@@ -121,7 +122,6 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i571.TaskKnowledgeRefRepository>(
     () => coreModule.taskKnowledgeRefRepository,
   );
-  gh.lazySingleton<_i512.EventBus>(() => coreModule.domainEventBus);
   gh.lazySingleton<_i723.ReflectionListQuery>(
     () => applicationModule.reflectionListQuery,
   );
@@ -156,14 +156,41 @@ _i174.GetIt $initTmCore(
       gh<_i1007.TransactionPort>(),
     ),
   );
-  gh.lazySingleton<_i775.TaskLinkRemoveOperation>(
-    () => applicationModule.taskLinkRemoveOperation,
+  gh.lazySingleton<_i309.TaskLinkAddOperation>(
+    () => applicationModule.taskLinkAddOperation,
+  );
+  gh.lazySingleton<_i459.TaskReflectOperation>(
+    () => applicationModule.taskReflectOperation,
   );
   gh.lazySingleton<_i703.TaskCreateOperation>(
     () => applicationModule.taskCreateOperation,
   );
   gh.lazySingleton<_i901.TaskBulkAddOperation>(
     () => applicationModule.taskBulkAddOperation,
+  );
+  gh.lazySingleton<_i797.ProjectCreateOperation>(
+    () => applicationModule.projectCreateOperation,
+  );
+  gh.lazySingleton<_i480.ProjectRenameOperation>(
+    () => applicationModule.projectRenameOperation,
+  );
+  gh.lazySingleton<_i789.ProjectChangeDescriptionOperation>(
+    () => applicationModule.projectChangeDescriptionOperation,
+  );
+  gh.lazySingleton<_i460.ProjectDeleteOperation>(
+    () => applicationModule.projectDeleteOperation,
+  );
+  gh.lazySingleton<_i533.ProjectSwitchOperation>(
+    () => applicationModule.projectSwitchOperation,
+  );
+  gh.lazySingleton<_i489.TaskBreakdownOperation>(
+    () => applicationModule.taskBreakdownOperation,
+  );
+  gh.lazySingleton<_i296.TaskReplanOperation>(
+    () => applicationModule.taskReplanOperation,
+  );
+  gh.lazySingleton<_i999.KgEntityAddOperation>(
+    () => applicationModule.kgEntityAddOperation,
   );
   gh.lazySingleton<_i74.TaskStartOperation>(
     () => applicationModule.taskStartOperation,
@@ -195,41 +222,14 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i338.TaskRenameAliasOperation>(
     () => applicationModule.taskRenameAliasOperation,
   );
-  gh.lazySingleton<_i999.KgEntityAddOperation>(
-    () => applicationModule.kgEntityAddOperation,
-  );
-  gh.lazySingleton<_i459.TaskReflectOperation>(
-    () => applicationModule.taskReflectOperation,
-  );
-  gh.lazySingleton<_i797.ProjectCreateOperation>(
-    () => applicationModule.projectCreateOperation,
-  );
-  gh.lazySingleton<_i480.ProjectRenameOperation>(
-    () => applicationModule.projectRenameOperation,
-  );
-  gh.lazySingleton<_i789.ProjectChangeDescriptionOperation>(
-    () => applicationModule.projectChangeDescriptionOperation,
-  );
-  gh.lazySingleton<_i460.ProjectDeleteOperation>(
-    () => applicationModule.projectDeleteOperation,
-  );
-  gh.lazySingleton<_i533.ProjectSwitchOperation>(
-    () => applicationModule.projectSwitchOperation,
-  );
   gh.lazySingleton<_i360.KgTaskLinkOperation>(
     () => applicationModule.kgTaskLinkOperation,
   );
-  gh.lazySingleton<_i489.TaskBreakdownOperation>(
-    () => applicationModule.taskBreakdownOperation,
-  );
-  gh.lazySingleton<_i296.TaskReplanOperation>(
-    () => applicationModule.taskReplanOperation,
+  gh.lazySingleton<_i775.TaskLinkRemoveOperation>(
+    () => applicationModule.taskLinkRemoveOperation,
   );
   gh.lazySingleton<_i445.KgEntityUpdateOperation>(
     () => applicationModule.kgEntityUpdateOperation,
-  );
-  gh.lazySingleton<_i309.TaskLinkAddOperation>(
-    () => applicationModule.taskLinkAddOperation,
   );
   gh.lazySingleton<_i406.ProjectUpdateOperation>(
     () => applicationModule.projectUpdateOperation,
@@ -268,16 +268,16 @@ class _$CoreModule extends _i154.CoreModule {
       _i565.MemTaskLinkRepositoryImpl();
 
   @override
+  _i1027.OrderedDomainEventBusImpl get domainEventBus =>
+      _i1027.OrderedDomainEventBusImpl();
+
+  @override
   _i949.MemProjectsRepositoryImpl get projectsRepository =>
       _i949.MemProjectsRepositoryImpl();
 
   @override
   _i503.MemTaskKnowledgeRefRepositoryImpl get taskKnowledgeRefRepository =>
       _i503.MemTaskKnowledgeRefRepositoryImpl();
-
-  @override
-  _i1027.OrderedDomainEventBusImpl get domainEventBus =>
-      _i1027.OrderedDomainEventBusImpl();
 }
 
 class _$ApplicationModule extends _i705.ApplicationModule {
@@ -328,11 +328,23 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       );
 
   @override
-  _i775.TaskLinkRemoveOperation get taskLinkRemoveOperation =>
-      _i775.TaskLinkRemoveOperation(
+  _i309.TaskLinkAddOperation get taskLinkAddOperation =>
+      _i309.TaskLinkAddOperation(
         _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i557.EventBus>(),
+      );
+
+  @override
+  _i459.TaskReflectOperation get taskReflectOperation =>
+      _i459.TaskReflectOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i603.ReflectionRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
@@ -341,7 +353,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
@@ -350,81 +362,66 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i74.TaskStartOperation get taskStartOperation => _i74.TaskStartOperation(
-    _getIt<_i840.OperationPipeline>(),
-    _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.EventBus>(),
-  );
-
-  @override
-  _i841.TaskDoneOperation get taskDoneOperation => _i841.TaskDoneOperation(
-    _getIt<_i840.OperationPipeline>(),
-    _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.EventBus>(),
-  );
-
-  @override
-  _i545.TaskFailOperation get taskFailOperation => _i545.TaskFailOperation(
-    _getIt<_i840.OperationPipeline>(),
-    _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.EventBus>(),
-  );
-
-  @override
-  _i781.TaskCancelOperation get taskCancelOperation =>
-      _i781.TaskCancelOperation(
+  _i797.ProjectCreateOperation get projectCreateOperation =>
+      _i797.ProjectCreateOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i906.TaskHoldOperation get taskHoldOperation => _i906.TaskHoldOperation(
-    _getIt<_i840.OperationPipeline>(),
-    _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.EventBus>(),
-  );
-
-  @override
-  _i96.TaskDeleteOperation get taskDeleteOperation => _i96.TaskDeleteOperation(
-    _getIt<_i840.OperationPipeline>(),
-    _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.EventBus>(),
-  );
-
-  @override
-  _i652.TaskUpdateOperation get taskUpdateOperation =>
-      _i652.TaskUpdateOperation(
+  _i480.ProjectRenameOperation get projectRenameOperation =>
+      _i480.ProjectRenameOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i523.TaskSetContextOperation get taskSetContextOperation =>
-      _i523.TaskSetContextOperation(
+  _i789.ProjectChangeDescriptionOperation
+  get projectChangeDescriptionOperation =>
+      _i789.ProjectChangeDescriptionOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i506.TaskMoveOperation get taskMoveOperation => _i506.TaskMoveOperation(
-    _getIt<_i840.OperationPipeline>(),
-    _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.EventBus>(),
-  );
+  _i460.ProjectDeleteOperation get projectDeleteOperation =>
+      _i460.ProjectDeleteOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i557.EventBus>(),
+      );
 
   @override
-  _i338.TaskRenameAliasOperation get taskRenameAliasOperation =>
-      _i338.TaskRenameAliasOperation(
+  _i533.ProjectSwitchOperation get projectSwitchOperation =>
+      _i533.ProjectSwitchOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i102.ProjectRepository>(),
+        _getIt<_i557.EventBus>(),
+      );
+
+  @override
+  _i489.TaskBreakdownOperation get taskBreakdownOperation =>
+      _i489.TaskBreakdownOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i541.TaskLinkRepository>(),
+        _getIt<_i557.EventBus>(),
+      );
+
+  @override
+  _i296.TaskReplanOperation get taskReplanOperation =>
+      _i296.TaskReplanOperation(
+        _getIt<_i840.OperationPipeline>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i541.TaskLinkRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
@@ -436,55 +433,77 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       );
 
   @override
-  _i459.TaskReflectOperation get taskReflectOperation =>
-      _i459.TaskReflectOperation(
+  _i74.TaskStartOperation get taskStartOperation => _i74.TaskStartOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i557.EventBus>(),
+  );
+
+  @override
+  _i841.TaskDoneOperation get taskDoneOperation => _i841.TaskDoneOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i557.EventBus>(),
+  );
+
+  @override
+  _i545.TaskFailOperation get taskFailOperation => _i545.TaskFailOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i557.EventBus>(),
+  );
+
+  @override
+  _i781.TaskCancelOperation get taskCancelOperation =>
+      _i781.TaskCancelOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
         _getIt<_i159.TaskRepository>(),
-        _getIt<_i603.ReflectionRepository>(),
-        _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i797.ProjectCreateOperation get projectCreateOperation =>
-      _i797.ProjectCreateOperation(
+  _i906.TaskHoldOperation get taskHoldOperation => _i906.TaskHoldOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i557.EventBus>(),
+  );
+
+  @override
+  _i96.TaskDeleteOperation get taskDeleteOperation => _i96.TaskDeleteOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i557.EventBus>(),
+  );
+
+  @override
+  _i652.TaskUpdateOperation get taskUpdateOperation =>
+      _i652.TaskUpdateOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i480.ProjectRenameOperation get projectRenameOperation =>
-      _i480.ProjectRenameOperation(
+  _i523.TaskSetContextOperation get taskSetContextOperation =>
+      _i523.TaskSetContextOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
-  _i789.ProjectChangeDescriptionOperation
-  get projectChangeDescriptionOperation =>
-      _i789.ProjectChangeDescriptionOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
-      );
+  _i506.TaskMoveOperation get taskMoveOperation => _i506.TaskMoveOperation(
+    _getIt<_i840.OperationPipeline>(),
+    _getIt<_i159.TaskRepository>(),
+    _getIt<_i557.EventBus>(),
+  );
 
   @override
-  _i460.ProjectDeleteOperation get projectDeleteOperation =>
-      _i460.ProjectDeleteOperation(
+  _i338.TaskRenameAliasOperation get taskRenameAliasOperation =>
+      _i338.TaskRenameAliasOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
-      );
-
-  @override
-  _i533.ProjectSwitchOperation get projectSwitchOperation =>
-      _i533.ProjectSwitchOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i159.TaskRepository>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
@@ -498,21 +517,11 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       );
 
   @override
-  _i489.TaskBreakdownOperation get taskBreakdownOperation =>
-      _i489.TaskBreakdownOperation(
+  _i775.TaskLinkRemoveOperation get taskLinkRemoveOperation =>
+      _i775.TaskLinkRemoveOperation(
         _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.EventBus>(),
-      );
-
-  @override
-  _i296.TaskReplanOperation get taskReplanOperation =>
-      _i296.TaskReplanOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.EventBus>(),
+        _getIt<_i557.EventBus>(),
       );
 
   @override
@@ -520,15 +529,6 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i445.KgEntityUpdateOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i470.KnowledgeRepository>(),
-      );
-
-  @override
-  _i309.TaskLinkAddOperation get taskLinkAddOperation =>
-      _i309.TaskLinkAddOperation(
-        _getIt<_i840.OperationPipeline>(),
-        _getIt<_i159.TaskRepository>(),
-        _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.EventBus>(),
       );
 
   @override

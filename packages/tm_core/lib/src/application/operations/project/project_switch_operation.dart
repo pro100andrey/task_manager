@@ -1,7 +1,7 @@
 import '../../../domain/entities/project.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../ports/event_bus.dart';
+import '../../../events/event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';

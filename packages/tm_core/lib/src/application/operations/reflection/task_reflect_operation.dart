@@ -10,7 +10,7 @@ import '../../../domain/result.dart';
 import '../../../domain/services/reflection_domain_services.dart';
 import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/task/task_id.dart';
-import '../../ports/event_bus.dart';
+import '../../../events/event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../../ports/reflection_repository.dart';
 import '../../ports/task_link_repository.dart';

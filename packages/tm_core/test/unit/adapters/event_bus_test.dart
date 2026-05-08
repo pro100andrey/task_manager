@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:test/test.dart';
 import 'package:tm_core/src/adapters/events/domain_event_bus_impl.dart';
 import 'package:tm_core/src/adapters/events/ordered_domain_event_bus_impl.dart';
-import 'package:tm_core/src/application/ports/event_bus.dart';
+import 'package:tm_core/src/events/event_bus.dart';
 
 class _FooEvent {
   const _FooEvent(this.value);

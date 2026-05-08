@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import '../../application/ports/event_bus.dart';
+import '../../events/event_bus.dart';
 
 class OrderedDomainEventBusImpl implements EventBus {
   final _eventController = StreamController<Object>.broadcast();

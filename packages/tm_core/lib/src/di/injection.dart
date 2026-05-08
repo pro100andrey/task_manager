@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 
 import '../../tm_core.dart';
 import '../adapters/events/ordered_domain_event_bus_impl.dart';
-import '../application/ports/event_bus.dart';
+import '../events/event_bus.dart';
 import 'injection.config.dart';
 
 @InjectableInit(

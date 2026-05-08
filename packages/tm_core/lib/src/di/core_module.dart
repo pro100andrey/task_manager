@@ -17,7 +17,6 @@ import '../adapters/transaction/in_memory_snapshot_store.dart';
 import '../adapters/transaction/in_memory_transaction_port_impl.dart';
 import '../adapters/transaction/no_op_transaction_port_impl.dart';
 import '../application/operations/operation_pipeline.dart';
-import '../application/ports/event_bus.dart';
 import '../application/ports/knowledge_repository.dart';
 import '../application/ports/project_repository.dart';
 import '../application/ports/reflection_repository.dart';
@@ -26,6 +25,7 @@ import '../application/ports/task_link_repository.dart';
 import '../application/ports/task_repository.dart';
 import '../application/ports/tracing_port.dart';
 import '../application/ports/transaction_port.dart';
+import '../events/event_bus.dart';
 
 @module
 abstract class CoreModule {
