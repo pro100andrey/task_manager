@@ -1,9 +1,9 @@
 // lib/src/adapters/events/domain_event_bus_impl.dart
 import 'dart:async';
 
-import '../../application/ports/domain_event_bus.dart';
+import '../../application/ports/event_bus.dart';
 
-class DomainEventBusImpl implements DomainEventBus {
+class DomainEventBusImpl implements EventBus {
   final _eventController = StreamController<Object>.broadcast();
   final _subscriptions = <StreamSubscription>[];
 

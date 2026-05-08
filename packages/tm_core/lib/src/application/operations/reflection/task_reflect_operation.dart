@@ -4,19 +4,13 @@ import '../../../domain/entities/reflection.dart';
 import '../../../domain/entities/task.dart';
 import '../../../domain/entities/task_link.dart';
 import '../../../domain/enums/link_type.dart';
-import '../../../domain/enums/task_completion_policy.dart';
-import '../../../domain/enums/task_context_state.dart';
-import '../../../domain/enums/task_last_action_type.dart';
-import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/exceptions/reflection_exceptions.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/reflection_domain_services.dart';
 import '../../../domain/services/task_domain_services.dart';
-import '../../../domain/value_objects/reflection/reflection_id.dart';
 import '../../../domain/value_objects/task/task_id.dart';
-import '../../../domain/value_objects/task/task_title.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../../ports/reflection_repository.dart';
 import '../../ports/task_link_repository.dart';
@@ -51,7 +45,7 @@ class TaskReflectOperation extends _Operation {
   final TaskRepository _taskRepository;
   final ReflectionRepository _reflectionRepository;
   final TaskLinkRepository _taskLinkRepository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   @override
   String get operationName => 'TaskReflectOperation';
@@ -126,10 +120,10 @@ class TaskReflectOperation extends _Operation {
 
     if (task != null) {
       final updatedTask = task.copyWith(
-        lastActionType: TaskLastActionType.reflection,
+        lastActionType: .reflection,
         metadata: appendTaskActionHistory(
           task,
-          TaskLastActionType.reflection,
+          .reflection,
         ),
         updatedAt: now,
       );
@@ -138,7 +132,7 @@ class TaskReflectOperation extends _Operation {
     }
 
     final reflection = Reflection(
-      id: ReflectionId.generate(),
+      id: .generate(),
       projectId: project.id,
       taskId: task?.id,
       content: content,
@@ -161,15 +155,15 @@ class TaskReflectOperation extends _Operation {
       }
 
       final replan = Task(
-        id: TaskId.generate(),
+        id: .generate(),
         projectId: task.projectId,
-        title: TaskTitle('Replan based on reflection'),
-        status: TaskStatus.pending,
-        contextState: TaskContextState.active,
-        completionPolicy: TaskCompletionPolicy.allChildren,
+        title: .new('Replan based on reflection'),
+        status: .pending,
+        contextState: .active,
+        completionPolicy: .allChildren,
         businessValue: 50,
         urgencyScore: 50,
-        lastActionType: TaskLastActionType.execution,
+        lastActionType: .execution,
         lastProgressAt: now,
         createdAt: now,
         updatedAt: now,

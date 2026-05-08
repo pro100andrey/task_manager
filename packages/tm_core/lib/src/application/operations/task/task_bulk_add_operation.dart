@@ -8,7 +8,7 @@ import '../../../domain/result.dart';
 import '../../../domain/value_objects/task/task_description.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../../domain/value_objects/task/task_title.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -40,7 +40,7 @@ class TaskBulkAddOperation extends _Operation {
 
   final TaskRepository _taskRepository;
   final ProjectRepository _projectRepository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   static const maxBulkSize = 100;
 

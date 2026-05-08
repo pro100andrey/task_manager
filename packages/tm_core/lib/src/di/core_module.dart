@@ -17,7 +17,7 @@ import '../adapters/transaction/in_memory_snapshot_store.dart';
 import '../adapters/transaction/in_memory_transaction_port_impl.dart';
 import '../adapters/transaction/no_op_transaction_port_impl.dart';
 import '../application/operations/operation_pipeline.dart';
-import '../application/ports/domain_event_bus.dart';
+import '../application/ports/event_bus.dart';
 import '../application/ports/knowledge_repository.dart';
 import '../application/ports/project_repository.dart';
 import '../application/ports/reflection_repository.dart';
@@ -67,7 +67,7 @@ abstract class CoreModule {
     reflectionRepository as InMemorySnapshotStore,
   ]);
 
-  @LazySingleton(as: DomainEventBus)
+  @LazySingleton(as: EventBus)
   OrderedDomainEventBusImpl get domainEventBus;
 
   @LazySingleton(as: TracingPort)

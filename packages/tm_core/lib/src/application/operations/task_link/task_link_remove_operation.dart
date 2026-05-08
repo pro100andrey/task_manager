@@ -1,7 +1,7 @@
 import '../../../domain/enums/link_type.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/task_link_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
@@ -16,7 +16,7 @@ class TaskLinkRemoveOperation extends _Operation {
   TaskLinkRemoveOperation(super.pipeline, this._linkRepository, this._bus);
 
   final TaskLinkRepository _linkRepository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   @override
   String get operationName => 'TaskLinkRemoveOperation';

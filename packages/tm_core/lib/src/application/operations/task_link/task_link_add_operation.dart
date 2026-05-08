@@ -5,7 +5,7 @@ import '../../../domain/events/domain_event.dart';
 import '../../../domain/exceptions/cycle_exception.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/task_graph.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/task_link_repository.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -27,7 +27,7 @@ class TaskLinkAddOperation extends _Operation {
 
   final TaskRepository _taskRepository;
   final TaskLinkRepository _linkRepository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   @override
   String get operationName => 'TaskLinkAddOperation';

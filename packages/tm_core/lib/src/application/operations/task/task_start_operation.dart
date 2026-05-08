@@ -4,7 +4,7 @@ import '../../../domain/enums/task_status.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
 import '../../../domain/services/task_domain_services.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
@@ -19,7 +19,7 @@ class TaskStartOperation extends _Operation {
   TaskStartOperation(super.pipeline, this._repository, this._bus);
 
   final TaskRepository _repository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   @override
   String get operationName => 'TaskStartOperation';

@@ -2,7 +2,7 @@ import '../../../domain/entities/project.dart';
 import '../../../domain/events/domain_event.dart';
 import '../../../domain/result.dart';
 import '../../../domain/value_objects/value_objects.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/project_repository.dart';
 import '../operation.dart';
 import '../operation_context.dart';
@@ -22,7 +22,7 @@ class ProjectRenameOperation extends _Operation {
   );
 
   final ProjectRepository _repository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   @override
   String get operationName => 'ProjectRenameOperation';

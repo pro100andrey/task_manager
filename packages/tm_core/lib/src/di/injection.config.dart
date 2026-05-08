@@ -64,7 +64,7 @@ import '../application/operations/task_link/task_link_add_operation.dart'
     as _i309;
 import '../application/operations/task_link/task_link_remove_operation.dart'
     as _i775;
-import '../application/ports/domain_event_bus.dart' as _i512;
+import '../application/ports/event_bus.dart' as _i512;
 import '../application/ports/knowledge_repository.dart' as _i470;
 import '../application/ports/project_repository.dart' as _i102;
 import '../application/ports/reflection_repository.dart' as _i603;
@@ -121,7 +121,7 @@ _i174.GetIt $initTmCore(
   gh.lazySingleton<_i571.TaskKnowledgeRefRepository>(
     () => coreModule.taskKnowledgeRefRepository,
   );
-  gh.lazySingleton<_i512.DomainEventBus>(() => coreModule.domainEventBus);
+  gh.lazySingleton<_i512.EventBus>(() => coreModule.domainEventBus);
   gh.lazySingleton<_i723.ReflectionListQuery>(
     () => applicationModule.reflectionListQuery,
   );
@@ -332,7 +332,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i775.TaskLinkRemoveOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -341,7 +341,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -350,28 +350,28 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
   _i74.TaskStartOperation get taskStartOperation => _i74.TaskStartOperation(
     _getIt<_i840.OperationPipeline>(),
     _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.DomainEventBus>(),
+    _getIt<_i512.EventBus>(),
   );
 
   @override
   _i841.TaskDoneOperation get taskDoneOperation => _i841.TaskDoneOperation(
     _getIt<_i840.OperationPipeline>(),
     _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.DomainEventBus>(),
+    _getIt<_i512.EventBus>(),
   );
 
   @override
   _i545.TaskFailOperation get taskFailOperation => _i545.TaskFailOperation(
     _getIt<_i840.OperationPipeline>(),
     _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.DomainEventBus>(),
+    _getIt<_i512.EventBus>(),
   );
 
   @override
@@ -379,21 +379,21 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i781.TaskCancelOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
   _i906.TaskHoldOperation get taskHoldOperation => _i906.TaskHoldOperation(
     _getIt<_i840.OperationPipeline>(),
     _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.DomainEventBus>(),
+    _getIt<_i512.EventBus>(),
   );
 
   @override
   _i96.TaskDeleteOperation get taskDeleteOperation => _i96.TaskDeleteOperation(
     _getIt<_i840.OperationPipeline>(),
     _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.DomainEventBus>(),
+    _getIt<_i512.EventBus>(),
   );
 
   @override
@@ -401,7 +401,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i652.TaskUpdateOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -409,14 +409,14 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i523.TaskSetContextOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
   _i506.TaskMoveOperation get taskMoveOperation => _i506.TaskMoveOperation(
     _getIt<_i840.OperationPipeline>(),
     _getIt<_i159.TaskRepository>(),
-    _getIt<_i512.DomainEventBus>(),
+    _getIt<_i512.EventBus>(),
   );
 
   @override
@@ -424,7 +424,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i338.TaskRenameAliasOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -443,7 +443,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i159.TaskRepository>(),
         _getIt<_i603.ReflectionRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -451,7 +451,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i797.ProjectCreateOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -459,7 +459,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i480.ProjectRenameOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -468,7 +468,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i789.ProjectChangeDescriptionOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -476,7 +476,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i460.ProjectDeleteOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -484,7 +484,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
       _i533.ProjectSwitchOperation(
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i102.ProjectRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -503,7 +503,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -512,7 +512,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override
@@ -528,7 +528,7 @@ class _$ApplicationModule extends _i705.ApplicationModule {
         _getIt<_i840.OperationPipeline>(),
         _getIt<_i159.TaskRepository>(),
         _getIt<_i541.TaskLinkRepository>(),
-        _getIt<_i512.DomainEventBus>(),
+        _getIt<_i512.EventBus>(),
       );
 
   @override

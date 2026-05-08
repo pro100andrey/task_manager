@@ -15,7 +15,7 @@ import '../../../domain/services/task_domain_services.dart';
 import '../../../domain/value_objects/task/task_description.dart';
 import '../../../domain/value_objects/task/task_id.dart';
 import '../../../domain/value_objects/task/task_title.dart';
-import '../../ports/domain_event_bus.dart';
+import '../../ports/event_bus.dart';
 import '../../ports/task_link_repository.dart';
 import '../../ports/task_repository.dart';
 import '../operation.dart';
@@ -52,7 +52,7 @@ class TaskBreakdownOperation extends _Operation {
 
   final TaskRepository _taskRepository;
   final TaskLinkRepository _taskLinkRepository;
-  final DomainEventBus _bus;
+  final EventBus _bus;
 
   @override
   String get operationName => 'TaskBreakdownOperation';

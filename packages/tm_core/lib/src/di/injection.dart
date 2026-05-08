@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 
 import '../../tm_core.dart';
 import '../adapters/events/ordered_domain_event_bus_impl.dart';
-import '../application/ports/domain_event_bus.dart';
+import '../application/ports/event_bus.dart';
 import 'injection.config.dart';
 
 @InjectableInit(
@@ -26,7 +26,7 @@ Future<void> configureTmCoreDependencies({
 
   if (useOrderedBus) {
     GetIt.I
-      ..unregister<DomainEventBus>()
-      ..registerSingleton<DomainEventBus>(OrderedDomainEventBusImpl());
+      ..unregister<EventBus>()
+      ..registerSingleton<EventBus>(OrderedDomainEventBusImpl());
   }
 }
