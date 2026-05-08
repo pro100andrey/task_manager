@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   args: ^2.7.0
+  get_it: ^9.2.1
   mcp_dart: ^2.1.1
   tm_core:
     path: ../tm_core

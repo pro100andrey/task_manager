@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
+import 'package:tm_core/tm_core.dart';
 
 import '../../mcp/server.dart';
 
@@ -15,6 +16,8 @@ class StartCommand extends Command<int> {
 
   @override
   FutureOr<int>? run() async {
+    await configureTmCoreDependencies();
+
     final server = TaskManagerMcpServer();
     await server.start(McpConfigHttp(3000));
     return 0;

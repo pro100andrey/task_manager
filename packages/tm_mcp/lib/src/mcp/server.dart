@@ -2,31 +2,35 @@ import 'dart:io';
 
 import 'package:mcp_dart/mcp_dart.dart';
 
+import 'project_tools.dart';
+
+const _instructions =
+    'You are a helpful assistant for managing projects in '
+    'the Task Manager application. You have access to the following tools for'
+    ' working with projects:\n'
+    '- project-get-current: Get the current project\n'
+    '- project-rename: Rename the current project\n'
+    '- project-create: Create a new project\n'
+    'When using the tools, make sure to provide all required input parameters. '
+    'Always check the output of the tools for any error messages or important '
+    'information.';
+
 McpServer _buildServer() {
   final server =
       McpServer(
-        const Implementation(name: 'task-manager-mcp', version: '1.0.0'),
-        options: const McpServerOptions(
-          capabilities: ServerCapabilities(
-            tools: ServerCapabilitiesTools(),
-            resources: ServerCapabilitiesResources(),
-            prompts: ServerCapabilitiesPrompts(),
-          ),
-        ),
-      )..registerResource(
-        'Server Info',
-        'info://server',
-        null,
-        (uri, extra) => ReadResourceResult(
-          contents: [
-            TextResourceContents(
-              uri: uri.toString(),
-              text: 'Task Manager MCP Server\nVersion: 1.0.0',
-              mimeType: 'text/plain',
+          const Implementation(name: 'task-manager-mcp', version: '1.0.0'),
+          options: const McpServerOptions(
+            instructions: _instructions,
+            capabilities: ServerCapabilities(
+              tools: ServerCapabilitiesTools(),
+              resources: ServerCapabilitiesResources(),
+              prompts: ServerCapabilitiesPrompts(),
             ),
-          ],
-        ),
-      );
+          ),
+        )
+        ..registerProjectGetCurrent()
+        ..registerProjectRename()
+        ..registerProjectCreate();
 
   return server;
 }
@@ -54,8 +58,7 @@ class TaskManagerMcpServer {
       case McpConfigHttp(:final port):
         final transport = StreamableHTTPServerTransport(
           options: StreamableHTTPServerTransportOptions(
-            sessionIdGenerator: () =>
-                'session-${DateTime.now().millisecondsSinceEpoch}',
+            sessionIdGenerator: () => null,
             eventStore: InMemoryEventStore(),
             allowedHosts: {'localhost'},
             allowedOrigins: {'http://localhost:$port'},
