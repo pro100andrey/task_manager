@@ -2,3 +2,5 @@
 ///
 /// More dartdocs go here.
 library;
+
+export 'src/runner/runner.dart';

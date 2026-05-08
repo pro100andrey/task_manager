@@ -2,13 +2,16 @@ name: tm_mcp
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
 # repository: https://github.com/my_org/my_repo
+publish_to: none # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ^3.11.5
 
-# Add regular dependencies here.
-# dependencies:
-  # path: ^1.9.0
+dependencies:
+  args: ^2.7.0
+  mcp_dart: ^2.1.1
+  tm_core:
+    path: ../tm_core
 
 dev_dependencies:
   pro_lints: ^5.2.0

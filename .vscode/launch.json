@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "TM MCP Http",
+            "request": "launch",
+            "program": "bin/tm_mcp.dart",
+            "type": "dart",
+            "console": "terminal",
+            "cwd": "${workspaceFolder}/packages/tm_mcp",
+            "args": [
+                "start"
+            ]
+        },
+    ]
+}
